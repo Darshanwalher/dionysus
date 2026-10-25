@@ -1,18 +1,29 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
+import { useParams, Link } from "react-router-dom";
 import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 import {
   Clock,
   MessageSquare,
   Send,
   Bot,
-  X,
   ChevronRight,
+  ArrowLeft,
+  Presentation,
+  Headphones,
+  Search,
+  Sparkles,
+  Copy,
+  Check,
+  CheckCircle2,
+  ListOrdered,
+  FileText,
+  HelpCircle,
 } from "lucide-react";
 
 export default function MeetingDetail() {
@@ -20,17 +31,23 @@ export default function MeetingDetail() {
   const [meeting, setMeeting] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedIssue, setSelectedIssue] = useState(null);
+  const [topicSearch, setTopicSearch] = useState("");
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState("");
   const [asking, setAsking] = useState(false);
+  const [copiedAnswer, setCopiedAnswer] = useState(false);
 
   useEffect(() => {
     const fetchMeeting = async () => {
       try {
         const { data } = await api.get(`/meetings/${meetingId}`);
         setMeeting(data.data);
+        if (data.data?.issues?.length > 0) {
+          setSelectedIssue(data.data.issues[0]);
+        }
       } catch (error) {
         console.error("Failed to fetch meeting:", error);
+        toast.error("Failed to load meeting details");
       } finally {
         setLoading(false);
       }
@@ -39,30 +56,51 @@ export default function MeetingDetail() {
   }, [meetingId]);
 
   const handleAskIssue = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     if (!query.trim() || !selectedIssue) return;
     setAsking(true);
     try {
       const { data } = await api.post(
         `/meetings/${meetingId}/issues/${selectedIssue._id}/ask`,
-        { query }
+        { query: query.trim() }
       );
       setAnswer(data.data.answer);
+      toast.success("Answer received!");
     } catch (error) {
       setAnswer("Failed to get an answer. Please try again.");
+      toast.error("Failed to query meeting issue");
     } finally {
       setAsking(false);
     }
   };
 
+  const handleCopyAnswer = () => {
+    if (!answer) return;
+    navigator.clipboard.writeText(answer);
+    setCopiedAnswer(true);
+    toast.success("Answer copied to clipboard!");
+    setTimeout(() => setCopiedAnswer(false), 2000);
+  };
+
+  const filteredIssues = useMemo(() => {
+    if (!meeting?.issues) return [];
+    if (!topicSearch.trim()) return meeting.issues;
+    const term = topicSearch.toLowerCase();
+    return meeting.issues.filter(
+      (iss) =>
+        iss.headline?.toLowerCase().includes(term) ||
+        iss.gist?.toLowerCase().includes(term) ||
+        iss.summary?.toLowerCase().includes(term)
+    );
+  }, [meeting?.issues, topicSearch]);
+
   if (loading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-64" />
-        <div className="grid gap-4 sm:grid-cols-2">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-40" />
-          ))}
+      <div className="w-full max-w-7xl mx-auto space-y-6">
+        <Skeleton className="h-10 w-72 bg-muted/40" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <Skeleton className="lg:col-span-5 h-[650px] rounded-xl bg-muted/30" />
+          <Skeleton className="lg:col-span-7 h-[650px] rounded-xl bg-muted/30" />
         </div>
       </div>
     );
@@ -70,124 +108,291 @@ export default function MeetingDetail() {
 
   if (!meeting) {
     return (
-      <div className="text-center text-muted-foreground py-12">
-        Meeting not found.
+      <div className="w-full max-w-7xl mx-auto text-center py-20 space-y-4">
+        <Presentation className="h-12 w-12 text-muted-foreground mx-auto opacity-50" />
+        <h2 className="text-xl font-bold">Meeting Not Found</h2>
+        <p className="text-xs text-muted-foreground">The requested meeting recording could not be loaded.</p>
+        <Link to={`/projects/${id}/meetings`}>
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Meetings
+          </Button>
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 max-w-5xl">
-      <div>
-        <h1 className="text-2xl font-bold">{meeting.name}</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Processed on {new Date(meeting.createdAt).toLocaleString()}
-        </p>
-      </div>
+    <div className="w-full max-w-7xl mx-auto space-y-6">
+      {/* ─── Header & Breadcrumb ─────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/50">
+        <div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+            <Link
+              to={`/projects/${id}/meetings`}
+              className="hover:text-foreground flex items-center gap-1 transition-colors"
+            >
+              <ArrowLeft className="h-3 w-3" />
+              <span>Meetings</span>
+            </Link>
+            <span>/</span>
+            <span className="text-foreground font-medium truncate max-w-xs">{meeting.name}</span>
+          </div>
 
-      {/* Issues Grid */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        {meeting.issues?.map((issue) => (
-          <Card
-            key={issue._id}
-            className="glass border-border/50 hover:border-primary/30 transition-all duration-200 cursor-pointer group"
-            onClick={() => {
-              setSelectedIssue(issue);
-              setAnswer("");
-              setQuery("");
-            }}
-          >
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {issue.start} — {issue.end}
-                    </Badge>
-                  </div>
-                  <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">
-                    {issue.headline}
-                  </h3>
-                  <p className="text-xs text-primary/80 font-medium">
-                    {issue.gist}
-                  </p>
-                  <p className="text-xs text-muted-foreground line-clamp-3">
-                    {issue.summary}
-                  </p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1 group-hover:text-primary transition-colors" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Issue Modal/Panel */}
-      {selectedIssue && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-            onClick={() => setSelectedIssue(null)}
-          />
-          <Card className="relative w-full max-w-2xl max-h-[80vh] overflow-y-auto glass border-primary/20">
-            <CardHeader className="sticky top-0 bg-card/95 backdrop-blur-sm z-10 border-b border-border">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <Badge variant="secondary" className="text-xs mb-2">
-                    <Clock className="h-3 w-3 mr-1" />
-                    {selectedIssue.start} — {selectedIssue.end}
-                  </Badge>
-                  <CardTitle className="text-lg">{selectedIssue.headline}</CardTitle>
-                  <p className="text-sm text-primary/80">{selectedIssue.gist}</p>
-                </div>
-                <button
-                  onClick={() => setSelectedIssue(null)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-4">
-              <div>
-                <h4 className="text-sm font-medium mb-2">Summary</h4>
-                <p className="text-sm text-muted-foreground">{selectedIssue.summary}</p>
-              </div>
-
-              <div className="border-t border-border pt-4">
-                <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4 text-primary" />
-                  Ask about this topic
-                </h4>
-                <form onSubmit={handleAskIssue} className="space-y-3">
-                  <Textarea
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Ask a follow-up question about this discussion point..."
-                    className="min-h-[80px] resize-none"
-                  />
-                  <div className="flex justify-end">
-                    <Button type="submit" size="sm" isLoading={asking}>
-                      <Send className="h-3 w-3 mr-2" />
-                      Ask
-                    </Button>
-                  </div>
-                </form>
-
-                {answer && (
-                  <div className="mt-4 p-4 rounded-lg bg-accent/50 border border-accent">
-                    <div className="flex items-start gap-2">
-                      <Bot className="h-4 w-4 mt-1 text-primary shrink-0" />
-                      <p className="text-sm text-muted-foreground">{answer}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">{meeting.name}</h1>
+            <Badge variant="outline" className="text-xs font-mono bg-zinc-800/60 border-zinc-700 text-zinc-300">
+              {meeting.issues?.length || 0} Topics Extracted
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Processed on {new Date(meeting.createdAt).toLocaleString()}
+          </p>
         </div>
-      )}
+
+        <div className="flex items-center gap-2">
+          <Link to={`/projects/${id}/meetings`}>
+            <Button variant="outline" size="sm" className="h-8 text-xs border-border/60">
+              <ArrowLeft className="h-3.5 w-3.5 mr-1" />
+              All Meetings
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* ─── Master-Detail Two-Column Screen Layout ──────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column (5 cols): Topics List Timeline */}
+        <div className="lg:col-span-5 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+              <ListOrdered className="h-3.5 w-3.5 text-zinc-400" />
+              <span>Discussion Topics</span>
+              <Badge variant="secondary" className="font-mono text-[10px] ml-1">
+                {filteredIssues.length}
+              </Badge>
+            </div>
+
+            <div className="relative w-44">
+              <Search className="h-3 w-3 absolute left-2.5 top-2 text-muted-foreground" />
+              <input
+                type="text"
+                value={topicSearch}
+                onChange={(e) => setTopicSearch(e.target.value)}
+                placeholder="Filter topics…"
+                className="w-full pl-7 pr-2 py-1 text-xs bg-muted/40 border border-border/60 rounded-md focus:outline-none focus:border-zinc-500 text-foreground"
+              />
+            </div>
+          </div>
+
+          {/* Scrollable Topics Column */}
+          <div className="space-y-2.5 max-h-[720px] overflow-y-auto pr-1">
+            {filteredIssues.map((issue) => {
+              const isSelected = selectedIssue?._id === issue._id;
+              return (
+                <Card
+                  key={issue._id}
+                  onClick={() => {
+                    setSelectedIssue(issue);
+                    setAnswer("");
+                    setQuery("");
+                  }}
+                  className={`glass transition-all cursor-pointer border ${
+                    isSelected
+                      ? "border-primary/80 bg-primary/10 shadow-md ring-1 ring-primary/40"
+                      : "border-border/50 hover:border-zinc-500 bg-card/40"
+                  }`}
+                >
+                  <CardContent className="p-3.5 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] font-mono px-2 py-0.5 flex items-center gap-1 bg-zinc-800 text-zinc-300"
+                      >
+                        <Clock className="h-2.5 w-2.5 text-primary" />
+                        {issue.start} — {issue.end}
+                      </Badge>
+
+                      <ChevronRight
+                        className={`h-3.5 w-3.5 transition-colors ${
+                          isSelected ? "text-primary" : "text-muted-foreground"
+                        }`}
+                      />
+                    </div>
+
+                    <h3 className="text-xs font-semibold text-foreground leading-snug">
+                      {issue.headline}
+                    </h3>
+
+                    {issue.gist && (
+                      <p className="text-[11px] text-primary/90 font-medium line-clamp-1">
+                        {issue.gist}
+                      </p>
+                    )}
+
+                    <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                      {issue.summary}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right Column (7 cols): Deep Dive Detail Panel & Follow-Up Assistant */}
+        <div className="lg:col-span-7">
+          {selectedIssue ? (
+            <Card className="glass border-border/60 bg-card/40 shadow-xl">
+              <CardHeader className="pb-4 border-b border-border/40">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant="secondary"
+                        className="text-xs font-mono px-2.5 py-0.5 flex items-center gap-1.5 bg-zinc-800 text-zinc-200"
+                      >
+                        <Clock className="h-3 w-3 text-primary" />
+                        Timestamp: {selectedIssue.start} — {selectedIssue.end}
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-lg font-bold text-foreground leading-snug">
+                      {selectedIssue.headline}
+                    </CardTitle>
+                    {selectedIssue.gist && (
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 border border-primary/20 text-xs text-primary font-medium">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        <span>{selectedIssue.gist}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="p-6 space-y-6">
+                {/* Discussion Summary */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                    <FileText className="h-4 w-4 text-zinc-400" />
+                    <span>Discussion Summary</span>
+                  </div>
+                  <div className="p-4 rounded-xl bg-background/50 border border-border/50 text-xs text-foreground/90 leading-relaxed font-sans whitespace-pre-wrap">
+                    {selectedIssue.summary}
+                  </div>
+                </div>
+
+                {/* AI Follow-up Question Assistant */}
+                <div className="space-y-3 pt-4 border-t border-border/40">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                      <Bot className="h-4 w-4 text-primary" />
+                      <span>Ask AI Follow-Up Question</span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground font-mono">
+                      Query topic transcript
+                    </span>
+                  </div>
+
+                  {/* Quick suggestion pills */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => setQuery("What specific action items or tasks were assigned?")}
+                      className="text-[11px] px-2 py-0.5 rounded bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground border border-border/40"
+                    >
+                      Action items assigned?
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setQuery("What technical decisions or tradeoffs were made?")}
+                      className="text-[11px] px-2 py-0.5 rounded bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground border border-border/40"
+                    >
+                      Technical tradeoffs?
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setQuery("Can you summarize the main arguments discussed here?")}
+                      className="text-[11px] px-2 py-0.5 rounded bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground border border-border/40"
+                    >
+                      Main arguments?
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleAskIssue} className="space-y-2.5">
+                    <Textarea
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Ask a question about what was discussed in this section..."
+                      className="min-h-[80px] resize-none text-xs bg-background/50 border-border/60 rounded-lg p-3"
+                      disabled={asking}
+                    />
+                    <div className="flex justify-end">
+                      <Button
+                        type="submit"
+                        size="sm"
+                        disabled={asking || !query.trim()}
+                        className="h-8 text-xs px-4"
+                      >
+                        {asking ? (
+                          <>
+                            <Bot className="h-3.5 w-3.5 mr-1.5 animate-bounce" />
+                            Analyzing…
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-3 w-3 mr-1.5" />
+                            Ask Question
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+
+                  {/* AI Response Display */}
+                  {answer && (
+                    <div className="p-4 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-2 animate-in fade-in duration-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-semibold font-mono">
+                          <Bot className="h-3.5 w-3.5" />
+                          <span>AI Answer</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleCopyAnswer}
+                          className="h-6 text-[10px] text-muted-foreground hover:text-foreground px-2"
+                        >
+                          {copiedAnswer ? (
+                            <>
+                              <Check className="h-3 w-3 mr-1 text-emerald-400" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-3 w-3 mr-1" />
+                              Copy Answer
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-foreground/90 leading-relaxed font-sans whitespace-pre-wrap">
+                        {answer}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="glass border-border/50">
+              <CardContent className="py-20 text-center space-y-2 text-muted-foreground">
+                <ListOrdered className="h-8 w-8 mx-auto opacity-50" />
+                <p className="text-xs">Select a topic from the left to view detailed insights and ask AI questions.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

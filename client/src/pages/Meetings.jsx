@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMeetings, processMeeting, deleteMeeting } from "@/store/slices/projectSlice";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 import {
   Presentation,
   Upload,
@@ -15,7 +16,17 @@ import {
   Clock,
   ExternalLink,
   Mic,
+  Search,
+  Sparkles,
+  Headphones,
+  CheckCircle2,
+  FileAudio,
+  Radio,
+  ArrowRight,
+  ListOrdered,
 } from "lucide-react";
+
+const SAMPLE_AUDIO_URL = "https://actions.google.com/sounds/v1/speech/announcer_voice_sample.ogg";
 
 export default function Meetings() {
   const { id } = useParams();
@@ -23,6 +34,7 @@ export default function Meetings() {
   const navigate = useNavigate();
   const { meetings, isActionLoading } = useSelector((state) => state.project);
   const [audioUrl, setAudioUrl] = useState("");
+  const [searchFilter, setSearchFilter] = useState("");
 
   useEffect(() => {
     dispatch(fetchMeetings(id));
@@ -30,108 +42,270 @@ export default function Meetings() {
 
   const handleProcess = async (e) => {
     e.preventDefault();
-    if (!audioUrl.trim()) return;
-    const result = await dispatch(processMeeting({ projectId: id, audio_url: audioUrl }));
-    if (result.meta.requestStatus === "fulfilled") {
+    if (!audioUrl.trim()) {
+      toast.error("Please enter a valid audio file URL");
+      return;
+    }
+    const res = await dispatch(processMeeting({ projectId: id, audio_url: audioUrl.trim() }));
+    if (res.meta.requestStatus === "fulfilled") {
+      toast.success("Meeting transcribed & topics extracted successfully!");
       setAudioUrl("");
+    } else {
+      toast.error(res.payload || "Failed to process meeting audio");
     }
   };
 
-  const handleDelete = (meetingId) => {
-    dispatch(deleteMeeting(meetingId));
+  const handleDelete = async (meetingId, e) => {
+    e.stopPropagation();
+    const res = await dispatch(deleteMeeting(meetingId));
+    if (res.meta.requestStatus === "fulfilled") {
+      toast.success("Meeting deleted");
+    } else {
+      toast.error("Failed to delete meeting");
+    }
   };
 
+  const totalTopics = useMemo(() => {
+    return meetings.reduce((acc, m) => acc + (m.issues?.length || 0), 0);
+  }, [meetings]);
+
+  const filteredMeetings = useMemo(() => {
+    if (!searchFilter.trim()) return meetings;
+    const term = searchFilter.toLowerCase();
+    return meetings.filter(
+      (m) =>
+        m.name?.toLowerCase().includes(term) ||
+        m.issues?.some(
+          (issue) =>
+            issue.headline?.toLowerCase().includes(term) ||
+            issue.gist?.toLowerCase().includes(term) ||
+            issue.summary?.toLowerCase().includes(term)
+        )
+    );
+  }, [meetings, searchFilter]);
+
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div className="flex items-center gap-3">
-        <Presentation className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold">Meetings</h1>
+    <div className="w-full max-w-7xl mx-auto space-y-8">
+      {/* ─── Hero Header ─────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/50">
+        <div className="flex items-center gap-3.5">
+          <div className="h-11 w-11 rounded-xl bg-zinc-800/90 border border-zinc-700/80 flex items-center justify-center text-zinc-200">
+            <Headphones className="h-6 w-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                Meeting Audio Intelligence
+              </h1>
+              <Badge
+                variant="outline"
+                className="text-xs font-mono bg-zinc-800/60 border-zinc-700 text-zinc-300"
+              >
+                AI Transcription
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Transcribe technical discussions, extract architecture decisions, and chat with meeting summaries
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 self-start sm:self-auto font-mono text-xs">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/60 border border-zinc-700 text-zinc-300">
+            <Radio className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+            <span>{meetings.length} Session{meetings.length === 1 ? "" : "s"}</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/60 border border-zinc-700 text-zinc-300">
+            <ListOrdered className="h-3.5 w-3.5 text-primary" />
+            <span>{totalTopics} Topic{totalTopics === 1 ? "" : "s"}</span>
+          </div>
+        </div>
       </div>
 
-      {/* Upload Meeting */}
-      <Card className="glass border-primary/20">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Upload className="h-5 w-5 text-primary" />
-            Process Meeting Audio
-          </CardTitle>
-          <CardDescription>
-            Provide a URL to your meeting audio file (mp3/mp4). The AI will
-            transcribe it and extract key discussion topics.
-          </CardDescription>
+      {/* ─── Audio Ingestion & Processing Card ───────────────────────── */}
+      <Card className="glass border-border/60 bg-gradient-to-b from-card/80 to-card/40 shadow-xl overflow-hidden">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-200">
+              <Mic className="h-4 w-4" />
+            </div>
+            <div>
+              <CardTitle className="text-base font-semibold">Process New Meeting Audio</CardTitle>
+              <CardDescription className="text-xs mt-0.5">
+                Provide an audio URL (MP3, WAV, M4A, or OGG). The AI will transcribe speech and break discussions into timestamped architectural issues.
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleProcess} className="flex gap-3">
+        <CardContent className="space-y-4">
+          <form onSubmit={handleProcess} className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Link2 className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 value={audioUrl}
                 onChange={(e) => setAudioUrl(e.target.value)}
-                placeholder="https://example.com/meeting.mp3"
-                className="pl-10"
+                placeholder="https://example.com/audio/engineering-sync.mp3"
+                className="pl-10 text-xs h-10 bg-background/50 border-border/70 focus:border-zinc-500 rounded-lg"
+                disabled={isActionLoading}
               />
             </div>
-            <Button type="submit" isLoading={isActionLoading}>
-              <Mic className="h-4 w-4 mr-2" />
-              Transcribe
+            <Button
+              type="submit"
+              disabled={isActionLoading || !audioUrl.trim()}
+              className="h-10 text-xs px-5 font-semibold shrink-0"
+            >
+              {isActionLoading ? (
+                <>
+                  <Mic className="h-4 w-4 mr-2 animate-pulse text-primary" />
+                  Transcribing Audio…
+                </>
+              ) : (
+                <>
+                  <Upload className="h-3.5 w-3.5 mr-2" />
+                  Transcribe & Analyze
+                </>
+              )}
             </Button>
           </form>
+
+          {/* Formats and Demo helper */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-border/30 text-[11px] text-muted-foreground">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-medium text-foreground">Supported formats:</span>
+              <span className="px-1.5 py-0.5 rounded bg-muted/60 border border-border/40 font-mono">MP3</span>
+              <span className="px-1.5 py-0.5 rounded bg-muted/60 border border-border/40 font-mono">WAV</span>
+              <span className="px-1.5 py-0.5 rounded bg-muted/60 border border-border/40 font-mono">M4A</span>
+              <span className="px-1.5 py-0.5 rounded bg-muted/60 border border-border/40 font-mono">OGG</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setAudioUrl(SAMPLE_AUDIO_URL)}
+              className="inline-flex items-center gap-1 text-primary hover:underline self-start sm:self-auto"
+            >
+              <Sparkles className="h-3 w-3" />
+              Try sample audio link
+            </button>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Meetings List */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-muted-foreground">
-          Past Meetings
-        </h2>
+      {/* ─── Meetings List Section ───────────────────────────────────── */}
+      <div className="space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/40">
+          <div className="flex items-center gap-2">
+            <Presentation className="h-4 w-4 text-zinc-400" />
+            <h2 className="text-base font-semibold text-foreground">Recorded Meeting Sessions</h2>
+            <Badge variant="outline" className="text-xs font-mono ml-1">
+              {filteredMeetings.length}
+            </Badge>
+          </div>
 
-        {meetings.length === 0 && (
+          {meetings.length > 0 && (
+            <div className="relative w-full sm:w-72">
+              <Search className="h-3.5 w-3.5 absolute left-3 top-2.5 text-muted-foreground" />
+              <input
+                type="text"
+                value={searchFilter}
+                onChange={(e) => setSearchFilter(e.target.value)}
+                placeholder="Search meetings or topics…"
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-zinc-500 text-foreground"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Empty state */}
+        {meetings.length === 0 && !isActionLoading && (
           <Card className="glass border-border/50">
-            <CardContent className="py-12 text-center">
-              <Presentation className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">
-                No meetings processed yet. Upload a meeting audio to get started.
+            <CardContent className="py-16 text-center space-y-3">
+              <div className="h-12 w-12 rounded-2xl bg-zinc-800/80 border border-zinc-700/80 flex items-center justify-center text-zinc-300 mx-auto">
+                <FileAudio className="h-6 w-6" />
+              </div>
+              <h3 className="text-base font-semibold text-foreground">No meetings processed yet</h3>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                Paste an audio recording URL in the box above to generate an automated transcription, discussion timestamps, and follow-up AI query support.
               </p>
             </CardContent>
           </Card>
         )}
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          {meetings.map((meeting) => (
+        {/* Meetings Grid (Widescreen 3-column / 2-column) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredMeetings.map((meeting) => (
             <Card
               key={meeting._id}
-              className="glass border-border/50 hover:border-primary/30 transition-all duration-200 cursor-pointer group"
+              onClick={() => navigate(`/projects/${id}/meetings/${meeting._id}`)}
+              className="glass border-border/50 hover:border-zinc-500 transition-all duration-200 cursor-pointer group bg-card/40 flex flex-col justify-between"
             >
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between">
-                  <div
-                    className="flex-1"
-                    onClick={() =>
-                      navigate(`/projects/${id}/meetings/${meeting._id}`)
-                    }
-                  >
-                    <h3 className="font-semibold group-hover:text-primary transition-colors">
-                      {meeting.name}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="secondary" className="text-xs">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {new Date(meeting.createdAt).toLocaleDateString()}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {meeting.issues?.length || 0} topics
-                      </Badge>
+              <CardContent className="p-5 space-y-4">
+                {/* Meeting Header */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="h-9 w-9 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-200 group-hover:text-primary transition-colors shrink-0">
+                      <Presentation className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors truncate">
+                        {meeting.name || "Untitled Meeting"}
+                      </h3>
+                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mt-0.5">
+                        <Clock className="h-2.5 w-2.5" />
+                        <span>{new Date(meeting.createdAt).toLocaleDateString()}</span>
+                      </div>
                     </div>
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(meeting._id);
-                    }}
-                    className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => handleDelete(meeting._id, e)}
+                    className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Delete Meeting"
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+
+                {/* Topics Preview Badges */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-muted-foreground font-medium">Discussion Topics</span>
+                    <Badge variant="outline" className="font-mono text-[10px] px-2 py-0">
+                      {meeting.issues?.length || 0} topics
+                    </Badge>
+                  </div>
+
+                  {meeting.issues && meeting.issues.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {meeting.issues.slice(0, 3).map((issue, idx) => (
+                        <div
+                          key={issue._id || idx}
+                          className="flex items-center justify-between p-2 rounded-md bg-background/50 border border-border/40 text-xs"
+                        >
+                          <span className="truncate text-foreground font-medium text-[11px] pr-2">
+                            {issue.headline}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground font-mono shrink-0">
+                            {issue.start}
+                          </span>
+                        </div>
+                      ))}
+                      {meeting.issues.length > 3 && (
+                        <p className="text-[10px] text-muted-foreground font-mono pl-1">
+                          +{meeting.issues.length - 3} more topics…
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground italic">No topics extracted.</p>
+                  )}
+                </div>
+
+                {/* Footer Link */}
+                <div className="pt-2 border-t border-border/30 flex items-center justify-between text-xs text-primary font-medium group-hover:translate-x-0.5 transition-transform">
+                  <span>Explore Meeting Insights</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </div>
               </CardContent>
             </Card>

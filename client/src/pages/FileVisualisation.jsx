@@ -50,7 +50,7 @@ mermaid.initialize({
     nodeTextColor: "#e4e4e7",
     edgeLabelBackground: "#18181b",
     fontSize: "12px",
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+    fontFamily: "'JetBrains Mono', 'Plus Jakarta Sans', Inter, system-ui, sans-serif",
   },
 });
 
@@ -261,11 +261,10 @@ function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
         <div className="flex items-center p-0.5 rounded-lg border border-border/60 bg-background/50">
           <button
             onClick={() => setOrientation("TD")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-              orientation === "TD"
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${orientation === "TD"
                 ? "bg-muted text-foreground font-semibold shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
-            }`}
+              }`}
             title="Vertical Layout (Top-to-Bottom)"
           >
             <ArrowDownUp className="h-3 w-3" />
@@ -273,11 +272,10 @@ function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
           </button>
           <button
             onClick={() => setOrientation("LR")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-              orientation === "LR"
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${orientation === "LR"
                 ? "bg-muted text-foreground font-semibold shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
-            }`}
+              }`}
             title="Horizontal Layout (Left-to-Right)"
           >
             <ArrowLeftRight className="h-3 w-3" />
@@ -289,11 +287,10 @@ function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
         <div className="flex items-center p-0.5 rounded-lg border border-border/60 bg-background/50">
           <button
             onClick={() => setDiagramScope("architecture")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-              diagramScope === "architecture"
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${diagramScope === "architecture"
                 ? "bg-muted text-foreground font-semibold shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
-            }`}
+              }`}
             title="Clean System Architecture View"
           >
             <Layers className="h-3 w-3" />
@@ -301,11 +298,10 @@ function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
           </button>
           <button
             onClick={() => setDiagramScope("all")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-              diagramScope === "all"
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${diagramScope === "all"
                 ? "bg-muted text-foreground font-semibold shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
-            }`}
+              }`}
             title="Full File Hierarchy"
           >
             All Files
@@ -417,11 +413,10 @@ function TreeNode({ item, depth = 0, searchTerm = "" }) {
       <div
         onClick={() => isFolder && setIsOpen(!isOpen)}
         style={{ paddingLeft: `${depth * 18 + 8}px` }}
-        className={`flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${
-          isFolder
+        className={`flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${isFolder
             ? "hover:bg-muted/50 text-foreground font-medium"
             : "hover:bg-muted/30 text-muted-foreground hover:text-foreground"
-        }`}
+          }`}
       >
         {isFolder ? (
           <>
@@ -535,8 +530,8 @@ export default function FileVisualisation() {
       const type = line.includes(":::root")
         ? "folder"
         : isFilePath(rawLabel, line)
-        ? "file"
-        : "folder";
+          ? "file"
+          : "folder";
 
       pathMap.set(rawId, { id: rawId, name: cleanLabel, type, children: [] });
     }
@@ -635,22 +630,20 @@ export default function FileVisualisation() {
           <div className="flex items-center p-1 rounded-lg border border-border/60 bg-card/60">
             <button
               onClick={() => setViewMode("diagram")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                viewMode === "diagram"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${viewMode === "diagram"
                   ? "bg-muted text-foreground font-semibold shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
             >
               <Network className="h-3.5 w-3.5" />
               Diagram View
             </button>
             <button
               onClick={() => setViewMode("tree")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                viewMode === "tree"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${viewMode === "tree"
                   ? "bg-muted text-foreground font-semibold shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
             >
               <ListTree className="h-3.5 w-3.5" />
               Tree Explorer
