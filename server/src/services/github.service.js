@@ -95,16 +95,50 @@ const cloneAndReadRepo = async (githubUrl) => {
 /**
  * Generate a Mermaid graph from a list of file paths
  */
-const generateFileTreeGraph = (filePaths) => {
+const generateFileTreeGraph = (filePaths, projectName = 'Repository') => {
+  if (!filePaths || filePaths.length === 0) {
+    return `graph TD;\n  root_0["📁 ${projectName}"]\n`;
+  }
+
+  const crypto = require('crypto');
+  const safeId = (str) => 'n_' + crypto.createHash('md5').update(str).digest('hex').slice(0, 10);
+  const rootId = 'root_dir';
+
   let graph = 'graph TD;\n';
+  graph += `  classDef folder fill:#1e1b4b,stroke:#8b5cf6,stroke-width:1.5px,color:#e2e8f0,rx:6px,ry:6px;\n`;
+  graph += `  classDef file fill:#0f172a,stroke:#3b82f6,stroke-width:1px,color:#94a3b8,rx:4px,ry:4px;\n`;
+  graph += `  classDef root fill:#4c1d95,stroke:#a855f7,stroke-width:2px,color:#ffffff,rx:8px,ry:8px;\n`;
+  graph += `  ${rootId}["📁 ${projectName}"]:::root\n`;
+
+  const createdNodes = new Set([rootId]);
+  const createdEdges = new Set();
 
   for (const filePath of filePaths) {
-    if (filePath.includes('/')) {
-      const parentDir = filePath.substring(0, filePath.lastIndexOf('/'));
-      const currentItem = filePath.substring(filePath.lastIndexOf('/') + 1);
-      const parentLabel = parentDir.replace(/\//g, '_');
-      const currentLabel = `${parentLabel}_${currentItem}`;
-      graph += `    ${parentLabel}["${parentDir}"]-->${currentLabel}["${currentItem}"]\n`;
+    const parts = filePath.split('/');
+    let currentPath = '';
+    let parentId = rootId;
+
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      const isFile = i === parts.length - 1;
+      currentPath = currentPath ? `${currentPath}/${part}` : part;
+      const nodeId = safeId(currentPath);
+
+      if (!createdNodes.has(nodeId)) {
+        createdNodes.add(nodeId);
+        const icon = isFile ? '📄 ' : '📁 ';
+        const styleClass = isFile ? 'file' : 'folder';
+        const safeLabel = (icon + part).replace(/["`]/g, '');
+        graph += `  ${nodeId}["${safeLabel}"]:::${styleClass}\n`;
+      }
+
+      const edgeKey = `${parentId}->${nodeId}`;
+      if (!createdEdges.has(edgeKey)) {
+        createdEdges.add(edgeKey);
+        graph += `  ${parentId} --> ${nodeId}\n`;
+      }
+
+      parentId = nodeId;
     }
   }
 
@@ -118,7 +152,8 @@ const generateDocumentation = async (githubUrl) => {
   // 1. Clone and read repo
   const files = await cloneAndReadRepo(githubUrl);
   const filePaths = files.map((f) => f.source);
-  const mermaidGraph = generateFileTreeGraph(filePaths);
+  const projectName = githubUrl.split('/').pop();
+  const mermaidGraph = generateFileTreeGraph(filePaths, projectName);
 
   // Helper for batch processing with concurrency control
   const pMap = async (items, fn, concurrency = 5) => {
@@ -184,7 +219,6 @@ const generateDocumentation = async (githubUrl) => {
   }
 
   // 4. Generate all 12 documentation sections in ONE single structured LLM call
-  const projectName = githubUrl.split('/').pop();
   const sections = [
     'Introduction',
     'Getting Started',
