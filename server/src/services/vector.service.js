@@ -43,7 +43,7 @@ const upsertEmbeddings = async (namespace, vectors) => {
   const batchSize = 100;
   for (let i = 0; i < records.length; i += batchSize) {
     const batch = records.slice(i, i + batchSize);
-    await ns.upsert(batch);
+    await ns.upsert({ records: batch });
   }
 
   return { upsertedCount: records.length };

@@ -15,23 +15,48 @@ const getGenAI = () => {
  */
 const getEmbeddings = async (text) => {
   const genAI = getGenAI();
-  const model = genAI.getGenerativeModel({ model: 'text-embedding-004' });
-  const result = await model.embedContent(text.replace(/\n/g, ''));
+  const model = genAI.getGenerativeModel({ model: 'gemini-embedding-001' });
+  const result = await model.embedContent({
+    content: { parts: [{ text: text.replace(/\n/g, ' ').trim() }] },
+    outputDimensionality: 768,
+  });
   return result.embedding.values; // returns 768-dimension vector
 };
 
+const CHAT_MODELS = [
+  'gemini-flash-lite-latest',
+  'gemini-3.1-flash-lite',
+  'gemini-3-flash-preview',
+  'gemini-3.5-flash',
+];
+
 /**
- * Helper: run a Gemini chat completion and return the text response
+ * Helper: run a Gemini chat completion with automatic model fallback
  */
 const geminiChat = async (systemPrompt, userPrompt) => {
   const genAI = getGenAI();
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-3.8-flash',
-    systemInstruction: systemPrompt,
-  });
+  let lastError = null;
 
-  const result = await model.generateContent(userPrompt);
-  return result.response.text();
+  for (const modelName of CHAT_MODELS) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: systemPrompt,
+      });
+
+      const result = await model.generateContent(userPrompt);
+      return result.response.text();
+    } catch (err) {
+      lastError = err;
+      if (err.message && (err.message.includes('429') || err.message.includes('404') || err.status === 429 || err.status === 404)) {
+        console.warn(`⚠️ Model ${modelName} unavailable (${err.message?.slice(0, 50)}...), trying next model...`);
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  throw lastError;
 };
 
 /**
@@ -139,4 +164,5 @@ module.exports = {
   askCodebase,
   summariseCommit,
   askMeetingContent,
+  geminiChat,
 };
