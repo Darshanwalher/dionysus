@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProject } from "@/store/slices/projectSlice";
@@ -24,7 +24,7 @@ import {
   ChevronRight,
   ChevronDown,
   RefreshCw,
-  Sparkles,
+  Move,
 } from "lucide-react";
 import mermaid from "mermaid";
 
@@ -46,6 +46,213 @@ mermaid.initialize({
   },
 });
 
+// ─── Interactive pan/zoom diagram canvas ───────────────────────────────────
+function DiagramCanvas({ mermaidGraph, isFullscreen }) {
+  const containerRef = useRef(null);
+  const canvasRef = useRef(null);
+  const mermaidRef = useRef(null);
+
+  const [zoom, setZoom] = useState(0.85);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [isRendering, setIsRendering] = useState(false);
+  const [renderError, setRenderError] = useState(null);
+
+  // Render Mermaid diagram
+  useEffect(() => {
+    let isMounted = true;
+    const renderMermaid = async () => {
+      if (!mermaidGraph || !mermaidRef.current) return;
+      setIsRendering(true);
+      setRenderError(null);
+      try {
+        const uniqueId = `mermaid-svg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        mermaidRef.current.innerHTML = "";
+        const { svg } = await mermaid.render(uniqueId, mermaidGraph);
+        if (isMounted && mermaidRef.current) {
+          mermaidRef.current.innerHTML = svg;
+          const svgEl = mermaidRef.current.querySelector("svg");
+          if (svgEl) {
+            svgEl.style.display = "block";
+            svgEl.removeAttribute("width");
+            svgEl.removeAttribute("height");
+            svgEl.style.width = "100%";
+            svgEl.style.height = "auto";
+          }
+        }
+      } catch (error) {
+        console.error("Mermaid render error:", error);
+        if (isMounted) setRenderError(error.message || "Failed to render visual diagram");
+      } finally {
+        if (isMounted) setIsRendering(false);
+      }
+    };
+    renderMermaid();
+    return () => { isMounted = false; };
+  }, [mermaidGraph]);
+
+  // Scroll-wheel zoom
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.08 : 0.08;
+    setZoom((z) => Math.min(3, Math.max(0.2, z + delta)));
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheel);
+  }, [handleWheel]);
+
+  // Mouse drag pan
+  const handleMouseDown = useCallback((e) => {
+    if (e.button !== 0) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+  }, [pan]);
+
+  const handleMouseMove = useCallback((e) => {
+    if (!isDragging) return;
+    setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
+  }, [isDragging, dragStart]);
+
+  const handleMouseUp = useCallback(() => setIsDragging(false), []);
+
+  // Touch drag pan
+  const touchRef = useRef(null);
+  const handleTouchStart = useCallback((e) => {
+    if (e.touches.length === 1) {
+      touchRef.current = { x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y };
+    }
+  }, [pan]);
+  const handleTouchMove = useCallback((e) => {
+    if (e.touches.length === 1 && touchRef.current) {
+      e.preventDefault();
+      setPan({ x: e.touches[0].clientX - touchRef.current.x, y: e.touches[0].clientY - touchRef.current.y });
+    }
+  }, []);
+
+  const resetView = () => { setZoom(0.85); setPan({ x: 0, y: 0 }); };
+
+  const handleDownloadSVG = () => {
+    if (!mermaidRef.current) return;
+    const svgEl = mermaidRef.current.querySelector("svg");
+    if (!svgEl) return;
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgEl);
+    const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "architecture.svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Architecture diagram downloaded!");
+  };
+
+  return (
+    <div className="relative flex flex-col" style={{ height: isFullscreen ? "calc(100vh - 120px)" : "680px" }}>
+      {/* Embedded toolbar */}
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border/40 bg-card/40 backdrop-blur-sm flex-shrink-0">
+        <div className="flex items-center gap-1 border border-border/60 rounded-lg p-0.5 bg-background/40">
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoom((z) => Math.max(0.2, z - 0.1))} title="Zoom Out">
+            <ZoomOut className="h-3.5 w-3.5" />
+          </Button>
+          <span className="text-[10px] font-mono px-2 text-muted-foreground min-w-[40px] text-center">
+            {Math.round(zoom * 100)}%
+          </span>
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoom((z) => Math.min(3, z + 0.1))} title="Zoom In">
+            <ZoomIn className="h-3.5 w-3.5" />
+          </Button>
+          <div className="w-px h-4 bg-border/60 mx-0.5" />
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={resetView} title="Reset View">
+            <RotateCcw className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground border border-border/40 rounded-md px-2.5 py-1 bg-background/20">
+          <Move className="h-3 w-3" />
+          <span>Drag to pan · Scroll to zoom</span>
+        </div>
+
+        <div className="ml-auto">
+          <Button variant="outline" size="sm" className="h-7 text-xs" onClick={handleDownloadSVG}>
+            <Download className="h-3.5 w-3.5 mr-1.5" />
+            Export SVG
+          </Button>
+        </div>
+      </div>
+
+      {/* Canvas */}
+      <div
+        ref={containerRef}
+        className="relative flex-1 overflow-hidden"
+        style={{
+          cursor: isDragging ? "grabbing" : "grab",
+          backgroundImage: `
+            radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%),
+            linear-gradient(rgba(148,163,184,0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(148,163,184,0.035) 1px, transparent 1px)
+          `,
+          backgroundSize: "100% 100%, 36px 36px, 36px 36px",
+        }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={() => { touchRef.current = null; }}
+      >
+        {isRendering && (
+          <div className="absolute inset-0 flex items-center justify-center bg-card/60 backdrop-blur-sm z-10">
+            <div className="flex flex-col items-center gap-3">
+              <RefreshCw className="h-6 w-6 animate-spin text-primary" />
+              <span className="text-xs text-muted-foreground">Rendering diagram…</span>
+            </div>
+          </div>
+        )}
+
+        {renderError ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center p-8 max-w-md space-y-3">
+              <p className="text-red-400 text-sm font-medium">Failed to render visual diagram</p>
+              <p className="text-xs text-muted-foreground">{renderError}</p>
+            </div>
+          </div>
+        ) : (
+          <div
+            ref={canvasRef}
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${zoom})`,
+              transformOrigin: "center center",
+              transition: isDragging ? "none" : "transform 0.06s ease-out",
+              userSelect: "none",
+              willChange: "transform",
+            }}
+          >
+            <div ref={mermaidRef} className="mermaid-wrapper" style={{ minWidth: "420px" }} />
+          </div>
+        )}
+
+        {/* Corner hint */}
+        {!isRendering && !renderError && (
+          <div className="absolute bottom-3 right-3 text-[9px] font-mono text-muted-foreground/40 bg-background/30 border border-border/20 rounded px-1.5 py-0.5 select-none pointer-events-none">
+            {Math.round(zoom * 100)}% · scroll = zoom · drag = pan
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Helper component for collapsible tree view
 function TreeNode({ item, depth = 0, searchTerm = "" }) {
   const [isOpen, setIsOpen] = useState(depth < 2);
@@ -66,11 +273,10 @@ function TreeNode({ item, depth = 0, searchTerm = "" }) {
       <div
         onClick={() => isFolder && setIsOpen(!isOpen)}
         style={{ paddingLeft: `${depth * 18 + 8}px` }}
-        className={`flex items-center gap-2 py-1.5 px-2 rounded-lg cursor-pointer transition-colors ${
-          isFolder
+        className={`flex items-center gap-2 py-1.5 px-2 rounded-lg cursor-pointer transition-colors ${isFolder
             ? "hover:bg-accent/60 text-foreground font-medium"
             : "hover:bg-muted/40 text-muted-foreground hover:text-foreground"
-        }`}
+          }`}
       >
         {isFolder ? (
           <>
@@ -120,14 +326,10 @@ export default function FileVisualisation() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { currentProject, isLoading } = useSelector((state) => state.project);
-  const mermaidRef = useRef(null);
 
   const [viewMode, setViewMode] = useState("diagram"); // 'diagram' | 'tree'
-  const [zoom, setZoom] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [renderError, setRenderError] = useState(null);
-  const [isRendering, setIsRendering] = useState(false);
 
   useEffect(() => {
     if (!currentProject) {
@@ -135,117 +337,88 @@ export default function FileVisualisation() {
     }
   }, [dispatch, id, currentProject]);
 
-  // Render Mermaid Graph safely with unique ID
-  useEffect(() => {
-    let isMounted = true;
-
-    const renderMermaid = async () => {
-      if (!currentProject?.mermaidGraph || !mermaidRef.current) return;
-
-      setIsRendering(true);
-      setRenderError(null);
-
-      try {
-        const uniqueId = `mermaid-svg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-        mermaidRef.current.innerHTML = "";
-
-        const { svg } = await mermaid.render(uniqueId, currentProject.mermaidGraph);
-
-        if (isMounted && mermaidRef.current) {
-          mermaidRef.current.innerHTML = svg;
-
-          // Adjust SVG for responsiveness
-          const svgEl = mermaidRef.current.querySelector("svg");
-          if (svgEl) {
-            svgEl.style.maxWidth = "100%";
-            svgEl.style.height = "auto";
-            svgEl.style.transition = "transform 0.2s ease";
-          }
-        }
-      } catch (error) {
-        console.error("Mermaid render error:", error);
-        if (isMounted) {
-          setRenderError(error.message || "Failed to render visual diagram");
-        }
-      } finally {
-        if (isMounted) setIsRendering(false);
-      }
-    };
-
-    renderMermaid();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [currentProject?.mermaidGraph, viewMode]);
-
-  // Apply zoom to SVG
-  useEffect(() => {
-    if (mermaidRef.current) {
-      const svgEl = mermaidRef.current.querySelector("svg");
-      if (svgEl) {
-        svgEl.style.transform = `scale(${zoom})`;
-        svgEl.style.transformOrigin = "top center";
-      }
-    }
-  }, [zoom]);
-
   // Convert Mermaid graph lines into a nested folder/file tree structure for Tree view
   const fileTree = useMemo(() => {
     if (!currentProject?.mermaidGraph) return null;
 
-    const root = { name: currentProject.name || "Repository", type: "folder", children: [] };
+    const root = { id: "root_dir", name: currentProject.name || "Repository", type: "folder", children: [] };
     const lines = currentProject.mermaidGraph.split("\n");
-
     const pathMap = new Map();
     pathMap.set("root_dir", root);
 
-    // Collect all labeled nodes
+    const FILE_EXTS = [
+      ".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs",
+      ".html", ".css", ".scss", ".sass", ".less",
+      ".json", ".jsonc", ".json5",
+      ".md", ".mdx", ".txt", ".rst",
+      ".py", ".rb", ".go", ".rs", ".java", ".kt",
+      ".c", ".cpp", ".h", ".hpp", ".cs",
+      ".php", ".sh", ".bash", ".zsh", ".fish",
+      ".yaml", ".yml", ".toml", ".ini", ".env",
+      ".lock", ".svg", ".png", ".jpg", ".jpeg", ".gif", ".ico",
+      ".wasm", ".sql", ".prisma", ".graphql",
+    ];
+
+    // Strip all emoji/unicode symbols from a string
+    const stripEmoji = (s) =>
+      s.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}]/gu, "").trim();
+
+    const isFilePath = (rawLabel, fullLine) => {
+      const clean = stripEmoji(rawLabel).toLowerCase();
+      return (
+        fullLine.includes(":::file") ||
+        rawLabel.includes("\uD83D\uDCC4") || // 📄 as surrogate pair
+        FILE_EXTS.some((ext) => clean.endsWith(ext))
+      );
+    };
+
+    // --- Pass 1: collect all node definitions ---
+    // Node lines look like:   n_abcd1234["📄 index.js"]:::file
+    // or:                     root_dir["📁 myproject"]:::root
     for (const line of lines) {
-      // Matches pattern: n_123["📄 index.js"] or root_dir["📁 Project"]
-      const nodeMatch = line.match(/^\s*([a-zA-Z0-9_]+)\["(?:📄\s*|📁\s*)?(.*?)"\]/);
-      if (nodeMatch) {
-        const [, id, label] = nodeMatch;
-        const isFile = line.includes(":::file") || label.endsWith(".js") || label.endsWith(".jsx") || label.endsWith(".html") || label.endsWith(".css") || label.endsWith(".json") || label.endsWith(".md") || line.includes("📄");
-        const node = { id, name: label.trim(), type: isFile ? "file" : "folder", children: [] };
-        pathMap.set(id, node);
-      }
+      // Skip header / classDef / style / comment lines
+      if (/^\s*(graph|flowchart|classDef|style|linkStyle|%%)/i.test(line.trim())) continue;
+
+      // Find pattern:  IDENTIFIER["...]
+      const idEnd = line.indexOf('["');
+      if (idEnd === -1) continue; // no node bracket on this line
+
+      const rawId = line.slice(0, idEnd).trim();
+      // Validate it's a simple alphanumeric+underscore id
+      if (!/^[A-Za-z0-9_]+$/.test(rawId)) continue;
+      if (pathMap.has(rawId)) continue; // already registered (root_dir)
+
+      const labelStart = idEnd + 2; // after ["
+      const labelEnd = line.indexOf('"]', labelStart);
+      if (labelEnd === -1) continue;
+
+      const rawLabel = line.slice(labelStart, labelEnd);
+      const cleanLabel = stripEmoji(rawLabel).replace(/\s+/g, " ").trim() || rawLabel.trim();
+      const type = isFilePath(rawLabel, line) ? "file" : "folder";
+
+      pathMap.set(rawId, { id: rawId, name: cleanLabel, type, children: [] });
     }
 
-    // Connect edges
+    // --- Pass 2: connect edges ---
+    // Edge lines look like:   root_dir --> n_abcd1234
+    const edgeRe = /^\s*([A-Za-z0-9_]+)\s*-->\s*([A-Za-z0-9_]+)/;
     for (const line of lines) {
-      const edgeMatch = line.match(/^\s*([a-zA-Z0-9_]+)\s*-->\s*([a-zA-Z0-9_]+)/);
-      if (edgeMatch) {
-        const [, parentId, childId] = edgeMatch;
-        const parent = pathMap.get(parentId);
-        const child = pathMap.get(childId);
-        if (parent && child && !parent.children.some((c) => c.id === child.id)) {
-          parent.children.push(child);
-        }
+      const m = line.match(edgeRe);
+      if (!m) continue;
+      const [, parentId, childId] = m;
+      const parent = pathMap.get(parentId);
+      const child = pathMap.get(childId);
+      if (!parent || !child || parent === child) continue;
+      if (!parent.children.some((c) => c.id === childId)) {
+        parent.children.push(child);
       }
     }
 
     return root;
   }, [currentProject]);
 
-  const handleDownloadSVG = () => {
-    if (!mermaidRef.current) return;
-    const svgEl = mermaidRef.current.querySelector("svg");
-    if (!svgEl) return;
 
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(svgEl);
-    const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${currentProject?.name || "project"}-architecture.svg`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success("Architecture diagram downloaded!");
-  };
+
 
   if (isLoading) {
     return (
@@ -284,75 +457,27 @@ export default function FileVisualisation() {
           <div className="flex items-center p-1 rounded-lg border border-border/60 bg-card/60">
             <button
               onClick={() => setViewMode("diagram")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                viewMode === "diagram"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${viewMode === "diagram"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
             >
               <Network className="h-3.5 w-3.5" />
               Diagram View
             </button>
             <button
               onClick={() => setViewMode("tree")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                viewMode === "tree"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${viewMode === "tree"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
             >
               <ListTree className="h-3.5 w-3.5" />
               Tree Explorer
             </button>
           </div>
 
-          {viewMode === "diagram" && (
-            <div className="flex items-center gap-1 border border-border/60 rounded-lg p-1 bg-card/60">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0"
-                onClick={() => setZoom((z) => Math.max(0.4, z - 0.15))}
-                title="Zoom Out"
-              >
-                <ZoomOut className="h-3.5 w-3.5" />
-              </Button>
-              <span className="text-[10px] font-mono px-1 text-muted-foreground">
-                {Math.round(zoom * 100)}%
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0"
-                onClick={() => setZoom((z) => Math.min(2.5, z + 0.15))}
-                title="Zoom In"
-              >
-                <ZoomIn className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0"
-                onClick={() => setZoom(1)}
-                title="Reset Zoom"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          )}
 
-          {viewMode === "diagram" && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9"
-              onClick={handleDownloadSVG}
-              title="Export as SVG image"
-            >
-              <Download className="h-4 w-4 mr-1.5" />
-              Export SVG
-            </Button>
-          )}
 
           <Button
             variant="outline"
@@ -375,35 +500,11 @@ export default function FileVisualisation() {
         <Card className="glass border-border/50 shadow-xl overflow-hidden">
           <CardContent className="p-0">
             {viewMode === "diagram" ? (
-              /* Mermaid Diagram View */
-              <div className="relative min-h-[550px] w-full overflow-auto p-8 flex items-center justify-center bg-card/20">
-                {isRendering && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-card/60 backdrop-blur-sm z-10">
-                    <RefreshCw className="h-6 w-6 animate-spin text-primary" />
-                  </div>
-                )}
-
-                {renderError ? (
-                  <div className="text-center p-8 max-w-md space-y-3">
-                    <p className="text-red-400 text-sm font-medium">
-                      Failed to render visual diagram
-                    </p>
-                    <p className="text-xs text-muted-foreground">{renderError}</p>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setViewMode("tree")}
-                    >
-                      Switch to Tree View
-                    </Button>
-                  </div>
-                ) : (
-                  <div
-                    ref={mermaidRef}
-                    className="mermaid-wrapper flex justify-center items-center select-none"
-                  />
-                )}
-              </div>
+              /* Interactive Pan/Zoom Diagram Canvas */
+              <DiagramCanvas
+                mermaidGraph={currentProject.mermaidGraph}
+                isFullscreen={isFullscreen}
+              />
             ) : (
               /* Collapsible Tree Explorer View */
               <div className="p-6 space-y-4">

@@ -35,6 +35,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
@@ -45,13 +46,16 @@
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: oklch(0.15 0 0);
 }
+
 ::-webkit-scrollbar-thumb {
   background: oklch(0.35 0 0);
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: oklch(0.45 0 0);
 }
