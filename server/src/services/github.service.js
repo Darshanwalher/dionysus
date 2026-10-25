@@ -105,9 +105,9 @@ const generateFileTreeGraph = (filePaths, projectName = 'Repository') => {
   const rootId = 'root_dir';
 
   let graph = 'graph TD;\n';
-  graph += `  classDef folder fill:#1e1b4b,stroke:#8b5cf6,stroke-width:1.5px,color:#e2e8f0,rx:6px,ry:6px;\n`;
-  graph += `  classDef file fill:#0f172a,stroke:#3b82f6,stroke-width:1px,color:#94a3b8,rx:4px,ry:4px;\n`;
-  graph += `  classDef root fill:#4c1d95,stroke:#a855f7,stroke-width:2px,color:#ffffff,rx:8px,ry:8px;\n`;
+  graph += `  classDef folder fill:#18181b,stroke:#3f3f46,stroke-width:1.5px,color:#e4e4e7,rx:6px,ry:6px;\n`;
+  graph += `  classDef file fill:#0f1117,stroke:#27272a,stroke-width:1px,color:#a1a1aa,rx:4px,ry:4px;\n`;
+  graph += `  classDef root fill:#18181b,stroke:#52525b,stroke-width:2px,color:#ffffff,rx:6px,ry:6px;\n`;
   graph += `  ${rootId}["📁 ${projectName}"]:::root\n`;
 
   const createdNodes = new Set([rootId]);

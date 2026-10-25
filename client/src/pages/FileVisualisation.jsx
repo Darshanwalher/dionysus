@@ -25,29 +25,102 @@ import {
   ChevronDown,
   RefreshCw,
   Move,
+  ArrowDownUp,
+  ArrowLeftRight,
+  Layers,
 } from "lucide-react";
 import mermaid from "mermaid";
 
+// Initialize Mermaid with minimal monochrome/slate theme
 mermaid.initialize({
   startOnLoad: false,
   securityLevel: "loose",
-  theme: "dark",
+  theme: "base",
   themeVariables: {
     darkMode: true,
-    background: "#0a0d14",
-    primaryColor: "#8b5cf6",
-    primaryTextColor: "#f8fafc",
-    primaryBorderColor: "#7c3aed",
-    lineColor: "#64748b",
-    secondaryColor: "#1e1b4b",
-    tertiaryColor: "#0f172a",
-    fontSize: "13px",
+    background: "transparent",
+    primaryColor: "#18181b",
+    primaryTextColor: "#f4f4f5",
+    primaryBorderColor: "#3f3f46",
+    lineColor: "#52525b",
+    secondaryColor: "#18181b",
+    tertiaryColor: "#0f1117",
+    mainBkg: "#18181b",
+    nodeBorder: "#3f3f46",
+    nodeTextColor: "#e4e4e7",
+    edgeLabelBackground: "#18181b",
+    fontSize: "12px",
     fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
   },
 });
 
+// Minimal 2-3 color class definitions for Mermaid SVG rendering
+const MINIMAL_CLASS_DEFS = `
+  classDef root fill:#18181b,stroke:#52525b,stroke-width:2px,color:#ffffff,rx:6px,ry:6px;
+  classDef folder fill:#18181b,stroke:#3f3f46,stroke-width:1.5px,color:#e4e4e7,rx:6px,ry:6px;
+  classDef file fill:#0f1117,stroke:#27272a,stroke-width:1px,color:#a1a1aa,rx:4px,ry:4px;
+  linkStyle default stroke:#52525b,stroke-width:1.2px;
+`;
+
+/**
+ * Format and sanitize raw Mermaid graph:
+ * - Strips all legacy hardcoded purple/rainbow classDef and styles
+ * - Replaces with professional minimal monochrome 2-3 colors
+ * - Supports orientation (TD = vertical, LR = horizontal)
+ * - Supports scope (architecture = clean high-level view, all = all files)
+ */
+function prepareMermaidGraph(rawGraph, orientation = "TD", mode = "architecture") {
+  if (!rawGraph) return "";
+
+  const lines = rawGraph.split("\n");
+  const filteredLines = [];
+
+  const isExcludedInArchitecture = (label) => {
+    if (mode !== "architecture") return false;
+    const lower = label.toLowerCase();
+    const staticExts = [
+      ".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg", ".webp",
+      ".lock", ".map", ".woff", ".woff2", ".ttf", ".eot",
+      ".min.js", ".min.css", "-chunk-",
+    ];
+    return staticExts.some((ext) => lower.includes(ext));
+  };
+
+  const excludedNodeIds = new Set();
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // Drop existing graph declaration, classDefs, styles, linkStyles, and comments
+    if (/^\s*(graph|flowchart|classDef|style|linkStyle|%%)/i.test(trimmed)) continue;
+    if (!trimmed) continue;
+
+    // Detect excluded nodes for architecture view
+    const nodeMatch = trimmed.match(/^([A-Za-z0-9_]+)\["([^"]+)"\]/);
+    if (nodeMatch) {
+      const [, nodeId, label] = nodeMatch;
+      if (isExcludedInArchitecture(label)) {
+        excludedNodeIds.add(nodeId);
+        continue;
+      }
+    }
+
+    // Exclude edges pointing to or from excluded nodes
+    const edgeMatch = trimmed.match(/^([A-Za-z0-9_]+)\s*-->\s*([A-Za-z0-9_]+)/);
+    if (edgeMatch) {
+      const [, parentId, childId] = edgeMatch;
+      if (excludedNodeIds.has(parentId) || excludedNodeIds.has(childId)) {
+        continue;
+      }
+    }
+
+    filteredLines.push("  " + trimmed);
+  }
+
+  return `graph ${orientation};\n${MINIMAL_CLASS_DEFS}${filteredLines.join("\n")}\n`;
+}
+
 // ─── Interactive pan/zoom diagram canvas ───────────────────────────────────
-function DiagramCanvas({ mermaidGraph, isFullscreen }) {
+function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const mermaidRef = useRef(null);
@@ -59,17 +132,26 @@ function DiagramCanvas({ mermaidGraph, isFullscreen }) {
   const [isRendering, setIsRendering] = useState(false);
   const [renderError, setRenderError] = useState(null);
 
+  // Layout controls
+  const [orientation, setOrientation] = useState("TD"); // 'TD' (Vertical) | 'LR' (Horizontal)
+  const [diagramScope, setDiagramScope] = useState("architecture"); // 'architecture' | 'all'
+
+  // Generate cleaned & minimalized mermaid diagram string
+  const processedGraph = useMemo(() => {
+    return prepareMermaidGraph(rawMermaidGraph, orientation, diagramScope);
+  }, [rawMermaidGraph, orientation, diagramScope]);
+
   // Render Mermaid diagram
   useEffect(() => {
     let isMounted = true;
     const renderMermaid = async () => {
-      if (!mermaidGraph || !mermaidRef.current) return;
+      if (!processedGraph || !mermaidRef.current) return;
       setIsRendering(true);
       setRenderError(null);
       try {
         const uniqueId = `mermaid-svg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
         mermaidRef.current.innerHTML = "";
-        const { svg } = await mermaid.render(uniqueId, mermaidGraph);
+        const { svg } = await mermaid.render(uniqueId, processedGraph);
         if (isMounted && mermaidRef.current) {
           mermaidRef.current.innerHTML = svg;
           const svgEl = mermaidRef.current.querySelector("svg");
@@ -90,7 +172,7 @@ function DiagramCanvas({ mermaidGraph, isFullscreen }) {
     };
     renderMermaid();
     return () => { isMounted = false; };
-  }, [mermaidGraph]);
+  }, [processedGraph]);
 
   // Scroll-wheel zoom
   const handleWheel = useCallback((e) => {
@@ -146,7 +228,7 @@ function DiagramCanvas({ mermaidGraph, isFullscreen }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "architecture.svg";
+    a.download = "architecture-diagram.svg";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -156,49 +238,111 @@ function DiagramCanvas({ mermaidGraph, isFullscreen }) {
 
   return (
     <div className="relative flex flex-col" style={{ height: isFullscreen ? "calc(100vh - 120px)" : "680px" }}>
-      {/* Embedded toolbar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border/40 bg-card/40 backdrop-blur-sm flex-shrink-0">
-        <div className="flex items-center gap-1 border border-border/60 rounded-lg p-0.5 bg-background/40">
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoom((z) => Math.max(0.2, z - 0.1))} title="Zoom Out">
+      {/* Embedded Minimal Toolbar */}
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border/50 bg-card/60 backdrop-blur-sm flex-shrink-0 flex-wrap">
+        {/* Zoom controls */}
+        <div className="flex items-center gap-1 border border-border/60 rounded-lg p-0.5 bg-background/50">
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground" onClick={() => setZoom((z) => Math.max(0.2, z - 0.1))} title="Zoom Out">
             <ZoomOut className="h-3.5 w-3.5" />
           </Button>
-          <span className="text-[10px] font-mono px-2 text-muted-foreground min-w-[40px] text-center">
+          <span className="text-[11px] font-mono px-2 text-muted-foreground min-w-[42px] text-center">
             {Math.round(zoom * 100)}%
           </span>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoom((z) => Math.min(3, z + 0.1))} title="Zoom In">
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground" onClick={() => setZoom((z) => Math.min(3, z + 0.1))} title="Zoom In">
             <ZoomIn className="h-3.5 w-3.5" />
           </Button>
           <div className="w-px h-4 bg-border/60 mx-0.5" />
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={resetView} title="Reset View">
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground" onClick={resetView} title="Reset View">
             <RotateCcw className="h-3.5 w-3.5" />
           </Button>
         </div>
 
-        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground border border-border/40 rounded-md px-2.5 py-1 bg-background/20">
+        {/* Orientation Toggle: Vertical (TD) vs Horizontal (LR) */}
+        <div className="flex items-center p-0.5 rounded-lg border border-border/60 bg-background/50">
+          <button
+            onClick={() => setOrientation("TD")}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+              orientation === "TD"
+                ? "bg-muted text-foreground font-semibold shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            title="Vertical Layout (Top-to-Bottom)"
+          >
+            <ArrowDownUp className="h-3 w-3" />
+            Vertical
+          </button>
+          <button
+            onClick={() => setOrientation("LR")}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+              orientation === "LR"
+                ? "bg-muted text-foreground font-semibold shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            title="Horizontal Layout (Left-to-Right)"
+          >
+            <ArrowLeftRight className="h-3 w-3" />
+            Horizontal
+          </button>
+        </div>
+
+        {/* Scope Toggle: Architecture Overview vs All Files */}
+        <div className="flex items-center p-0.5 rounded-lg border border-border/60 bg-background/50">
+          <button
+            onClick={() => setDiagramScope("architecture")}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+              diagramScope === "architecture"
+                ? "bg-muted text-foreground font-semibold shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            title="Clean System Architecture View"
+          >
+            <Layers className="h-3 w-3" />
+            Architecture
+          </button>
+          <button
+            onClick={() => setDiagramScope("all")}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+              diagramScope === "all"
+                ? "bg-muted text-foreground font-semibold shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            title="Full File Hierarchy"
+          >
+            All Files
+          </button>
+        </div>
+
+        {/* Canvas instruction hint */}
+        <div className="hidden md:flex items-center gap-1.5 text-[11px] text-muted-foreground border border-border/40 rounded-md px-2.5 py-1 bg-background/30">
           <Move className="h-3 w-3" />
           <span>Drag to pan · Scroll to zoom</span>
         </div>
 
+        {/* Palette Indicator */}
+        <div className="hidden lg:flex items-center gap-1.5 text-[10px] text-muted-foreground/80 border border-border/40 rounded-md px-2 py-1 font-mono">
+          <span className="w-2 h-2 rounded-full bg-zinc-600 inline-block" />
+          <span>Minimal Slate</span>
+        </div>
+
         <div className="ml-auto">
-          <Button variant="outline" size="sm" className="h-7 text-xs" onClick={handleDownloadSVG}>
+          <Button variant="outline" size="sm" className="h-7 text-xs border-border/60 text-muted-foreground hover:text-foreground" onClick={handleDownloadSVG}>
             <Download className="h-3.5 w-3.5 mr-1.5" />
             Export SVG
           </Button>
         </div>
       </div>
 
-      {/* Canvas */}
+      {/* Clean Minimal Canvas */}
       <div
         ref={containerRef}
         className="relative flex-1 overflow-hidden"
         style={{
           cursor: isDragging ? "grabbing" : "grab",
+          backgroundColor: "#09090b",
           backgroundImage: `
-            radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%),
-            linear-gradient(rgba(148,163,184,0.035) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(148,163,184,0.035) 1px, transparent 1px)
+            radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)
           `,
-          backgroundSize: "100% 100%, 36px 36px, 36px 36px",
+          backgroundSize: "24px 24px",
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -209,10 +353,10 @@ function DiagramCanvas({ mermaidGraph, isFullscreen }) {
         onTouchEnd={() => { touchRef.current = null; }}
       >
         {isRendering && (
-          <div className="absolute inset-0 flex items-center justify-center bg-card/60 backdrop-blur-sm z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-xs z-10">
             <div className="flex flex-col items-center gap-3">
-              <RefreshCw className="h-6 w-6 animate-spin text-primary" />
-              <span className="text-xs text-muted-foreground">Rendering diagram…</span>
+              <RefreshCw className="h-5 w-5 animate-spin text-zinc-400" />
+              <span className="text-xs text-muted-foreground font-mono">Rendering diagram…</span>
             </div>
           </div>
         )}
@@ -220,7 +364,7 @@ function DiagramCanvas({ mermaidGraph, isFullscreen }) {
         {renderError ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center p-8 max-w-md space-y-3">
-              <p className="text-red-400 text-sm font-medium">Failed to render visual diagram</p>
+              <p className="text-zinc-300 text-sm font-medium">Failed to render visual diagram</p>
               <p className="text-xs text-muted-foreground">{renderError}</p>
             </div>
           </div>
@@ -244,8 +388,8 @@ function DiagramCanvas({ mermaidGraph, isFullscreen }) {
 
         {/* Corner hint */}
         {!isRendering && !renderError && (
-          <div className="absolute bottom-3 right-3 text-[9px] font-mono text-muted-foreground/40 bg-background/30 border border-border/20 rounded px-1.5 py-0.5 select-none pointer-events-none">
-            {Math.round(zoom * 100)}% · scroll = zoom · drag = pan
+          <div className="absolute bottom-3 right-3 text-[9px] font-mono text-muted-foreground/50 bg-background/40 border border-border/30 rounded px-2 py-0.5 select-none pointer-events-none">
+            {Math.round(zoom * 100)}% · {orientation === "TD" ? "Vertical" : "Horizontal"} · {diagramScope === "architecture" ? "Architecture" : "Full"}
           </div>
         )}
       </div>
@@ -253,7 +397,7 @@ function DiagramCanvas({ mermaidGraph, isFullscreen }) {
   );
 }
 
-// Helper component for collapsible tree view
+// ─── Collapsible Tree View with Minimal Monochrome Styling ─────────────────
 function TreeNode({ item, depth = 0, searchTerm = "" }) {
   const [isOpen, setIsOpen] = useState(depth < 2);
   const isFolder = item.type === "folder";
@@ -273,14 +417,15 @@ function TreeNode({ item, depth = 0, searchTerm = "" }) {
       <div
         onClick={() => isFolder && setIsOpen(!isOpen)}
         style={{ paddingLeft: `${depth * 18 + 8}px` }}
-        className={`flex items-center gap-2 py-1.5 px-2 rounded-lg cursor-pointer transition-colors ${isFolder
-            ? "hover:bg-accent/60 text-foreground font-medium"
-            : "hover:bg-muted/40 text-muted-foreground hover:text-foreground"
-          }`}
+        className={`flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${
+          isFolder
+            ? "hover:bg-muted/50 text-foreground font-medium"
+            : "hover:bg-muted/30 text-muted-foreground hover:text-foreground"
+        }`}
       >
         {isFolder ? (
           <>
-            <span className="text-muted-foreground/80">
+            <span className="text-muted-foreground/70">
               {isOpen ? (
                 <ChevronDown className="h-3.5 w-3.5" />
               ) : (
@@ -288,11 +433,11 @@ function TreeNode({ item, depth = 0, searchTerm = "" }) {
               )}
             </span>
             {isOpen ? (
-              <FolderOpen className="h-4 w-4 text-purple-400 flex-shrink-0" />
+              <FolderOpen className="h-4 w-4 text-zinc-300 flex-shrink-0" />
             ) : (
-              <Folder className="h-4 w-4 text-purple-400 flex-shrink-0" />
+              <Folder className="h-4 w-4 text-zinc-400 flex-shrink-0" />
             )}
-            <span className="truncate">{item.name}</span>
+            <span className="truncate text-zinc-200">{item.name}</span>
             <span className="text-[10px] text-muted-foreground ml-auto font-mono">
               {item.children?.length || 0}
             </span>
@@ -300,8 +445,8 @@ function TreeNode({ item, depth = 0, searchTerm = "" }) {
         ) : (
           <>
             <span className="w-3.5" />
-            <File className="h-4 w-4 text-blue-400 flex-shrink-0" />
-            <span className="truncate font-mono">{item.name}</span>
+            <File className="h-3.5 w-3.5 text-zinc-500 flex-shrink-0" />
+            <span className="truncate font-mono text-zinc-400">{item.name}</span>
           </>
         )}
       </div>
@@ -310,7 +455,7 @@ function TreeNode({ item, depth = 0, searchTerm = "" }) {
         <div className="border-l border-border/40 ml-4">
           {item.children.map((child, idx) => (
             <TreeNode
-              key={child.path || idx}
+              key={child.path || child.id || idx}
               item={child}
               depth={depth + 1}
               searchTerm={searchTerm}
@@ -322,6 +467,7 @@ function TreeNode({ item, depth = 0, searchTerm = "" }) {
   );
 }
 
+// ─── Main Page Component ───────────────────────────────────────────────────
 export default function FileVisualisation() {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -337,14 +483,14 @@ export default function FileVisualisation() {
     }
   }, [dispatch, id, currentProject]);
 
-  // Convert Mermaid graph lines into a nested folder/file tree structure for Tree view
+  // Robust nested folder/file tree structure parser
   const fileTree = useMemo(() => {
     if (!currentProject?.mermaidGraph) return null;
 
-    const root = { id: "root_dir", name: currentProject.name || "Repository", type: "folder", children: [] };
     const lines = currentProject.mermaidGraph.split("\n");
     const pathMap = new Map();
-    pathMap.set("root_dir", root);
+    const childIds = new Set();
+    const parentIds = new Set();
 
     const FILE_EXTS = [
       ".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs",
@@ -359,7 +505,6 @@ export default function FileVisualisation() {
       ".wasm", ".sql", ".prisma", ".graphql",
     ];
 
-    // Strip all emoji/unicode symbols from a string
     const stripEmoji = (s) =>
       s.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}]/gu, "").trim();
 
@@ -367,45 +512,44 @@ export default function FileVisualisation() {
       const clean = stripEmoji(rawLabel).toLowerCase();
       return (
         fullLine.includes(":::file") ||
-        rawLabel.includes("\uD83D\uDCC4") || // 📄 as surrogate pair
+        rawLabel.includes("\uD83D\uDCC4") ||
         FILE_EXTS.some((ext) => clean.endsWith(ext))
       );
     };
 
-    // --- Pass 1: collect all node definitions ---
-    // Node lines look like:   n_abcd1234["📄 index.js"]:::file
-    // or:                     root_dir["📁 myproject"]:::root
+    // Pass 1: Parse all nodes
     for (const line of lines) {
-      // Skip header / classDef / style / comment lines
       if (/^\s*(graph|flowchart|classDef|style|linkStyle|%%)/i.test(line.trim())) continue;
-
-      // Find pattern:  IDENTIFIER["...]
       const idEnd = line.indexOf('["');
-      if (idEnd === -1) continue; // no node bracket on this line
+      if (idEnd === -1) continue;
 
       const rawId = line.slice(0, idEnd).trim();
-      // Validate it's a simple alphanumeric+underscore id
       if (!/^[A-Za-z0-9_]+$/.test(rawId)) continue;
-      if (pathMap.has(rawId)) continue; // already registered (root_dir)
 
-      const labelStart = idEnd + 2; // after ["
+      const labelStart = idEnd + 2;
       const labelEnd = line.indexOf('"]', labelStart);
       if (labelEnd === -1) continue;
 
       const rawLabel = line.slice(labelStart, labelEnd);
       const cleanLabel = stripEmoji(rawLabel).replace(/\s+/g, " ").trim() || rawLabel.trim();
-      const type = isFilePath(rawLabel, line) ? "file" : "folder";
+      const type = line.includes(":::root")
+        ? "folder"
+        : isFilePath(rawLabel, line)
+        ? "file"
+        : "folder";
 
       pathMap.set(rawId, { id: rawId, name: cleanLabel, type, children: [] });
     }
 
-    // --- Pass 2: connect edges ---
-    // Edge lines look like:   root_dir --> n_abcd1234
+    // Pass 2: Connect parent-child edges
     const edgeRe = /^\s*([A-Za-z0-9_]+)\s*-->\s*([A-Za-z0-9_]+)/;
     for (const line of lines) {
       const m = line.match(edgeRe);
       if (!m) continue;
       const [, parentId, childId] = m;
+      childIds.add(childId);
+      parentIds.add(parentId);
+
       const parent = pathMap.get(parentId);
       const child = pathMap.get(childId);
       if (!parent || !child || parent === child) continue;
@@ -414,75 +558,109 @@ export default function FileVisualisation() {
       }
     }
 
-    return root;
+    // Identify root node
+    let rootNode = null;
+    for (const [id, node] of pathMap.entries()) {
+      if (id === "root_dir" || id === "root_0" || id.startsWith("root")) {
+        rootNode = node;
+        break;
+      }
+    }
+
+    if (!rootNode) {
+      for (const [id, node] of pathMap.entries()) {
+        if (!childIds.has(id) && parentIds.has(id)) {
+          rootNode = node;
+          break;
+        }
+      }
+    }
+
+    // Fallback: build root containing all unparented nodes so tree is never empty
+    if (!rootNode) {
+      rootNode = {
+        id: "root_dir",
+        name: currentProject.name || "Repository",
+        type: "folder",
+        children: Array.from(pathMap.values()).filter((n) => !childIds.has(n.id)),
+      };
+    } else {
+      // Connect any orphan nodes without incoming edges
+      for (const [id, node] of pathMap.entries()) {
+        if (node !== rootNode && !childIds.has(id)) {
+          if (!rootNode.children.some((c) => c.id === id)) {
+            rootNode.children.push(node);
+          }
+        }
+      }
+    }
+
+    return rootNode;
   }, [currentProject]);
-
-
-
 
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-[600px] w-full rounded-xl" />
+        <Skeleton className="h-10 w-64 bg-muted/40" />
+        <Skeleton className="h-[600px] w-full rounded-xl bg-muted/30" />
       </div>
     );
   }
 
   return (
     <div className={`space-y-6 ${isFullscreen ? "fixed inset-0 z-50 bg-background p-6 overflow-auto" : ""}`}>
-      {/* Header & Controls */}
+      {/* Header & Controls with Clean Minimal Monochrome Styling */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-border/50">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+          <div className="h-10 w-10 rounded-xl bg-zinc-800/80 border border-zinc-700/80 flex items-center justify-center text-zinc-200">
             <FolderTree className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight">File Visualisation</h1>
               {currentProject?.name && (
-                <Badge variant="outline" className="border-border/60 text-xs font-mono">
+                <Badge variant="outline" className="border-border/60 text-xs font-mono text-zinc-300 bg-background/50">
                   {currentProject.name}
                 </Badge>
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Interactive architecture flowchart & hierarchical directory explorer
+              System architecture flowchart & hierarchical directory explorer
             </p>
           </div>
         </div>
 
-        {/* View Mode Switcher & Tools */}
+        {/* View Mode Switcher */}
         <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
           <div className="flex items-center p-1 rounded-lg border border-border/60 bg-card/60">
             <button
               onClick={() => setViewMode("diagram")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${viewMode === "diagram"
-                  ? "bg-primary text-primary-foreground shadow-sm"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                viewMode === "diagram"
+                  ? "bg-muted text-foreground font-semibold shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
-                }`}
+              }`}
             >
               <Network className="h-3.5 w-3.5" />
               Diagram View
             </button>
             <button
               onClick={() => setViewMode("tree")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${viewMode === "tree"
-                  ? "bg-primary text-primary-foreground shadow-sm"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                viewMode === "tree"
+                  ? "bg-muted text-foreground font-semibold shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
-                }`}
+              }`}
             >
               <ListTree className="h-3.5 w-3.5" />
               Tree Explorer
             </button>
           </div>
 
-
-
           <Button
             variant="outline"
             size="sm"
-            className="h-9 w-9 p-0"
+            className="h-9 w-9 p-0 border-border/60 text-muted-foreground hover:text-foreground"
             onClick={() => setIsFullscreen(!isFullscreen)}
             title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
           >
@@ -500,13 +678,13 @@ export default function FileVisualisation() {
         <Card className="glass border-border/50 shadow-xl overflow-hidden">
           <CardContent className="p-0">
             {viewMode === "diagram" ? (
-              /* Interactive Pan/Zoom Diagram Canvas */
+              /* Interactive Minimal Diagram Canvas */
               <DiagramCanvas
-                mermaidGraph={currentProject.mermaidGraph}
+                rawMermaidGraph={currentProject.mermaidGraph}
                 isFullscreen={isFullscreen}
               />
             ) : (
-              /* Collapsible Tree Explorer View */
+              /* Collapsible Minimal Tree Explorer View */
               <div className="p-6 space-y-4">
                 <div className="relative max-w-sm">
                   <Search className="h-4 w-4 absolute left-3 top-2.5 text-muted-foreground" />
@@ -515,7 +693,7 @@ export default function FileVisualisation() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Filter files or folders..."
-                    className="w-full pl-9 pr-3 py-1.5 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-primary text-foreground"
+                    className="w-full pl-9 pr-3 py-1.5 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-zinc-500 text-foreground"
                   />
                 </div>
 
