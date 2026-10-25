@@ -241,20 +241,22 @@ Respond ONLY with a valid JSON object where keys are the exact section names (wi
     normalizedAnswers[normalize(key)] = value;
   }
 
-  let documentation = `<h1>${projectName}</h1>\n<ul>\n`;
-  sections.forEach((section) => {
-    const id = section.toLowerCase().replace(/ /g, '-');
-    documentation += `  <li><a href="#${id}">${section}</a></li>\n`;
-  });
-  documentation += `</ul>\n\n`;
+  let documentation = `<h1>${projectName} Documentation</h1>\n<p>Comprehensive onboarding and architectural guide for the <strong>${projectName}</strong> codebase.</p>\n\n`;
 
   sections.forEach((section) => {
     const id = section.toLowerCase().replace(/ /g, '-');
-    const content =
+    let content =
       normalizedAnswers[normalize(section)] ||
       sectionAnswers[section] ||
       `<p>Details could not be automatically generated for this section.</p>`;
-    documentation += `<h2 id="${id}">${section}</h2>\n<div>${content}</div>\n\n`;
+
+    // Remove any redundant top heading inside the section content to avoid double titles
+    content = content.replace(
+      new RegExp(`^\\s*<h[1-3][^>]*>.*?</h[1-3]>`, 'i'),
+      ''
+    ).trim();
+
+    documentation += `<h2 id="${id}">${section}</h2>\n${content}\n\n`;
   });
 
   return { documentation, mermaidGraph };
