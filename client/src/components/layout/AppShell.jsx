@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 import { logout } from "@/store/slices/authSlice";
 import { createProject } from "@/store/slices/projectSlice";
 import {
@@ -252,6 +253,8 @@ export default function AppShell({ children }) {
               </h1>
             )}
           </div>
+
+          <ThemeToggle className="h-9 w-9 text-muted-foreground hover:text-foreground" />
         </div>
 
         {/* Page content */}

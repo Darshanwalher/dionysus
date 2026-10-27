@@ -99,7 +99,7 @@ export default function QnA() {
       {/* ─── Header ─────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/50">
         <div className="flex items-center gap-3.5">
-          <div className="h-11 w-11 rounded-xl bg-zinc-800/90 border border-zinc-700/80 flex items-center justify-center text-zinc-200">
+          <div className="h-11 w-11 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground">
             <Bot className="h-6 w-6" />
           </div>
           <div>
@@ -109,7 +109,7 @@ export default function QnA() {
               </h1>
               <Badge
                 variant="outline"
-                className="text-xs font-mono bg-zinc-800/60 border-zinc-700 text-zinc-300"
+                className="text-xs font-mono bg-muted/60 border-border text-muted-foreground"
               >
                 RAG Vector Search
               </Badge>
@@ -147,7 +147,7 @@ export default function QnA() {
                 onChange={(e) => setQuestion(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask anything about your codebase (e.g., 'How does the authentication flow work in this repo?')..."
-                className="min-h-[110px] resize-none text-sm bg-background/50 border-border/70 focus:border-zinc-500 rounded-xl p-4 leading-relaxed"
+                className="min-h-[110px] resize-none text-sm bg-background/50 border-border/70 focus:border-ring rounded-xl p-4 leading-relaxed"
                 disabled={isActionLoading}
               />
             </div>
@@ -196,7 +196,7 @@ export default function QnA() {
       <div className="space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/40">
           <div className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-zinc-400" />
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
             <h2 className="text-base font-semibold text-foreground">Conversation History</h2>
             <Badge variant="outline" className="text-xs font-mono ml-1">
               {filteredQuestions.length}
@@ -211,7 +211,7 @@ export default function QnA() {
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
                 placeholder="Search questions & answers…"
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-zinc-500 text-foreground"
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-ring text-foreground"
               />
             </div>
           )}
@@ -230,7 +230,7 @@ export default function QnA() {
         {questions.length === 0 && !isActionLoading && (
           <Card className="glass border-border/50">
             <CardContent className="py-16 text-center space-y-3">
-              <div className="h-12 w-12 rounded-2xl bg-zinc-800/80 border border-zinc-700/80 flex items-center justify-center text-zinc-300 mx-auto">
+              <div className="h-12 w-12 rounded-2xl bg-muted border border-border flex items-center justify-center text-muted-foreground mx-auto">
                 <FileQuestion className="h-6 w-6" />
               </div>
               <h3 className="text-base font-semibold text-foreground">No questions asked yet</h3>
@@ -248,13 +248,13 @@ export default function QnA() {
             return (
               <Card
                 key={q._id}
-                className="glass border-border/50 hover:border-zinc-600 transition-all bg-card/40 overflow-hidden"
+                className="glass border-border/50 hover:border-primary/50 transition-all bg-card/40 overflow-hidden"
               >
                 <CardContent className="p-6 space-y-4">
                   {/* Question row */}
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <div className="h-8 w-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-200 shrink-0 mt-0.5">
+                      <div className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center text-foreground shrink-0 mt-0.5">
                         <MessageSquare className="h-4 w-4" />
                       </div>
                       <div className="space-y-1 min-w-0">
@@ -320,7 +320,7 @@ export default function QnA() {
 
                       {/* Answer Body */}
                       <div
-                        className="text-xs text-foreground/90 leading-relaxed font-sans prose prose-invert prose-xs max-w-none [&_pre]:bg-zinc-950 [&_pre]:border [&_pre]:border-zinc-800 [&_pre]:p-3 [&_pre]:rounded-lg [&_code]:text-emerald-300 [&_code]:font-mono [&_p]:my-1.5"
+                        className="text-xs text-foreground/90 leading-relaxed font-sans prose prose-xs max-w-none [&_pre]:bg-muted [&_pre]:border [&_pre]:border-border [&_pre]:p-3 [&_pre]:rounded-lg [&_code]:text-primary [&_code]:font-mono [&_p]:my-1.5"
                         dangerouslySetInnerHTML={{ __html: q.answer }}
                       />
                     </div>

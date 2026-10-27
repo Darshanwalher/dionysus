@@ -1,29 +1,31 @@
 @import "tailwindcss";
 
-@theme {
-  --color-background: oklch(0.145 0 0);
-  --color-foreground: oklch(0.985 0 0);
-  --color-card: oklch(0.17 0 0);
-  --color-card-foreground: oklch(0.985 0 0);
-  --color-popover: oklch(0.17 0 0);
-  --color-popover-foreground: oklch(0.985 0 0);
-  --color-primary: oklch(0.67 0.22 292);
-  --color-primary-foreground: oklch(0.985 0 0);
-  --color-secondary: oklch(0.25 0 0);
-  --color-secondary-foreground: oklch(0.985 0 0);
-  --color-muted: oklch(0.25 0 0);
-  --color-muted-foreground: oklch(0.7 0 0);
-  --color-accent: oklch(0.3 0.05 292);
-  --color-accent-foreground: oklch(0.985 0 0);
-  --color-destructive: oklch(0.55 0.22 29);
-  --color-destructive-foreground: oklch(0.985 0 0);
-  --color-border: oklch(0.3 0 0);
-  --color-input: oklch(0.3 0 0);
-  --color-ring: oklch(0.67 0.22 292);
-  --color-sidebar: oklch(0.12 0 0);
-  --color-sidebar-foreground: oklch(0.7 0 0);
-  --color-sidebar-accent: oklch(0.2 0.05 292);
-  --color-sidebar-border: oklch(0.22 0 0);
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-border: var(--sidebar-border);
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
@@ -31,6 +33,60 @@
   --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+  --background: oklch(0.985 0.005 292);
+  --foreground: oklch(0.22 0.02 280);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.02 280);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.02 280);
+  --primary: oklch(0.52 0.22 292);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.95 0.012 292);
+  --secondary-foreground: oklch(0.25 0.02 280);
+  --muted: oklch(0.955 0.008 292);
+  --muted-foreground: oklch(0.5 0.02 280);
+  --accent: oklch(0.94 0.04 292);
+  --accent-foreground: oklch(0.32 0.12 292);
+  --destructive: oklch(0.55 0.22 29);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.9 0.012 280);
+  --input: oklch(0.9 0.012 280);
+  --ring: oklch(0.52 0.22 292);
+  --sidebar: oklch(0.97 0.01 292);
+  --sidebar-foreground: oklch(0.45 0.02 280);
+  --sidebar-accent: oklch(0.93 0.04 292);
+  --sidebar-border: oklch(0.9 0.015 280);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.17 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.17 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.67 0.22 292);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.25 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.25 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(0.3 0.05 292);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.55 0.22 29);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.3 0 0);
+  --input: oklch(0.3 0 0);
+  --ring: oklch(0.67 0.22 292);
+  --sidebar: oklch(0.12 0 0);
+  --sidebar-foreground: oklch(0.7 0 0);
+  --sidebar-accent: oklch(0.2 0.05 292);
+  --sidebar-border: oklch(0.22 0 0);
 }
 
 @layer base {
@@ -67,28 +123,28 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: oklch(0.15 0 0);
+  background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.35 0 0);
+  background: var(--border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.45 0 0);
+  background: color-mix(in oklch, var(--muted-foreground) 50%, var(--border));
 }
 
 /* Glassmorphism utility */
 .glass {
-  background: oklch(0.17 0 0 / 0.6);
+  background: color-mix(in oklch, var(--card) 70%, transparent);
   backdrop-filter: blur(16px);
-  border: 1px solid oklch(0.3 0 0 / 0.3);
+  border: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
 }
 
 /* Gradient text utility */
 .gradient-text {
-  background: linear-gradient(135deg, oklch(0.67 0.22 292), oklch(0.7 0.18 250));
+  background: linear-gradient(135deg, var(--primary), oklch(0.62 0.18 250));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -97,7 +153,7 @@
 /* TipTap Prose & Typography Styling */
 .tiptap,
 .prose {
-  color: oklch(0.9 0 0);
+  color: color-mix(in oklch, var(--foreground) 90%, transparent);
   line-height: 1.75;
   font-size: 0.95rem;
 }
@@ -109,9 +165,9 @@
   letter-spacing: -0.025em;
   margin-top: 1.5rem;
   margin-bottom: 1.25rem;
-  color: oklch(0.985 0 0);
+  color: var(--foreground);
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid oklch(0.3 0 0 / 0.5);
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
 }
 
 .tiptap h2,
@@ -121,7 +177,7 @@
   letter-spacing: -0.02em;
   margin-top: 2rem;
   margin-bottom: 0.85rem;
-  color: oklch(0.95 0 0);
+  color: var(--foreground);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -133,7 +189,7 @@
   display: inline-block;
   width: 4px;
   height: 1.1em;
-  background: linear-gradient(to bottom, oklch(0.67 0.22 292), oklch(0.7 0.18 250));
+  background: linear-gradient(to bottom, var(--primary), oklch(0.62 0.18 250));
   border-radius: 2px;
 }
 
@@ -143,13 +199,13 @@
   font-weight: 600;
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
-  color: oklch(0.9 0 0);
+  color: var(--foreground);
 }
 
 .tiptap p,
 .prose p {
   margin-bottom: 1rem;
-  color: oklch(0.8 0 0);
+  color: var(--muted-foreground);
 }
 
 .tiptap ul,
@@ -171,17 +227,17 @@
 .tiptap li,
 .prose li {
   margin-bottom: 0.4rem;
-  color: oklch(0.85 0 0);
+  color: color-mix(in oklch, var(--foreground) 85%, transparent);
 }
 
 .tiptap li::marker,
 .prose li::marker {
-  color: oklch(0.67 0.22 292);
+  color: var(--primary);
 }
 
 .tiptap a,
 .prose a {
-  color: oklch(0.75 0.18 290);
+  color: var(--primary);
   text-decoration: underline;
   text-underline-offset: 4px;
   transition: color 0.15s ease;
@@ -189,7 +245,7 @@
 
 .tiptap a:hover,
 .prose a:hover {
-  color: oklch(0.88 0.15 290);
+  color: color-mix(in oklch, var(--primary) 80%, white);
 }
 
 .tiptap code,
@@ -197,23 +253,23 @@
   font-family: var(--font-mono);
   font-feature-settings: "calt", "liga";
   font-size: 0.85em;
-  background: oklch(0.22 0 0);
-  color: oklch(0.85 0.12 300);
+  background: var(--muted);
+  color: var(--accent-foreground);
   padding: 0.15rem 0.4rem;
   border-radius: 0.375rem;
-  border: 1px solid oklch(0.3 0 0 / 0.5);
+  border: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
 }
 
 .tiptap pre,
 .prose pre {
-  background: oklch(0.12 0 0);
-  border: 1px solid oklch(0.28 0 0 / 0.7);
+  background: var(--secondary);
+  border: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
   border-radius: 0.5rem;
   padding: 1rem 1.25rem;
   overflow-x: auto;
   margin-top: 1rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px -2px color-mix(in oklch, var(--foreground) 8%, transparent);
 }
 
 .tiptap pre code,
@@ -223,19 +279,19 @@
   background: transparent;
   padding: 0;
   border: none;
-  color: oklch(0.9 0 0);
+  color: var(--foreground);
   font-size: 0.85rem;
   line-height: 1.6;
 }
 
 .tiptap blockquote,
 .prose blockquote {
-  border-left: 3px solid oklch(0.67 0.22 292);
+  border-left: 3px solid var(--primary);
   padding: 0.5rem 1rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
   font-style: italic;
-  color: oklch(0.7 0 0);
-  background: oklch(0.67 0.22 292 / 0.05);
+  color: var(--muted-foreground);
+  background: color-mix(in oklch, var(--primary) 6%, transparent);
   border-radius: 0 0.375rem 0.375rem 0;
 }

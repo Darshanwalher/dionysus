@@ -89,7 +89,7 @@ export default function Meetings() {
       {/* ─── Hero Header ─────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/50">
         <div className="flex items-center gap-3.5">
-          <div className="h-11 w-11 rounded-xl bg-zinc-800/90 border border-zinc-700/80 flex items-center justify-center text-zinc-200">
+          <div className="h-11 w-11 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground">
             <Headphones className="h-6 w-6" />
           </div>
           <div>
@@ -99,7 +99,7 @@ export default function Meetings() {
               </h1>
               <Badge
                 variant="outline"
-                className="text-xs font-mono bg-zinc-800/60 border-zinc-700 text-zinc-300"
+                className="text-xs font-mono bg-muted/60 border-border text-muted-foreground"
               >
                 AI Transcription
               </Badge>
@@ -111,11 +111,11 @@ export default function Meetings() {
         </div>
 
         <div className="flex items-center gap-3 self-start sm:self-auto font-mono text-xs">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/60 border border-zinc-700 text-zinc-300">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/60 border border-border text-muted-foreground">
             <Radio className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
             <span>{meetings.length} Session{meetings.length === 1 ? "" : "s"}</span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/60 border border-zinc-700 text-zinc-300">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/60 border border-border text-muted-foreground">
             <ListOrdered className="h-3.5 w-3.5 text-primary" />
             <span>{totalTopics} Topic{totalTopics === 1 ? "" : "s"}</span>
           </div>
@@ -126,7 +126,7 @@ export default function Meetings() {
       <Card className="glass border-border/60 bg-gradient-to-b from-card/80 to-card/40 shadow-xl overflow-hidden">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-200">
+            <div className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center text-foreground">
               <Mic className="h-4 w-4" />
             </div>
             <div>
@@ -145,7 +145,7 @@ export default function Meetings() {
                 value={audioUrl}
                 onChange={(e) => setAudioUrl(e.target.value)}
                 placeholder="https://example.com/audio/engineering-sync.mp3"
-                className="pl-10 text-xs h-10 bg-background/50 border-border/70 focus:border-zinc-500 rounded-lg"
+                className="pl-10 text-xs h-10 bg-background/50 border-border/70 focus:border-ring rounded-lg"
                 disabled={isActionLoading}
               />
             </div>
@@ -194,7 +194,7 @@ export default function Meetings() {
       <div className="space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/40">
           <div className="flex items-center gap-2">
-            <Presentation className="h-4 w-4 text-zinc-400" />
+            <Presentation className="h-4 w-4 text-muted-foreground" />
             <h2 className="text-base font-semibold text-foreground">Recorded Meeting Sessions</h2>
             <Badge variant="outline" className="text-xs font-mono ml-1">
               {filteredMeetings.length}
@@ -209,7 +209,7 @@ export default function Meetings() {
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
                 placeholder="Search meetings or topics…"
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-zinc-500 text-foreground"
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-ring text-foreground"
               />
             </div>
           )}
@@ -219,7 +219,7 @@ export default function Meetings() {
         {meetings.length === 0 && !isActionLoading && (
           <Card className="glass border-border/50">
             <CardContent className="py-16 text-center space-y-3">
-              <div className="h-12 w-12 rounded-2xl bg-zinc-800/80 border border-zinc-700/80 flex items-center justify-center text-zinc-300 mx-auto">
+              <div className="h-12 w-12 rounded-2xl bg-muted border border-border flex items-center justify-center text-muted-foreground mx-auto">
                 <FileAudio className="h-6 w-6" />
               </div>
               <h3 className="text-base font-semibold text-foreground">No meetings processed yet</h3>
@@ -236,13 +236,13 @@ export default function Meetings() {
             <Card
               key={meeting._id}
               onClick={() => navigate(`/projects/${id}/meetings/${meeting._id}`)}
-              className="glass border-border/50 hover:border-zinc-500 transition-all duration-200 cursor-pointer group bg-card/40 flex flex-col justify-between"
+              className="glass border-border/50 hover:border-primary/50 transition-all duration-200 cursor-pointer group bg-card/40 flex flex-col justify-between"
             >
               <CardContent className="p-5 space-y-4">
                 {/* Meeting Header */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="h-9 w-9 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-200 group-hover:text-primary transition-colors shrink-0">
+                    <div className="h-9 w-9 rounded-lg bg-muted border border-border flex items-center justify-center text-foreground group-hover:text-primary transition-colors shrink-0">
                       <Presentation className="h-4 w-4" />
                     </div>
                     <div className="min-w-0">

@@ -66,7 +66,7 @@ export default function Documentation() {
     editorProps: {
       attributes: {
         class:
-          "prose prose-invert max-w-none min-h-[500px] p-6 focus:outline-none focus:ring-0 leading-relaxed",
+          "prose max-w-none min-h-[500px] p-6 focus:outline-none focus:ring-0 leading-relaxed",
       },
     },
   });

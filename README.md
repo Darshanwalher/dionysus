@@ -53,3 +53,7 @@ Copy `server/.env.example` to `server/.env` and fill in all required values.
 - 🎙️ Meeting Transcription (AssemblyAI)
 - 💬 Meeting Q&A
 - 🗂️ File Tree Visualisation (Mermaid)
+
+- 🌓 Light and dark theme (toggle in the top bar; preference saved locally)
+
+See [`THEME.md`](./THEME.md) for how theming is implemented.

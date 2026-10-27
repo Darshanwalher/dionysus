@@ -139,7 +139,7 @@ export default function ProjectHome() {
             </h1>
             <Badge
               variant="outline"
-              className="text-xs font-mono bg-zinc-800/60 border-zinc-700 text-zinc-300"
+              className="text-xs font-mono bg-muted/60 border-border text-muted-foreground"
             >
               <ShieldCheck className="h-3 w-3 mr-1 text-emerald-400" />
               Active Project
@@ -248,7 +248,7 @@ export default function ProjectHome() {
                 {currentProject.githubUrl ? "Synced with GitHub" : "No repo connected"}
               </p>
             </div>
-            <div className="h-11 w-11 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
+            <div className="h-11 w-11 rounded-xl bg-muted border border-border flex items-center justify-center text-muted-foreground">
               <GitGraph className="h-5 w-5" />
             </div>
           </CardContent>
@@ -269,7 +269,7 @@ export default function ProjectHome() {
                   Architecture & setup guides <ChevronDown className="h-3 w-3 -rotate-90" />
                 </p>
               </div>
-              <div className="h-11 w-11 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 group-hover:text-primary transition-colors">
+              <div className="h-11 w-11 rounded-xl bg-muted border border-border flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
                 <BookText className="h-5 w-5" />
               </div>
             </CardContent>
@@ -291,7 +291,7 @@ export default function ProjectHome() {
                   Vector search over codebase <ChevronDown className="h-3 w-3 -rotate-90" />
                 </p>
               </div>
-              <div className="h-11 w-11 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 group-hover:text-primary transition-colors">
+              <div className="h-11 w-11 rounded-xl bg-muted border border-border flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
                 <FileQuestion className="h-5 w-5" />
               </div>
             </CardContent>
@@ -313,7 +313,7 @@ export default function ProjectHome() {
                   Transcribe & extract topics <ChevronDown className="h-3 w-3 -rotate-90" />
                 </p>
               </div>
-              <div className="h-11 w-11 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 group-hover:text-primary transition-colors">
+              <div className="h-11 w-11 rounded-xl bg-muted border border-border flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
                 <Presentation className="h-5 w-5" />
               </div>
             </CardContent>
@@ -330,7 +330,7 @@ export default function ProjectHome() {
             <Card className="glass border-border/60 bg-gradient-to-br from-card/80 to-muted/20">
               <CardHeader>
                 <div className="flex items-center gap-2.5">
-                  <div className="h-9 w-9 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-200">
+                  <div className="h-9 w-9 rounded-lg bg-muted border border-border flex items-center justify-center text-foreground">
                     <GitBranch className="h-5 w-5" />
                   </div>
                   <div>
@@ -373,7 +373,7 @@ export default function ProjectHome() {
               <CardContent className="p-5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-zinc-800/80 border border-zinc-700/80 flex items-center justify-center text-zinc-200">
+                    <div className="h-10 w-10 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground">
                       <GitBranch className="h-5 w-5" />
                     </div>
                     <div>
@@ -440,7 +440,7 @@ export default function ProjectHome() {
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border/40">
               <div className="flex items-center gap-2">
-                <GitGraph className="h-4 w-4 text-zinc-400" />
+                <GitGraph className="h-4 w-4 text-muted-foreground" />
                 <h2 className="text-base font-semibold text-foreground">Commit Activity & AI Summaries</h2>
                 <Badge variant="secondary" className="text-xs font-mono ml-1">
                   {filteredCommits.length}
@@ -455,7 +455,7 @@ export default function ProjectHome() {
                     value={commitFilter}
                     onChange={(e) => setCommitFilter(e.target.value)}
                     placeholder="Filter commits…"
-                    className="w-full pl-8 pr-3 py-1 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-zinc-500 text-foreground"
+                    className="w-full pl-8 pr-3 py-1 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-ring text-foreground"
                   />
                 </div>
               )}
@@ -479,7 +479,7 @@ export default function ProjectHome() {
                   return (
                     <Card
                       key={commit._id}
-                      className="glass border-border/50 hover:border-zinc-600 transition-all bg-card/30"
+                      className="glass border-border/50 hover:border-primary/50 transition-all bg-card/30"
                     >
                       <CardContent className="p-4 space-y-2.5">
                         <div className="flex items-start justify-between gap-3">
@@ -488,10 +488,10 @@ export default function ProjectHome() {
                               <img
                                 src={commit.commitAuthorAvatar}
                                 alt={commit.commitAuthorName}
-                                className="h-7 w-7 rounded-full bg-zinc-800 border border-border shrink-0"
+                                className="h-7 w-7 rounded-full bg-muted border border-border shrink-0"
                               />
                             ) : (
-                              <div className="h-7 w-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] font-bold text-zinc-300 shrink-0">
+                              <div className="h-7 w-7 rounded-full bg-muted border border-border flex items-center justify-center text-[10px] font-bold text-muted-foreground shrink-0">
                                 {commit.commitAuthorName?.[0]?.toUpperCase() || "U"}
                               </div>
                             )}
@@ -541,12 +541,12 @@ export default function ProjectHome() {
 
                         {/* AI Summary Section */}
                         {commit.summary && isExpanded && (
-                          <div className="ml-9 p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 text-[11px] space-y-1.5 animate-in fade-in duration-150">
-                            <div className="flex items-center gap-1.5 text-zinc-400 font-medium">
+                          <div className="ml-9 p-3 rounded-lg bg-muted/80 border border-border text-[11px] space-y-1.5 animate-in fade-in duration-150">
+                            <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
                               <Sparkles className="h-3 w-3 text-amber-400" />
                               <span>AI Code Summary</span>
                             </div>
-                            <p className="text-zinc-300 font-mono whitespace-pre-wrap leading-relaxed">
+                            <p className="text-foreground font-mono whitespace-pre-wrap leading-relaxed">
                               {commit.summary}
                             </p>
                           </div>
@@ -567,7 +567,7 @@ export default function ProjectHome() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Users className="h-4 w-4 text-zinc-400" />
+                  <Users className="h-4 w-4 text-muted-foreground" />
                   Team Members
                 </CardTitle>
                 <Badge variant="outline" className="text-[10px] font-mono">
@@ -583,7 +583,7 @@ export default function ProjectHome() {
                     className="flex items-center justify-between p-2 rounded-lg bg-background/40 border border-border/40 text-xs"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="h-7 w-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] font-bold text-zinc-200 shrink-0">
+                      <div className="h-7 w-7 rounded-full bg-muted border border-border flex items-center justify-center text-[10px] font-bold text-foreground shrink-0">
                         {member.name?.[0]?.toUpperCase() || "U"}
                       </div>
                       <div className="min-w-0">
@@ -614,7 +614,7 @@ export default function ProjectHome() {
           <Card className="glass border-border/50 bg-card/40">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-zinc-400" />
+                <Sparkles className="h-4 w-4 text-muted-foreground" />
                 Project Intelligence Tools
               </CardTitle>
             </CardHeader>
@@ -624,7 +624,7 @@ export default function ProjectHome() {
                 className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-background/30 hover:bg-muted/40 transition-colors group"
               >
                 <div className="flex items-center gap-2.5">
-                  <BookText className="h-4 w-4 text-zinc-400 group-hover:text-primary transition-colors" />
+                  <BookText className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   <div>
                     <p className="text-xs font-medium text-foreground">Technical Manual</p>
                     <p className="text-[10px] text-muted-foreground">12 Structured onboarding guides</p>
@@ -638,7 +638,7 @@ export default function ProjectHome() {
                 className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-background/30 hover:bg-muted/40 transition-colors group"
               >
                 <div className="flex items-center gap-2.5">
-                  <FileQuestion className="h-4 w-4 text-zinc-400 group-hover:text-primary transition-colors" />
+                  <FileQuestion className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   <div>
                     <p className="text-xs font-medium text-foreground">Codebase Q&A</p>
                     <p className="text-[10px] text-muted-foreground">Ask AI questions about code</p>
@@ -652,7 +652,7 @@ export default function ProjectHome() {
                 className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-background/30 hover:bg-muted/40 transition-colors group"
               >
                 <div className="flex items-center gap-2.5">
-                  <Presentation className="h-4 w-4 text-zinc-400 group-hover:text-primary transition-colors" />
+                  <Presentation className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   <div>
                     <p className="text-xs font-medium text-foreground">Meeting Audio</p>
                     <p className="text-[10px] text-muted-foreground">Audio transcription & topic analysis</p>
@@ -666,7 +666,7 @@ export default function ProjectHome() {
                 className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-background/30 hover:bg-muted/40 transition-colors group"
               >
                 <div className="flex items-center gap-2.5">
-                  <FolderTree className="h-4 w-4 text-zinc-400 group-hover:text-primary transition-colors" />
+                  <FolderTree className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   <div>
                     <p className="text-xs font-medium text-foreground">Architecture Diagram</p>
                     <p className="text-[10px] text-muted-foreground">Interactive file flowchart & tree</p>

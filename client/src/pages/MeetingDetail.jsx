@@ -141,7 +141,7 @@ export default function MeetingDetail() {
 
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">{meeting.name}</h1>
-            <Badge variant="outline" className="text-xs font-mono bg-zinc-800/60 border-zinc-700 text-zinc-300">
+            <Badge variant="outline" className="text-xs font-mono bg-muted/60 border-border text-muted-foreground">
               {meeting.issues?.length || 0} Topics Extracted
             </Badge>
           </div>
@@ -166,7 +166,7 @@ export default function MeetingDetail() {
         <div className="lg:col-span-5 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-              <ListOrdered className="h-3.5 w-3.5 text-zinc-400" />
+              <ListOrdered className="h-3.5 w-3.5 text-muted-foreground" />
               <span>Discussion Topics</span>
               <Badge variant="secondary" className="font-mono text-[10px] ml-1">
                 {filteredIssues.length}
@@ -180,7 +180,7 @@ export default function MeetingDetail() {
                 value={topicSearch}
                 onChange={(e) => setTopicSearch(e.target.value)}
                 placeholder="Filter topics…"
-                className="w-full pl-7 pr-2 py-1 text-xs bg-muted/40 border border-border/60 rounded-md focus:outline-none focus:border-zinc-500 text-foreground"
+                className="w-full pl-7 pr-2 py-1 text-xs bg-muted/40 border border-border/60 rounded-md focus:outline-none focus:border-ring text-foreground"
               />
             </div>
           </div>
@@ -200,14 +200,14 @@ export default function MeetingDetail() {
                   className={`glass transition-all cursor-pointer border ${
                     isSelected
                       ? "border-primary/80 bg-primary/10 shadow-md ring-1 ring-primary/40"
-                      : "border-border/50 hover:border-zinc-500 bg-card/40"
+                      : "border-border/50 hover:border-primary/50 bg-card/40"
                   }`}
                 >
                   <CardContent className="p-3.5 space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       <Badge
                         variant="secondary"
-                        className="text-[10px] font-mono px-2 py-0.5 flex items-center gap-1 bg-zinc-800 text-zinc-300"
+                        className="text-[10px] font-mono px-2 py-0.5 flex items-center gap-1 bg-muted text-muted-foreground"
                       >
                         <Clock className="h-2.5 w-2.5 text-primary" />
                         {issue.start} — {issue.end}
@@ -250,7 +250,7 @@ export default function MeetingDetail() {
                     <div className="flex items-center gap-2">
                       <Badge
                         variant="secondary"
-                        className="text-xs font-mono px-2.5 py-0.5 flex items-center gap-1.5 bg-zinc-800 text-zinc-200"
+                        className="text-xs font-mono px-2.5 py-0.5 flex items-center gap-1.5 bg-muted text-foreground"
                       >
                         <Clock className="h-3 w-3 text-primary" />
                         Timestamp: {selectedIssue.start} — {selectedIssue.end}
@@ -273,7 +273,7 @@ export default function MeetingDetail() {
                 {/* Discussion Summary */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                    <FileText className="h-4 w-4 text-zinc-400" />
+                    <FileText className="h-4 w-4 text-muted-foreground" />
                     <span>Discussion Summary</span>
                   </div>
                   <div className="p-4 rounded-xl bg-background/50 border border-border/50 text-xs text-foreground/90 leading-relaxed font-sans whitespace-pre-wrap">
@@ -350,7 +350,7 @@ export default function MeetingDetail() {
 
                   {/* AI Response Display */}
                   {answer && (
-                    <div className="p-4 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-2 animate-in fade-in duration-200">
+                    <div className="p-4 rounded-xl bg-muted/90 border border-border space-y-2 animate-in fade-in duration-200">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-semibold font-mono">
                           <Bot className="h-3.5 w-3.5" />

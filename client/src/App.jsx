@@ -6,6 +6,7 @@ import { getMe } from "./store/slices/authSlice";
 import { fetchProjects } from "./store/slices/projectSlice";
 import { Toaster } from "sonner";
 
+import { ThemeProvider } from "./components/theme/ThemeProvider";
 import AppShell from "./components/layout/AppShell";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -144,19 +145,21 @@ function AppRoutes() {
 export default function App() {
   return (
     <Provider store={store}>
-      <BrowserRouter>
-        <AppRoutes />
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              background: "oklch(0.17 0 0)",
-              border: "1px solid oklch(0.3 0 0)",
-              color: "oklch(0.985 0 0)",
-            },
-          }}
-        />
-      </BrowserRouter>
+      <ThemeProvider>
+        <BrowserRouter>
+          <AppRoutes />
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                background: "var(--card)",
+                border: "1px solid var(--border)",
+                color: "var(--foreground)",
+              },
+            }}
+          />
+        </BrowserRouter>
+      </ThemeProvider>
     </Provider>
   );
 }

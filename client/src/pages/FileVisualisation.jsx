@@ -30,37 +30,71 @@ import {
   Layers,
 } from "lucide-react";
 import mermaid from "mermaid";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
-// Initialize Mermaid with minimal monochrome/slate theme
-mermaid.initialize({
-  startOnLoad: false,
-  securityLevel: "loose",
-  theme: "base",
-  themeVariables: {
-    darkMode: true,
-    background: "transparent",
-    primaryColor: "#18181b",
-    primaryTextColor: "#f4f4f5",
-    primaryBorderColor: "#3f3f46",
-    lineColor: "#52525b",
-    secondaryColor: "#18181b",
-    tertiaryColor: "#0f1117",
-    mainBkg: "#18181b",
-    nodeBorder: "#3f3f46",
-    nodeTextColor: "#e4e4e7",
-    edgeLabelBackground: "#18181b",
-    fontSize: "12px",
-    fontFamily: "'JetBrains Mono', 'Plus Jakarta Sans', Inter, system-ui, sans-serif",
-  },
-});
+const MERMAID_FONT =
+  "'JetBrains Mono', 'Plus Jakarta Sans', Inter, system-ui, sans-serif";
 
-// Minimal 2-3 color class definitions for Mermaid SVG rendering
-const MINIMAL_CLASS_DEFS = `
+const MERMAID_PALETTES = {
+  dark: {
+    themeVariables: {
+      darkMode: true,
+      background: "transparent",
+      primaryColor: "#18181b",
+      primaryTextColor: "#f4f4f5",
+      primaryBorderColor: "#3f3f46",
+      lineColor: "#52525b",
+      secondaryColor: "#18181b",
+      tertiaryColor: "#0f1117",
+      mainBkg: "#18181b",
+      nodeBorder: "#3f3f46",
+      nodeTextColor: "#e4e4e7",
+      edgeLabelBackground: "#18181b",
+      fontSize: "12px",
+      fontFamily: MERMAID_FONT,
+    },
+    classDefs: `
   classDef root fill:#18181b,stroke:#52525b,stroke-width:2px,color:#ffffff,rx:6px,ry:6px;
   classDef folder fill:#18181b,stroke:#3f3f46,stroke-width:1.5px,color:#e4e4e7,rx:6px,ry:6px;
   classDef file fill:#0f1117,stroke:#27272a,stroke-width:1px,color:#a1a1aa,rx:4px,ry:4px;
   linkStyle default stroke:#52525b,stroke-width:1.2px;
-`;
+`,
+  },
+  light: {
+    themeVariables: {
+      darkMode: false,
+      background: "transparent",
+      primaryColor: "#f4f4f5",
+      primaryTextColor: "#18181b",
+      primaryBorderColor: "#d4d4d8",
+      lineColor: "#a1a1aa",
+      secondaryColor: "#fafafa",
+      tertiaryColor: "#ffffff",
+      mainBkg: "#f4f4f5",
+      nodeBorder: "#d4d4d8",
+      nodeTextColor: "#27272a",
+      edgeLabelBackground: "#fafafa",
+      fontSize: "12px",
+      fontFamily: MERMAID_FONT,
+    },
+    classDefs: `
+  classDef root fill:#f4f4f5,stroke:#a1a1aa,stroke-width:2px,color:#18181b,rx:6px,ry:6px;
+  classDef folder fill:#fafafa,stroke:#d4d4d8,stroke-width:1.5px,color:#27272a,rx:6px,ry:6px;
+  classDef file fill:#ffffff,stroke:#e4e4e7,stroke-width:1px,color:#52525b,rx:4px,ry:4px;
+  linkStyle default stroke:#a1a1aa,stroke-width:1.2px;
+`,
+  },
+};
+
+function initMermaid(resolvedTheme) {
+  const palette = MERMAID_PALETTES[resolvedTheme] || MERMAID_PALETTES.dark;
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: "loose",
+    theme: "base",
+    themeVariables: palette.themeVariables,
+  });
+}
 
 /**
  * Format and sanitize raw Mermaid graph:
@@ -69,7 +103,7 @@ const MINIMAL_CLASS_DEFS = `
  * - Supports orientation (TD = vertical, LR = horizontal)
  * - Supports scope (architecture = clean high-level view, all = all files)
  */
-function prepareMermaidGraph(rawGraph, orientation = "TD", mode = "architecture") {
+function prepareMermaidGraph(rawGraph, orientation = "TD", mode = "architecture", classDefs = MERMAID_PALETTES.dark.classDefs) {
   if (!rawGraph) return "";
 
   const lines = rawGraph.split("\n");
@@ -116,11 +150,12 @@ function prepareMermaidGraph(rawGraph, orientation = "TD", mode = "architecture"
     filteredLines.push("  " + trimmed);
   }
 
-  return `graph ${orientation};\n${MINIMAL_CLASS_DEFS}${filteredLines.join("\n")}\n`;
+  return `graph ${orientation};\n${classDefs}${filteredLines.join("\n")}\n`;
 }
 
 // ─── Interactive pan/zoom diagram canvas ───────────────────────────────────
 function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
+  const { resolvedTheme } = useTheme();
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const mermaidRef = useRef(null);
@@ -138,8 +173,9 @@ function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
 
   // Generate cleaned & minimalized mermaid diagram string
   const processedGraph = useMemo(() => {
-    return prepareMermaidGraph(rawMermaidGraph, orientation, diagramScope);
-  }, [rawMermaidGraph, orientation, diagramScope]);
+    const palette = MERMAID_PALETTES[resolvedTheme] || MERMAID_PALETTES.dark;
+    return prepareMermaidGraph(rawMermaidGraph, orientation, diagramScope, palette.classDefs);
+  }, [rawMermaidGraph, orientation, diagramScope, resolvedTheme]);
 
   // Render Mermaid diagram
   useEffect(() => {
@@ -149,6 +185,7 @@ function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
       setIsRendering(true);
       setRenderError(null);
       try {
+        initMermaid(resolvedTheme);
         const uniqueId = `mermaid-svg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
         mermaidRef.current.innerHTML = "";
         const { svg } = await mermaid.render(uniqueId, processedGraph);
@@ -172,7 +209,7 @@ function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
     };
     renderMermaid();
     return () => { isMounted = false; };
-  }, [processedGraph]);
+  }, [processedGraph, resolvedTheme]);
 
   // Scroll-wheel zoom
   const handleWheel = useCallback((e) => {
@@ -316,7 +353,7 @@ function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
 
         {/* Palette Indicator */}
         <div className="hidden lg:flex items-center gap-1.5 text-[10px] text-muted-foreground/80 border border-border/40 rounded-md px-2 py-1 font-mono">
-          <span className="w-2 h-2 rounded-full bg-zinc-600 inline-block" />
+          <span className="w-2 h-2 rounded-full bg-muted-foreground inline-block" />
           <span>Minimal Slate</span>
         </div>
 
@@ -334,9 +371,9 @@ function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
         className="relative flex-1 overflow-hidden"
         style={{
           cursor: isDragging ? "grabbing" : "grab",
-          backgroundColor: "#09090b",
+          backgroundColor: "var(--background)",
           backgroundImage: `
-            radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)
+            radial-gradient(circle at 1px 1px, color-mix(in oklch, var(--foreground) 8%, transparent) 1px, transparent 0)
           `,
           backgroundSize: "24px 24px",
         }}
@@ -351,7 +388,7 @@ function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
         {isRendering && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-xs z-10">
             <div className="flex flex-col items-center gap-3">
-              <RefreshCw className="h-5 w-5 animate-spin text-zinc-400" />
+              <RefreshCw className="h-5 w-5 animate-spin text-muted-foreground" />
               <span className="text-xs text-muted-foreground font-mono">Rendering diagram…</span>
             </div>
           </div>
@@ -360,7 +397,7 @@ function DiagramCanvas({ rawMermaidGraph, isFullscreen }) {
         {renderError ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center p-8 max-w-md space-y-3">
-              <p className="text-zinc-300 text-sm font-medium">Failed to render visual diagram</p>
+              <p className="text-foreground text-sm font-medium">Failed to render visual diagram</p>
               <p className="text-xs text-muted-foreground">{renderError}</p>
             </div>
           </div>
@@ -428,11 +465,11 @@ function TreeNode({ item, depth = 0, searchTerm = "" }) {
               )}
             </span>
             {isOpen ? (
-              <FolderOpen className="h-4 w-4 text-zinc-300 flex-shrink-0" />
+              <FolderOpen className="h-4 w-4 text-foreground flex-shrink-0" />
             ) : (
-              <Folder className="h-4 w-4 text-zinc-400 flex-shrink-0" />
+              <Folder className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             )}
-            <span className="truncate text-zinc-200">{item.name}</span>
+            <span className="truncate text-foreground">{item.name}</span>
             <span className="text-[10px] text-muted-foreground ml-auto font-mono">
               {item.children?.length || 0}
             </span>
@@ -440,8 +477,8 @@ function TreeNode({ item, depth = 0, searchTerm = "" }) {
         ) : (
           <>
             <span className="w-3.5" />
-            <File className="h-3.5 w-3.5 text-zinc-500 flex-shrink-0" />
-            <span className="truncate font-mono text-zinc-400">{item.name}</span>
+            <File className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+            <span className="truncate font-mono text-muted-foreground">{item.name}</span>
           </>
         )}
       </div>
@@ -607,14 +644,14 @@ export default function FileVisualisation() {
       {/* Header & Controls with Clean Minimal Monochrome Styling */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-border/50">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-zinc-800/80 border border-zinc-700/80 flex items-center justify-center text-zinc-200">
+          <div className="h-10 w-10 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground">
             <FolderTree className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight">File Visualisation</h1>
               {currentProject?.name && (
-                <Badge variant="outline" className="border-border/60 text-xs font-mono text-zinc-300 bg-background/50">
+                <Badge variant="outline" className="border-border/60 text-xs font-mono text-muted-foreground bg-background/50">
                   {currentProject.name}
                 </Badge>
               )}
@@ -686,7 +723,7 @@ export default function FileVisualisation() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Filter files or folders..."
-                    className="w-full pl-9 pr-3 py-1.5 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-zinc-500 text-foreground"
+                    className="w-full pl-9 pr-3 py-1.5 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-ring text-foreground"
                   />
                 </div>
 
