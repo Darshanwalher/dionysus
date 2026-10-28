@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { askQuestion, fetchQuestions, deleteQuestion } from "@/store/slices/projectSlice";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -19,17 +19,14 @@ import {
   Copy,
   Check,
   Search,
-  HelpCircle,
-  Code2,
-  Terminal,
   Zap,
 } from "lucide-react";
 
 const SUGGESTED_QUESTIONS = [
-  "How does the authentication and session flow work?",
-  "Where are the backend API endpoints and controllers located?",
-  "Explain the database models and relationships in this project.",
-  "What third-party libraries and dependencies are critical here?",
+  "How does authentication and session flow work?",
+  "Where are backend API routes and controllers located?",
+  "Explain database models and relationships.",
+  "What third-party dependencies are critical here?",
 ];
 
 export default function QnA() {
@@ -75,7 +72,6 @@ export default function QnA() {
   };
 
   const handleCopyAnswer = (q) => {
-    // Strip HTML tags for clean text copying
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = q.answer || "";
     const cleanText = tempDiv.textContent || tempDiv.innerText || "";
@@ -105,7 +101,7 @@ export default function QnA() {
           <>
             <Badge
               variant="outline"
-              className="text-xs font-mono bg-muted/60 border-gold/25 text-muted-foreground"
+              className="text-xs font-mono text-muted-foreground"
             >
               RAG Vector Search
             </Badge>
@@ -117,11 +113,11 @@ export default function QnA() {
       />
 
       {/* ─── Interactive Ask Question Card ───────────────────────────── */}
-      <Card className="glass-premium overflow-hidden">
+      <Card className="glass-premium overflow-hidden animate-fade-up">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Sparkles className="h-4 w-4 text-amber-400" />
+              <Sparkles className="h-4 w-4 text-primary" />
               <span>Ask about any code, logic, or file</span>
             </div>
             <span className="text-[11px] text-muted-foreground font-mono hidden sm:inline">
@@ -135,17 +131,17 @@ export default function QnA() {
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask anything about your codebase (e.g., 'How does the authentication flow work in this repo?')..."
-                className="min-h-[110px] resize-none text-sm bg-background/50 border-border/70 focus:border-ring rounded-xl p-4 leading-relaxed"
+                placeholder="Ask anything about your codebase (e.g., 'How does authentication flow work?')..."
+                className="min-h-[100px] resize-none text-sm bg-background/50 border-border/70 focus:border-ring rounded-xl p-4 leading-relaxed"
                 disabled={isActionLoading}
               />
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-              {/* Suggested Quick Prompt Chips */}
+              {/* Suggestions */}
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-[11px] text-muted-foreground font-medium mr-1 flex items-center gap-1">
-                  <Zap className="h-3 w-3 text-amber-400" /> Suggestions:
+                  <Zap className="h-3 w-3 text-primary" /> Suggestions:
                 </span>
                 {SUGGESTED_QUESTIONS.map((sq, i) => (
                   <button
@@ -154,7 +150,7 @@ export default function QnA() {
                     onClick={() => setQuestion(sq)}
                     className="text-[11px] px-2.5 py-1 rounded-md bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors border border-border/40 text-left"
                   >
-                    {sq.length > 38 ? sq.slice(0, 38) + "…" : sq}
+                    {sq.length > 36 ? sq.slice(0, 36) + "…" : sq}
                   </button>
                 ))}
               </div>
@@ -182,7 +178,7 @@ export default function QnA() {
       </Card>
 
       {/* ─── Question History & Search Stream ─────────────────────────── */}
-      <div className="space-y-5">
+      <div className="space-y-5 animate-fade-up stagger-1">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/40">
           <div className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
@@ -210,7 +206,7 @@ export default function QnA() {
         {isActionLoading && questions.length === 0 && (
           <div className="space-y-4">
             {[1, 2].map((i) => (
-              <Skeleton key={i} className="h-40 w-full rounded-xl bg-muted/30" />
+              <Skeleton key={i} className="h-40 w-full rounded-xl" />
             ))}
           </div>
         )}
@@ -268,7 +264,7 @@ export default function QnA() {
                       >
                         {isCopied ? (
                           <>
-                            <Check className="h-3.5 w-3.5 mr-1 text-emerald-400" />
+                            <Check className="h-3.5 w-3.5 mr-1 text-primary" />
                             Copied
                           </>
                         ) : (
@@ -295,12 +291,12 @@ export default function QnA() {
 
                   {/* AI Answer Block */}
                   <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 mt-0.5">
                       <Bot className="h-4 w-4" />
                     </div>
                     <div className="space-y-2 flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] uppercase font-mono text-emerald-400/90 tracking-wider font-semibold">
+                        <span className="text-[10px] uppercase font-mono text-primary font-semibold tracking-wider">
                           AI Codebase Reasoning
                         </span>
                         <span className="text-[10px] text-muted-foreground font-mono">

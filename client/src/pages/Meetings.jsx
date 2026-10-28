@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PageHeader from "@/components/layout/PageHeader";
 import {
@@ -15,12 +14,10 @@ import {
   Link2,
   Trash2,
   Clock,
-  ExternalLink,
   Mic,
   Search,
   Sparkles,
   Headphones,
-  CheckCircle2,
   FileAudio,
   Radio,
   ArrowRight,
@@ -95,12 +92,12 @@ export default function Meetings() {
           <>
             <Badge
               variant="outline"
-              className="text-xs font-mono bg-muted/60 border-gold/25 text-muted-foreground"
+              className="text-xs font-mono text-muted-foreground"
             >
               AI Transcription
             </Badge>
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/60 border border-border text-muted-foreground font-mono text-xs">
-              <Radio className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+              <Radio className="h-3.5 w-3.5 text-primary" />
               <span>{meetings.length} Session{meetings.length === 1 ? "" : "s"}</span>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/60 border border-border text-muted-foreground font-mono text-xs">
@@ -112,7 +109,7 @@ export default function Meetings() {
       />
 
       {/* ─── Audio Ingestion & Processing Card ───────────────────────── */}
-      <Card className="glass-premium overflow-hidden">
+      <Card className="glass-premium overflow-hidden animate-fade-up">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2.5">
             <div className="icon-tile h-8 w-8 rounded-lg">
@@ -180,7 +177,7 @@ export default function Meetings() {
       </Card>
 
       {/* ─── Meetings List Section ───────────────────────────────────── */}
-      <div className="space-y-5">
+      <div className="space-y-5 animate-fade-up stagger-1">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/40">
           <div className="flex items-center gap-2">
             <Presentation className="h-4 w-4 text-muted-foreground" />
@@ -219,7 +216,7 @@ export default function Meetings() {
           </Card>
         )}
 
-        {/* Meetings Grid (Widescreen 3-column / 2-column) */}
+        {/* Meetings Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredMeetings.map((meeting) => (
             <Card
@@ -257,7 +254,7 @@ export default function Meetings() {
                   </Button>
                 </div>
 
-                {/* Topics Preview Badges */}
+                {/* Topics Preview */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-[11px]">
                     <span className="text-muted-foreground font-medium">Discussion Topics</span>

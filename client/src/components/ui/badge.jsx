@@ -3,17 +3,17 @@ import { cn } from "@/lib/utils";
 
 const Badge = React.forwardRef(({ className, variant = "default", ...props }, ref) => {
   const variants = {
-    default: "bg-primary text-primary-foreground hover:bg-primary/80",
-    secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-    destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/80",
-    outline: "text-foreground border border-input hover:border-gold/40",
+    default: "bg-primary/10 text-primary border border-primary/20",
+    secondary: "bg-secondary text-secondary-foreground border border-border/40",
+    destructive: "bg-destructive/10 text-destructive border border-destructive/20",
+    outline: "text-muted-foreground border border-border/80 bg-background/50",
   };
 
   return (
     <div
       ref={ref}
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors",
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
         variants[variant],
         className
       )}

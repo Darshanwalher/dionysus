@@ -3,28 +3,24 @@ import { useParams, Link } from "react-router-dom";
 import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PageHeader from "@/components/layout/PageHeader";
 import {
   Clock,
-  MessageSquare,
   Send,
   Bot,
   ChevronRight,
   ArrowLeft,
   Presentation,
-  Headphones,
-  Search,
   Sparkles,
   Copy,
   Check,
-  CheckCircle2,
   ListOrdered,
   FileText,
-  HelpCircle,
+  Search,
 } from "lucide-react";
 
 export default function MeetingDetail() {
@@ -67,7 +63,7 @@ export default function MeetingDetail() {
       );
       setAnswer(data.data.answer);
       toast.success("Answer received!");
-    } catch (error) {
+    } catch {
       setAnswer("Failed to get an answer. Please try again.");
       toast.error("Failed to query meeting issue");
     } finally {
@@ -98,10 +94,10 @@ export default function MeetingDetail() {
   if (loading) {
     return (
       <div className="w-full max-w-7xl mx-auto space-y-6">
-        <Skeleton className="h-10 w-72 bg-muted/40" />
+        <Skeleton className="h-10 w-72" />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <Skeleton className="lg:col-span-5 h-[650px] rounded-xl bg-muted/30" />
-          <Skeleton className="lg:col-span-7 h-[650px] rounded-xl bg-muted/30" />
+          <Skeleton className="lg:col-span-5 h-[650px] rounded-xl" />
+          <Skeleton className="lg:col-span-7 h-[650px] rounded-xl" />
         </div>
       </div>
     );
@@ -131,7 +127,7 @@ export default function MeetingDetail() {
         description={`Processed on ${new Date(meeting.createdAt).toLocaleString()}`}
         actions={
           <>
-            <Badge variant="outline" className="text-xs font-mono bg-muted/60 border-gold/25 text-muted-foreground">
+            <Badge variant="outline" className="text-xs font-mono text-muted-foreground">
               {meeting.issues?.length || 0} Topics Extracted
             </Badge>
             <Link to={`/projects/${id}/meetings`}>
@@ -144,9 +140,9 @@ export default function MeetingDetail() {
         }
       />
 
-      {/* ─── Master-Detail Two-Column Screen Layout ──────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column (5 cols): Topics List Timeline */}
+      {/* ─── Master-Detail Layout ──────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fade-up">
+        {/* Left Column (5 cols): Topics List */}
         <div className="lg:col-span-5 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
@@ -169,7 +165,6 @@ export default function MeetingDetail() {
             </div>
           </div>
 
-          {/* Scrollable Topics Column */}
           <div className="space-y-2.5 max-h-[720px] overflow-y-auto pr-1">
             {filteredIssues.map((issue) => {
               const isSelected = selectedIssue?._id === issue._id;
@@ -184,7 +179,7 @@ export default function MeetingDetail() {
                   interactive={!isSelected}
                   className={`glass cursor-pointer border ${
                     isSelected
-                      ? "border-gold/50 bg-primary/10 shadow-md ring-1 ring-primary/30"
+                      ? "border-primary/50 bg-primary/8 shadow-sm ring-1 ring-primary/30"
                       : "border-border/50 bg-card/40"
                   }`}
                 >
@@ -225,7 +220,7 @@ export default function MeetingDetail() {
           </div>
         </div>
 
-        {/* Right Column (7 cols): Deep Dive Detail Panel & Follow-Up Assistant */}
+        {/* Right Column (7 cols): Deep Dive Detail Panel */}
         <div className="lg:col-span-7">
           {selectedIssue ? (
             <Card className="glass-premium">
@@ -278,7 +273,7 @@ export default function MeetingDetail() {
                     </span>
                   </div>
 
-                  {/* Quick suggestion pills */}
+                  {/* Suggestion pills */}
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <button
                       type="button"
@@ -335,9 +330,9 @@ export default function MeetingDetail() {
 
                   {/* AI Response Display */}
                   {answer && (
-                    <div className="p-4 rounded-xl bg-muted/90 border border-border space-y-2 animate-in fade-in duration-200">
+                    <div className="p-4 rounded-xl bg-muted/90 border border-border space-y-2 animate-fade-up">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-semibold font-mono">
+                        <div className="flex items-center gap-1.5 text-[11px] text-primary font-semibold font-mono">
                           <Bot className="h-3.5 w-3.5" />
                           <span>AI Answer</span>
                         </div>
@@ -349,7 +344,7 @@ export default function MeetingDetail() {
                         >
                           {copiedAnswer ? (
                             <>
-                              <Check className="h-3 w-3 mr-1 text-emerald-400" />
+                              <Check className="h-3 w-3 mr-1 text-primary" />
                               Copied
                             </>
                           ) : (

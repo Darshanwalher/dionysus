@@ -115,15 +115,15 @@ export default function ProjectHome() {
   if (isLoading || !currentProject) {
     return (
       <div className="w-full max-w-7xl mx-auto space-y-6">
-        <Skeleton className="h-12 w-80 bg-muted/40" />
+        <Skeleton className="h-12 w-80" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-28 rounded-xl bg-muted/30" />
+            <Skeleton key={i} className="h-28 rounded-xl" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <Skeleton className="lg:col-span-8 h-96 rounded-xl bg-muted/30" />
-          <Skeleton className="lg:col-span-4 h-96 rounded-xl bg-muted/30" />
+          <Skeleton className="lg:col-span-8 h-96 rounded-xl" />
+          <Skeleton className="lg:col-span-4 h-96 rounded-xl" />
         </div>
       </div>
     );
@@ -139,18 +139,18 @@ export default function ProjectHome() {
           <>
             <Badge
               variant="outline"
-              className="text-xs font-mono bg-muted/60 border-gold/25 text-muted-foreground"
+              className="text-xs font-mono text-muted-foreground"
             >
-              <ShieldCheck className="h-3 w-3 mr-1 text-emerald-400" />
+              <ShieldCheck className="h-3.5 w-3.5 mr-1 text-primary" />
               Active Project
             </Badge>
             <button
               onClick={handleCopyId}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono rounded-md bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors border border-border/50"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono rounded-md bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors border border-border/50"
               title="Click to copy full Project ID"
             >
               {copiedId ? (
-                <Check className="h-3 w-3 text-emerald-400" />
+                <Check className="h-3 w-3 text-primary" />
               ) : (
                 <Copy className="h-3 w-3" />
               )}
@@ -191,7 +191,7 @@ export default function ProjectHome() {
 
       {/* Inline Invite Bar */}
       {showInvite && (
-        <Card className="glass border-border/60 bg-card/60 backdrop-blur-md animate-in fade-in duration-200">
+        <Card className="glass border-border/60 bg-card/60 backdrop-blur-md animate-fade-up">
           <CardContent className="p-4 flex flex-col sm:flex-row items-center gap-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-[140px]">
               <Users className="h-4 w-4 text-primary" />
@@ -224,15 +224,15 @@ export default function ProjectHome() {
       )}
 
       {/* ─── Metric Cards Grid ────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-up stagger-1">
         {/* Total Commits */}
-        <Card className="glass border-border/50 hover:border-gold/30 transition-all">
+        <Card className="glass border-border/50 hover:border-primary/30 transition-all">
           <CardContent className="p-5 flex items-center justify-between">
             <div className="space-y-1">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Commits Tracked
               </span>
-              <div className="text-2xl font-bold font-mono">
+              <div className="text-2xl font-bold font-mono text-foreground">
                 {currentProject.commits?.length || 0}
               </div>
               <p className="text-[11px] text-muted-foreground">
@@ -250,17 +250,17 @@ export default function ProjectHome() {
           <Card interactive className="glass border-border/50 h-full">
             <CardContent className="p-5 flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                   Documentation
                 </span>
-                <div className="text-2xl font-bold font-mono group-hover:text-primary transition-colors">
+                <div className="text-2xl font-bold font-mono group-hover:text-primary transition-colors text-foreground">
                   12 Sections
                 </div>
                 <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                   Architecture & setup guides <ChevronDown className="h-3 w-3 -rotate-90" />
                 </p>
               </div>
-              <div className="icon-tile group-hover:border-gold/50">
+              <div className="icon-tile group-hover:border-primary/40">
                 <BookText className="h-5 w-5" />
               </div>
             </CardContent>
@@ -272,17 +272,17 @@ export default function ProjectHome() {
           <Card interactive className="glass border-border/50 h-full">
             <CardContent className="p-5 flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                   Q & A Engine
                 </span>
-                <div className="text-2xl font-bold font-mono group-hover:text-primary transition-colors">
+                <div className="text-2xl font-bold font-mono group-hover:text-primary transition-colors text-foreground">
                   AI Ready
                 </div>
                 <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                   Vector search over codebase <ChevronDown className="h-3 w-3 -rotate-90" />
                 </p>
               </div>
-              <div className="icon-tile group-hover:border-gold/50">
+              <div className="icon-tile group-hover:border-primary/40">
                 <FileQuestion className="h-5 w-5" />
               </div>
             </CardContent>
@@ -294,17 +294,17 @@ export default function ProjectHome() {
           <Card interactive className="glass border-border/50 h-full">
             <CardContent className="p-5 flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                   Audio Meetings
                 </span>
-                <div className="text-2xl font-bold font-mono group-hover:text-primary transition-colors">
+                <div className="text-2xl font-bold font-mono group-hover:text-primary transition-colors text-foreground">
                   {currentProject.meetings?.length || 0} Sessions
                 </div>
                 <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                   Transcribe & extract topics <ChevronDown className="h-3 w-3 -rotate-90" />
                 </p>
               </div>
-              <div className="icon-tile group-hover:border-gold/50">
+              <div className="icon-tile group-hover:border-primary/40">
                 <Presentation className="h-5 w-5" />
               </div>
             </CardContent>
@@ -313,7 +313,7 @@ export default function ProjectHome() {
       </div>
 
       {/* ─── Main Two-Column Screen Layout ───────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fade-up stagger-2">
         {/* Left Column (8 cols): GitHub Status & Commit Timeline */}
         <div className="lg:col-span-8 space-y-6">
           {/* GitHub Connection Card */}
@@ -369,12 +369,12 @@ export default function ProjectHome() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
                           Connected Repository
                         </span>
                         <Badge
                           variant="outline"
-                          className="text-[10px] font-mono border-emerald-500/30 text-emerald-400 bg-emerald-500/10 px-2 py-0"
+                          className="text-[10px] font-mono border-primary/30 text-primary bg-primary/8 px-2 py-0"
                         >
                           Live Sync
                         </Badge>
@@ -401,7 +401,7 @@ export default function ProjectHome() {
                     >
                       {copiedClone ? (
                         <>
-                          <Check className="h-3 w-3 mr-1 text-emerald-400" />
+                          <Check className="h-3 w-3 mr-1 text-primary" />
                           Copied
                         </>
                       ) : (
@@ -446,7 +446,7 @@ export default function ProjectHome() {
                     value={commitFilter}
                     onChange={(e) => setCommitFilter(e.target.value)}
                     placeholder="Filter commits…"
-                    className="w-full pl-8 pr-3 py-1 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-ring text-foreground"
+                    className="w-full pl-8 pr-3 py-1.5 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-ring text-foreground"
                   />
                 </div>
               )}
@@ -513,7 +513,7 @@ export default function ProjectHome() {
                             {commit.summary && (
                               <button
                                 onClick={() => setExpandedCommit(isExpanded ? null : commit._id)}
-                                className="p-1 rounded hover:bg-muted/60 text-muted-foreground hover:text-foreground"
+                                className="p-1 rounded hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
                                 title={isExpanded ? "Collapse AI Summary" : "Expand AI Summary"}
                               >
                                 {isExpanded ? (
@@ -533,9 +533,9 @@ export default function ProjectHome() {
 
                         {/* AI Summary Section */}
                         {commit.summary && isExpanded && (
-                          <div className="ml-9 p-3 rounded-lg bg-muted/80 border border-border text-[11px] space-y-1.5 animate-in fade-in duration-150">
+                          <div className="ml-9 p-3 rounded-lg bg-muted/80 border border-border text-[11px] space-y-1.5 animate-fade-up">
                             <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
-                              <Sparkles className="h-3 w-3 text-amber-400" />
+                              <Sparkles className="h-3 w-3 text-primary" />
                               <span>AI Code Summary</span>
                             </div>
                             <p className="text-foreground font-mono whitespace-pre-wrap leading-relaxed">
@@ -606,14 +606,14 @@ export default function ProjectHome() {
           <Card className="glass border-border/50 bg-card/40">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-muted-foreground" />
-                Project Intelligence Tools
+                <Sparkles className="h-4 w-4 text-primary" />
+                Project Tools
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Link
                 to={`/projects/${id}/documentation`}
-                className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-background/30 hover:border-gold/30 hover:bg-muted/40 transition-colors group"
+                className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-background/30 hover:border-primary/30 hover:bg-muted/40 transition-colors group"
               >
                 <div className="flex items-center gap-2.5">
                   <BookText className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -627,7 +627,7 @@ export default function ProjectHome() {
 
               <Link
                 to={`/projects/${id}/qna`}
-                className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-background/30 hover:border-gold/30 hover:bg-muted/40 transition-colors group"
+                className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-background/30 hover:border-primary/30 hover:bg-muted/40 transition-colors group"
               >
                 <div className="flex items-center gap-2.5">
                   <FileQuestion className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -641,7 +641,7 @@ export default function ProjectHome() {
 
               <Link
                 to={`/projects/${id}/meetings`}
-                className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-background/30 hover:border-gold/30 hover:bg-muted/40 transition-colors group"
+                className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-background/30 hover:border-primary/30 hover:bg-muted/40 transition-colors group"
               >
                 <div className="flex items-center gap-2.5">
                   <Presentation className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -655,7 +655,7 @@ export default function ProjectHome() {
 
               <Link
                 to={`/projects/${id}/visualise`}
-                className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-background/30 hover:border-gold/30 hover:bg-muted/40 transition-colors group"
+                className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-background/30 hover:border-primary/30 hover:bg-muted/40 transition-colors group"
               >
                 <div className="flex items-center gap-2.5">
                   <FolderTree className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -674,7 +674,7 @@ export default function ProjectHome() {
             <CardContent className="p-4 space-y-2 font-mono text-[11px] text-muted-foreground">
               <div className="flex justify-between py-1 border-b border-border/30">
                 <span>Vector Index:</span>
-                <span className="text-emerald-400 font-semibold">Active (Pinecone)</span>
+                <span className="text-primary font-semibold">Active (Pinecone)</span>
               </div>
               <div className="flex justify-between py-1 border-b border-border/30">
                 <span>AI Model:</span>

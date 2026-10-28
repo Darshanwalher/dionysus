@@ -85,7 +85,7 @@ export default function Documentation() {
     }
   }, [currentProject?.documentation, editor]);
 
-  // Calculate word count & estimated reading time
+  // Reading stats
   const stats = useMemo(() => {
     const text = content.replace(/<[^>]*>/g, " ").trim();
     const words = text ? text.split(/\s+/).length : 0;
@@ -119,7 +119,6 @@ export default function Documentation() {
     const editorEl = document.querySelector(".tiptap");
     if (!editorEl) return;
 
-    // Search for matching h2 element by text or id
     const headings = editorEl.querySelectorAll("h2");
     for (const h of headings) {
       if (
@@ -155,42 +154,41 @@ export default function Documentation() {
         actions={
           <>
             {currentProject?.githubUrl && (
-              <Badge variant="outline" className="text-primary border-gold/30 bg-primary/5">
+              <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5">
                 AI Generated
               </Badge>
             )}
-          {/* Reading stats */}
-          <div className="hidden lg:flex items-center gap-3 text-xs text-muted-foreground mr-2">
-            <span className="flex items-center gap-1">
-              <FileCode className="h-3.5 w-3.5" />
-              {stats.words.toLocaleString()} words
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              {stats.minutes} min read
-            </span>
-          </div>
+            <div className="hidden lg:flex items-center gap-3 text-xs text-muted-foreground mr-2">
+              <span className="flex items-center gap-1">
+                <FileCode className="h-3.5 w-3.5" />
+                {stats.words.toLocaleString()} words
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" />
+                {stats.minutes} min read
+              </span>
+            </div>
 
-          <Button onClick={handleCopy} variant="outline" size="sm" className="h-9">
-            {copied ? (
-              <Check className="h-4 w-4 mr-1.5 text-green-400" />
-            ) : (
-              <Copy className="h-4 w-4 mr-1.5" />
-            )}
-            Copy
-          </Button>
+            <Button onClick={handleCopy} variant="outline" size="sm" className="h-9">
+              {copied ? (
+                <Check className="h-4 w-4 mr-1.5 text-primary" />
+              ) : (
+                <Copy className="h-4 w-4 mr-1.5" />
+              )}
+              Copy
+            </Button>
 
-          <Button onClick={handleSave} isLoading={saving} size="sm" className="h-9">
-            <Save className="h-4 w-4 mr-1.5" />
-            Save Changes
-          </Button>
+            <Button onClick={handleSave} isLoading={saving} size="sm" className="h-9">
+              <Save className="h-4 w-4 mr-1.5" />
+              Save Changes
+            </Button>
           </>
         }
       />
 
       {/* Main 2-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fade-up">
         {/* Left Sticky Table of Contents */}
         <div className="lg:col-span-3 sticky top-4 space-y-3">
           <Card className="glass border-border/50">
@@ -217,7 +215,7 @@ export default function Documentation() {
                     }`}
                   >
                     <Icon
-                      className={`h-4 w-4 flex-shrink-0 transition-transform group-hover:scale-110 ${
+                      className={`h-4 w-4 flex-shrink-0 transition-transform group-hover:scale-105 ${
                         isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
                       }`}
                     />
