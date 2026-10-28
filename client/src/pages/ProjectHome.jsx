@@ -454,8 +454,8 @@ export default function ProjectHome() {
                 onClick={() => setOnlyAiSummaries(!onlyAiSummaries)}
                 className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded border transition-colors shrink-0 ${
                   onlyAiSummaries
-                    ? "bg-primary/10 border-primary/40 text-primary font-medium"
-                    : "border-border/60 text-muted-foreground hover:text-foreground"
+                    ? "bg-secondary text-foreground border-border font-medium shadow-xs"
+                    : "border-border/60 text-muted-foreground hover:text-foreground hover:bg-secondary/40"
                 }`}
               >
                 <Sparkles className="h-3 w-3" />
@@ -521,14 +521,14 @@ export default function ProjectHome() {
                             {commit.summary && (
                               <button
                                 onClick={() => setExpandedCommit(isExpanded ? null : commit._id)}
-                                className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded transition-colors ${
+                                className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded border transition-colors ${
                                   isExpanded
-                                    ? "bg-primary text-primary-foreground font-medium"
-                                    : "bg-secondary text-primary hover:bg-primary/10 border border-primary/20"
+                                    ? "bg-primary text-primary-foreground border-primary/40 shadow-xs font-medium"
+                                    : "bg-secondary/60 hover:bg-secondary text-muted-foreground hover:text-foreground border-border"
                                 }`}
                                 title={isExpanded ? "Hide AI Summary" : "View AI Summary"}
                               >
-                                <Sparkles className="h-3 w-3" />
+                                <Sparkles className={`h-3 w-3 ${isExpanded ? "text-primary-foreground" : "text-primary"}`} />
                                 <span className="hidden sm:inline">AI Summary</span>
                                 {isExpanded ? (
                                   <ChevronUp className="h-3 w-3" />

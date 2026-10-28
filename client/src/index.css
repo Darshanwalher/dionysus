@@ -44,7 +44,7 @@
   --card-foreground: oklch(0.18 0.012 260);
   --popover:     oklch(1.00 0.000 260);
   --popover-foreground: oklch(0.18 0.012 260);
-  --primary:     oklch(0.50 0.20 292);
+  --primary:     oklch(0.48 0.14 275);      /* Refined, mature indigo-slate */
   --primary-foreground: oklch(0.99 0 0);
   --secondary:   oklch(0.955 0.003 260);
   --secondary-foreground: oklch(0.20 0.012 260);
@@ -56,7 +56,7 @@
   --destructive-foreground: oklch(0.985 0 0);
   --border:      oklch(0.90 0.004 260);
   --input:       oklch(0.90 0.004 260);
-  --ring:        oklch(0.50 0.20 292);
+  --ring:        oklch(0.48 0.14 275);
   --sidebar:     oklch(0.975 0.003 260);
   --sidebar-foreground: oklch(0.42 0.010 260);
   --sidebar-accent: oklch(0.94 0.005 260);
@@ -66,27 +66,26 @@
 /* ─── Dark theme (Refined developer slate: comfortable, minimal, not pitch-black) ─── */
 .dark {
   color-scheme: dark;
-  /* Balanced deep slate/charcoal instead of pitch black void */
-  --background:  oklch(0.165 0.010 260);     /* Soft, modern dark background (~#131418) */
+  --background:  oklch(0.165 0.010 260);     /* Soft modern dark (~#131418) */
   --foreground:  oklch(0.94 0.005 260);      /* Clean soft white */
-  --card:        oklch(0.195 0.012 260);     /* Slightly elevated card surface (~#1a1b22) */
+  --card:        oklch(0.195 0.012 260);     /* Surface (~#1a1b22) */
   --card-foreground: oklch(0.94 0.005 260);
   --popover:     oklch(0.195 0.012 260);
   --popover-foreground: oklch(0.94 0.005 260);
-  --primary:     oklch(0.70 0.18 292);      /* Elegant violet */
+  --primary:     oklch(0.62 0.13 275);      /* Desaturated, sophisticated indigo-violet */
   --primary-foreground: oklch(0.99 0 0);
-  --secondary:   oklch(0.23 0.012 260);     /* Subtle interactive fill (~#23252d) */
+  --secondary:   oklch(0.23 0.012 260);     /* Interactive fill (~#23252d) */
   --secondary-foreground: oklch(0.92 0.006 260);
-  --muted:       oklch(0.22 0.010 260);     /* Gentle muted fill */
-  --muted-foreground: oklch(0.65 0.012 260); /* Readable, pleasant secondary text */
+  --muted:       oklch(0.22 0.010 260);     /* Muted fill */
+  --muted-foreground: oklch(0.65 0.012 260); /* Comfortable slate-gray text */
   --accent:      oklch(0.25 0.014 260);
   --accent-foreground: oklch(0.95 0.005 260);
   --destructive: oklch(0.60 0.18 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --border:      oklch(0.255 0.010 260);    /* Clean, faint hairline borders */
+  --border:      oklch(0.255 0.010 260);    /* Clean subtle borders */
   --input:       oklch(0.255 0.010 260);
-  --ring:        oklch(0.70 0.18 292);
-  --sidebar:     oklch(0.145 0.008 260);    /* Subtle distinction for sidebar */
+  --ring:        oklch(0.62 0.13 275);
+  --sidebar:     oklch(0.145 0.008 260);
   --sidebar-foreground: oklch(0.65 0.010 260);
   --sidebar-accent: oklch(0.21 0.012 260);
   --sidebar-border: oklch(0.22 0.008 260);
