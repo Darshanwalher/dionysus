@@ -35,60 +35,60 @@
   --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ─── Light theme ─────────────────────────────────────────── */
+/* ─── Light theme (Clean, high-contrast, editorial) ──────────────── */
 :root {
   color-scheme: light;
-  --background:  oklch(0.98 0.003 260);
-  --foreground:  oklch(0.18 0.015 260);
+  --background:  oklch(0.985 0.002 260);
+  --foreground:  oklch(0.16 0.012 260);
   --card:        oklch(1.00 0.000 260);
-  --card-foreground: oklch(0.18 0.015 260);
+  --card-foreground: oklch(0.16 0.012 260);
   --popover:     oklch(1.00 0.000 260);
-  --popover-foreground: oklch(0.18 0.015 260);
-  --primary:     oklch(0.50 0.22 292);
+  --popover-foreground: oklch(0.16 0.012 260);
+  --primary:     oklch(0.48 0.22 292);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary:   oklch(0.95 0.005 260);
-  --secondary-foreground: oklch(0.22 0.015 260);
-  --muted:       oklch(0.95 0.005 260);
-  --muted-foreground: oklch(0.52 0.012 260);
-  --accent:      oklch(0.93 0.010 260);
-  --accent-foreground: oklch(0.22 0.015 260);
+  --secondary:   oklch(0.955 0.003 260);
+  --secondary-foreground: oklch(0.20 0.012 260);
+  --muted:       oklch(0.955 0.003 260);
+  --muted-foreground: oklch(0.48 0.010 260);
+  --accent:      oklch(0.94 0.006 260);
+  --accent-foreground: oklch(0.20 0.012 260);
   --destructive: oklch(0.55 0.22 29);
   --destructive-foreground: oklch(0.985 0 0);
-  --border:      oklch(0.90 0.006 260);
-  --input:       oklch(0.90 0.006 260);
-  --ring:        oklch(0.50 0.22 292);
-  --sidebar:     oklch(0.97 0.004 260);
-  --sidebar-foreground: oklch(0.44 0.012 260);
-  --sidebar-accent: oklch(0.93 0.008 260);
-  --sidebar-border: oklch(0.90 0.007 260);
+  --border:      oklch(0.91 0.004 260);
+  --input:       oklch(0.91 0.004 260);
+  --ring:        oklch(0.48 0.22 292);
+  --sidebar:     oklch(0.975 0.003 260);
+  --sidebar-foreground: oklch(0.42 0.010 260);
+  --sidebar-accent: oklch(0.94 0.005 260);
+  --sidebar-border: oklch(0.91 0.004 260);
 }
 
-/* ─── Dark theme ──────────────────────────────────────────── */
+/* ─── Dark theme (Minimalist, deep architectural slate/zinc) ────────── */
 .dark {
   color-scheme: dark;
-  --background:  oklch(0.11 0.008 260);
-  --foreground:  oklch(0.96 0.006 260);
-  --card:        oklch(0.14 0.010 260);
-  --card-foreground: oklch(0.96 0.006 260);
-  --popover:     oklch(0.14 0.010 260);
-  --popover-foreground: oklch(0.96 0.006 260);
-  --primary:     oklch(0.68 0.20 292);
+  --background:  oklch(0.11 0.005 260);
+  --foreground:  oklch(0.96 0.004 260);
+  --card:        oklch(0.135 0.006 260);
+  --card-foreground: oklch(0.96 0.004 260);
+  --popover:     oklch(0.135 0.006 260);
+  --popover-foreground: oklch(0.96 0.004 260);
+  --primary:     oklch(0.68 0.19 292);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary:   oklch(0.19 0.012 260);
-  --secondary-foreground: oklch(0.96 0.006 260);
-  --muted:       oklch(0.19 0.010 260);
-  --muted-foreground: oklch(0.60 0.012 260);
-  --accent:      oklch(0.21 0.016 260);
-  --accent-foreground: oklch(0.92 0.008 260);
+  --secondary:   oklch(0.17 0.006 260);
+  --secondary-foreground: oklch(0.95 0.004 260);
+  --muted:       oklch(0.17 0.006 260);
+  --muted-foreground: oklch(0.58 0.008 260);
+  --accent:      oklch(0.19 0.008 260);
+  --accent-foreground: oklch(0.94 0.004 260);
   --destructive: oklch(0.58 0.20 25);
   --destructive-foreground: oklch(0.985 0 0);
-  --border:      oklch(0.24 0.012 260);
-  --input:       oklch(0.24 0.012 260);
-  --ring:        oklch(0.68 0.20 292);
-  --sidebar:     oklch(0.09 0.008 260);
-  --sidebar-foreground: oklch(0.60 0.010 260);
-  --sidebar-accent: oklch(0.17 0.014 260);
-  --sidebar-border: oklch(0.20 0.012 260);
+  --border:      oklch(0.20 0.006 260);
+  --input:       oklch(0.20 0.006 260);
+  --ring:        oklch(0.68 0.19 292);
+  --sidebar:     oklch(0.095 0.004 260);
+  --sidebar-foreground: oklch(0.58 0.008 260);
+  --sidebar-accent: oklch(0.15 0.006 260);
+  --sidebar-border: oklch(0.17 0.005 260);
 }
 
 /* ─── Base ────────────────────────────────────────────────── */
@@ -116,7 +116,7 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
 
   *:focus-visible {
@@ -125,13 +125,13 @@
   }
 
   ::selection {
-    background: color-mix(in oklch, var(--primary) 20%, transparent);
+    background: color-mix(in oklch, var(--primary) 24%, transparent);
     color: var(--foreground);
   }
 }
 
-/* ─── Scrollbar ───────────────────────────────────────────── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
+/* ─── Minimal Scrollbar ───────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--border);
@@ -144,69 +144,52 @@
 .scrollbar-none { scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
-/* ─── Glass utilities ─────────────────────────────────────── */
+/* ─── Clean Glass & Surfaces ─────────────────────────────── */
 .glass {
-  background: color-mix(in oklch, var(--card) 75%, transparent);
-  backdrop-filter: blur(16px);
-  border: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
+  background: color-mix(in oklch, var(--card) 85%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
 }
 
 .glass-premium {
-  background: color-mix(in oklch, var(--card) 82%, transparent);
-  backdrop-filter: blur(24px) saturate(1.15);
-  border: 1px solid color-mix(in oklch, var(--primary) 18%, var(--border));
-  box-shadow:
-    0 0 0 1px color-mix(in oklch, var(--primary) 6%, transparent),
-    0 20px 48px -20px color-mix(in oklch, var(--foreground) 12%, transparent);
+  background: color-mix(in oklch, var(--card) 92%, transparent);
+  backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in oklch, var(--border) 90%, var(--primary) 10%);
+  box-shadow: 0 4px 20px -8px rgba(0, 0, 0, 0.4);
 }
 
-/* ─── Accent line ─────────────────────────────────────────── */
-.accent-line {
-  height: 1px;
-  width: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in oklch, var(--primary) 50%, transparent),
-    transparent
-  );
-}
-
-/* Keep .gold-line as alias for backward compat */
+/* ─── Accent line & Gradient Text ─────────────────────────── */
+.accent-line,
 .gold-line {
   height: 1px;
   width: 100%;
   background: linear-gradient(
     90deg,
     transparent,
-    color-mix(in oklch, var(--primary) 50%, transparent),
+    color-mix(in oklch, var(--primary) 40%, transparent),
     transparent
   );
 }
 
-/* ─── Text gradient ───────────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--primary) 70%, var(--foreground)));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--foreground);
 }
 
-/* ─── Icon tile ───────────────────────────────────────────── */
+/* ─── Clean Icon Tile ─────────────────────────────────────── */
 .icon-tile {
   display: flex;
-  height: 2.5rem;
-  width: 2.5rem;
+  height: 2.25rem;
+  width: 2.25rem;
   align-items: center;
   justify-content: center;
-  border-radius: 0.75rem;
-  border: 1px solid color-mix(in oklch, var(--primary) 20%, var(--border));
-  background: color-mix(in oklch, var(--primary) 10%, var(--card));
+  border-radius: 0.625rem;
+  border: 1px solid var(--border);
+  background: var(--secondary);
   color: var(--primary);
-  box-shadow: inset 0 1px 0 color-mix(in oklch, var(--primary) 12%, transparent);
+  transition: all 0.2s ease;
 }
 
-/* ─── Atmosphere ──────────────────────────────────────────── */
+/* ─── Quiet Atmosphere ────────────────────────────────────── */
 .atmosphere {
   pointer-events: none;
   position: absolute;
@@ -218,35 +201,22 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(color-mix(in oklch, var(--border) 50%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in oklch, var(--border) 50%, transparent) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 20%, transparent 75%);
-  opacity: 0.35;
+    linear-gradient(color-mix(in oklch, var(--border) 35%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklch, var(--border) 35%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 15%, transparent 75%);
+  opacity: 0.25;
 }
 
-.atmosphere-orb {
+.atmosphere-orb--subtle {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(90px);
-  animation: orb-drift 24s ease-in-out infinite;
-}
-
-.atmosphere-orb--violet {
-  width: 26rem;
-  height: 26rem;
-  background: color-mix(in oklch, var(--primary) 22%, transparent);
-  top: -8rem;
-  left: -6rem;
-}
-
-.atmosphere-orb--gold {
-  width: 22rem;
-  height: 22rem;
-  background: color-mix(in oklch, var(--primary) 14%, transparent);
-  bottom: -8rem;
-  right: -5rem;
-  animation-delay: -10s;
+  filter: blur(120px);
+  width: 32rem;
+  height: 20rem;
+  background: color-mix(in oklch, var(--primary) 8%, transparent);
+  top: -6rem;
+  left: 20%;
 }
 
 .spotlight {
@@ -254,30 +224,20 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    400px circle at var(--spot-x, 50%) var(--spot-y, 30%),
-    color-mix(in oklch, var(--primary) 8%, transparent),
-    transparent 55%
+    360px circle at var(--spot-x, 50%) var(--spot-y, 25%),
+    color-mix(in oklch, var(--primary) 5%, transparent),
+    transparent 60%
   );
 }
 
-/* ─── Animations ──────────────────────────────────────────── */
-@keyframes orb-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50%       { transform: translate(5%, 7%) scale(1.06); }
-}
-
+/* ─── Smooth Entrance Animations ──────────────────────────── */
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slide-up {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes banner-in {
-  from { opacity: 0; transform: translateY(-6px); }
+  from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -286,33 +246,28 @@
   to   { background-position:  200% center; }
 }
 
-.animate-fade-up    { animation: fade-up   0.50s cubic-bezier(0.16,1,0.3,1) both; }
-.animate-slide-up   { animation: slide-up  0.40s cubic-bezier(0.16,1,0.3,1) both; }
-.animate-banner-in  { animation: banner-in 0.28s ease-out both; }
+.animate-fade-up    { animation: fade-up   0.35s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-banner-in  { animation: banner-in 0.20s ease-out both; }
 
-.stagger-1 { animation-delay: 0.05s; }
-.stagger-2 { animation-delay: 0.10s; }
-.stagger-3 { animation-delay: 0.16s; }
-.stagger-4 { animation-delay: 0.22s; }
-.stagger-5 { animation-delay: 0.28s; }
-.stagger-6 { animation-delay: 0.34s; }
+.stagger-1 { animation-delay: 0.04s; }
+.stagger-2 { animation-delay: 0.08s; }
+.stagger-3 { animation-delay: 0.12s; }
+.stagger-4 { animation-delay: 0.16s; }
 
-/* Skeleton shimmer */
 .skeleton-shimmer {
   background: linear-gradient(
     90deg,
     var(--muted) 25%,
-    color-mix(in oklch, var(--muted) 60%, var(--border)) 50%,
+    color-mix(in oklch, var(--muted) 70%, var(--border)) 50%,
     var(--muted) 75%
   );
   background-size: 200% auto;
-  animation: shimmer 1.6s linear infinite;
+  animation: shimmer 1.8s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .atmosphere-orb,
   .animate-fade-up,
-  .animate-slide-up,
   .animate-banner-in {
     animation: none !important;
   }
@@ -320,53 +275,39 @@
   button { transform: none !important; }
 }
 
-/* ─── TipTap / Prose ──────────────────────────────────────── */
+/* ─── TipTap / Markdown Typography ────────────────────────── */
 .tiptap,
 .prose {
-  color: color-mix(in oklch, var(--foreground) 88%, transparent);
-  line-height: 1.75;
-  font-size: 0.95rem;
+  color: var(--foreground);
+  line-height: 1.7;
+  font-size: 0.9375rem;
 }
 
 .tiptap h1,
 .prose h1 {
-  font-size: 1.85rem;
-  font-weight: 800;
+  font-size: 1.75rem;
+  font-weight: 700;
   letter-spacing: -0.025em;
   margin-top: 1.5rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   color: var(--foreground);
+  border-bottom: 1px solid var(--border);
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
 }
 
 .tiptap h2,
 .prose h2 {
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 600;
   letter-spacing: -0.02em;
-  margin-top: 2rem;
-  margin-bottom: 0.85rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
   color: var(--foreground);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.tiptap h2::before,
-.prose h2::before {
-  content: "";
-  display: inline-block;
-  width: 3px;
-  height: 1.1em;
-  background: var(--primary);
-  border-radius: 2px;
-  opacity: 0.7;
 }
 
 .tiptap h3,
 .prose h3 {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
@@ -375,95 +316,80 @@
 
 .tiptap p,
 .prose p {
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
   color: var(--muted-foreground);
 }
 
 .tiptap ul,
 .prose ul {
   list-style-type: disc;
-  padding-left: 1.5rem;
-  margin-top: 0.75rem;
-  margin-bottom: 1.25rem;
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .tiptap ol,
 .prose ol {
   list-style-type: decimal;
-  padding-left: 1.5rem;
-  margin-top: 0.75rem;
-  margin-bottom: 1.25rem;
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .tiptap li,
 .prose li {
-  margin-bottom: 0.4rem;
-  color: color-mix(in oklch, var(--foreground) 85%, transparent);
-}
-
-.tiptap li::marker,
-.prose li::marker {
-  color: var(--primary);
-  opacity: 0.6;
+  margin-bottom: 0.35rem;
+  color: var(--foreground);
 }
 
 .tiptap a,
 .prose a {
   color: var(--primary);
   text-decoration: underline;
-  text-underline-offset: 4px;
+  text-underline-offset: 3px;
   transition: opacity 0.15s ease;
-}
-
-.tiptap a:hover,
-.prose a:hover {
-  opacity: 0.75;
 }
 
 .tiptap code,
 .prose code {
   font-family: var(--font-mono);
-  font-feature-settings: "calt", "liga";
   font-size: 0.85em;
   background: var(--muted);
-  color: var(--primary);
-  padding: 0.15rem 0.4rem;
+  color: var(--foreground);
+  padding: 0.15rem 0.375rem;
   border-radius: 0.375rem;
-  border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+  border: 1px solid var(--border);
 }
 
 .tiptap pre,
 .prose pre {
   background: var(--secondary);
-  border: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
-  padding: 1rem 1.25rem;
+  padding: 1rem;
   overflow-x: auto;
-  margin-top: 1rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 4px 16px -2px color-mix(in oklch, var(--foreground) 6%, transparent);
+  margin-top: 0.75rem;
+  margin-bottom: 1.25rem;
 }
 
 .tiptap pre code,
 .prose pre code {
   font-family: var(--font-mono);
-  font-feature-settings: "calt", "liga";
   background: transparent;
   padding: 0;
   border: none;
   color: var(--foreground);
-  font-size: 0.85rem;
+  font-size: 0.825rem;
   line-height: 1.6;
 }
 
 .tiptap blockquote,
 .prose blockquote {
   border-left: 2px solid var(--primary);
-  padding: 0.5rem 1rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  font-style: italic;
+  padding: 0.5rem 0.875rem;
+  margin-top: 0.875rem;
+  margin-bottom: 0.875rem;
   color: var(--muted-foreground);
-  background: color-mix(in oklch, var(--primary) 5%, transparent);
+  background: var(--muted);
   border-radius: 0 0.375rem 0.375rem 0;
 }

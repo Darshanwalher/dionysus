@@ -4,10 +4,10 @@ import { cn } from "@/lib/utils";
 export default function Atmosphere({
   className,
   spotlight = false,
-  intensity = "full",
+  intensity = "subtle",
 }) {
   const wrapRef = useRef(null);
-  const [spot, setSpot] = useState({ x: "50%", y: "30%" });
+  const [spot, setSpot] = useState({ x: "50%", y: "20%" });
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
@@ -35,12 +35,15 @@ export default function Atmosphere({
   return (
     <div
       ref={wrapRef}
-      className={cn("atmosphere", intensity === "subtle" && "opacity-40", className)}
+      className={cn(
+        "atmosphere pointer-events-none fixed inset-0 overflow-hidden",
+        intensity === "subtle" ? "opacity-30" : "opacity-50",
+        className
+      )}
       aria-hidden="true"
     >
       <div className="atmosphere-grid" />
-      <div className="atmosphere-orb atmosphere-orb--violet" />
-      <div className="atmosphere-orb atmosphere-orb--gold" />
+      <div className="atmosphere-orb atmosphere-orb--subtle" />
       {spotlight && !reduced && (
         <div
           className="spotlight"

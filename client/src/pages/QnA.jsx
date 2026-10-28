@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { askQuestion, fetchQuestions, deleteQuestion } from "@/store/slices/projectSlice";
 import { Button } from "@/components/ui/button";
@@ -31,11 +31,19 @@ const SUGGESTED_QUESTIONS = [
 
 export default function QnA() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
   const { questions, isActionLoading } = useSelector((state) => state.project);
-  const [question, setQuestion] = useState("");
+  const [question, setQuestion] = useState(searchParams.get("q") || "");
   const [searchFilter, setSearchFilter] = useState("");
   const [copiedId, setCopiedId] = useState(null);
+
+  useEffect(() => {
+    const qParam = searchParams.get("q");
+    if (qParam) {
+      setQuestion(qParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     dispatch(fetchQuestions(id));
