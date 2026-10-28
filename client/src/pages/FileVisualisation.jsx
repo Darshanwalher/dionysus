@@ -10,6 +10,7 @@ import { FolderTree, Maximize2, Minimize2, Network, ListTree } from "lucide-reac
 import { parseFileTree } from "@/lib/fileTree";
 import FileTreeExplorer from "@/components/file-visualisation/FileTreeExplorer";
 import ArchitectureMap from "@/components/file-visualisation/ArchitectureMap";
+import PageHeader from "@/components/layout/PageHeader";
 
 export default function FileVisualisation() {
   const { id } = useParams();
@@ -41,27 +42,17 @@ export default function FileVisualisation() {
 
   return (
     <div className={`space-y-6 ${isFullscreen ? "fixed inset-0 z-50 bg-background p-6 overflow-auto" : ""}`}>
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-border/50">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground">
-            <FolderTree className="h-5 w-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight">File Visualisation</h1>
-              {currentProject?.name && (
-                <Badge variant="outline" className="border-border/60 text-xs font-mono text-muted-foreground bg-background/50">
-                  {currentProject.name}
-                </Badge>
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Hierarchical directory explorer and folder-level architecture map
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+      <PageHeader
+        icon={FolderTree}
+        title="File Visualisation"
+        description="Hierarchical directory explorer and folder-level architecture map"
+        actions={
+          <>
+            {currentProject?.name && (
+              <Badge variant="outline" className="border-gold/25 text-xs font-mono text-muted-foreground bg-background/50">
+                {currentProject.name}
+              </Badge>
+            )}
           <div className="flex items-center p-1 rounded-lg border border-border/60 bg-card/60">
             <button
               onClick={() => setViewMode("tree")}
@@ -100,11 +91,12 @@ export default function FileVisualisation() {
               <Maximize2 className="h-4 w-4" />
             )}
           </Button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {currentProject?.mermaidGraph ? (
-        <Card className="glass border-border/50 shadow-xl overflow-hidden">
+        <Card className="glass-premium overflow-hidden">
           <CardContent className="p-0">
             {viewMode === "diagram" ? (
               <ArchitectureMap fileTree={fileTree} isFullscreen={isFullscreen} />

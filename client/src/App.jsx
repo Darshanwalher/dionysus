@@ -74,12 +74,17 @@ function AppRoutes() {
             {projects.length > 0 ? (
               <Navigate to={`/projects/${projects[0]._id}`} replace />
             ) : (
-              <div className="text-center py-20">
-                <h1 className="text-2xl font-bold gradient-text mb-4">
+              <div className="mx-auto max-w-xl py-16 animate-fade-up">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">
+                  New workspace
+                </p>
+                <h1 className="mt-3 text-3xl font-semibold tracking-tight gradient-text">
                   Welcome to Dionysus
                 </h1>
-                <p className="text-muted-foreground">
-                  Create your first project using the sidebar to get started!
+                <div className="gold-line my-6 max-w-xs" />
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Create your first project from the sidebar to open documentation,
+                  codebase Q&amp;A, and meeting intelligence in one editorial workspace.
                 </p>
               </div>
             )}

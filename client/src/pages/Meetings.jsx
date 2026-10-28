@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import PageHeader from "@/components/layout/PageHeader";
 import {
   Presentation,
   Upload,
@@ -86,47 +87,35 @@ export default function Meetings() {
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-8">
-      {/* ─── Hero Header ─────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/50">
-        <div className="flex items-center gap-3.5">
-          <div className="h-11 w-11 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground">
-            <Headphones className="h-6 w-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                Meeting Audio Intelligence
-              </h1>
-              <Badge
-                variant="outline"
-                className="text-xs font-mono bg-muted/60 border-border text-muted-foreground"
-              >
-                AI Transcription
-              </Badge>
+      <PageHeader
+        icon={Headphones}
+        title="Meeting Audio Intelligence"
+        description="Transcribe technical discussions, extract architecture decisions, and chat with meeting summaries"
+        actions={
+          <>
+            <Badge
+              variant="outline"
+              className="text-xs font-mono bg-muted/60 border-gold/25 text-muted-foreground"
+            >
+              AI Transcription
+            </Badge>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/60 border border-border text-muted-foreground font-mono text-xs">
+              <Radio className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+              <span>{meetings.length} Session{meetings.length === 1 ? "" : "s"}</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Transcribe technical discussions, extract architecture decisions, and chat with meeting summaries
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 self-start sm:self-auto font-mono text-xs">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/60 border border-border text-muted-foreground">
-            <Radio className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
-            <span>{meetings.length} Session{meetings.length === 1 ? "" : "s"}</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/60 border border-border text-muted-foreground">
-            <ListOrdered className="h-3.5 w-3.5 text-primary" />
-            <span>{totalTopics} Topic{totalTopics === 1 ? "" : "s"}</span>
-          </div>
-        </div>
-      </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/60 border border-border text-muted-foreground font-mono text-xs">
+              <ListOrdered className="h-3.5 w-3.5 text-primary" />
+              <span>{totalTopics} Topic{totalTopics === 1 ? "" : "s"}</span>
+            </div>
+          </>
+        }
+      />
 
       {/* ─── Audio Ingestion & Processing Card ───────────────────────── */}
-      <Card className="glass border-border/60 bg-gradient-to-b from-card/80 to-card/40 shadow-xl overflow-hidden">
+      <Card className="glass-premium overflow-hidden">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center text-foreground">
+            <div className="icon-tile h-8 w-8 rounded-lg">
               <Mic className="h-4 w-4" />
             </div>
             <div>
@@ -236,13 +225,14 @@ export default function Meetings() {
             <Card
               key={meeting._id}
               onClick={() => navigate(`/projects/${id}/meetings/${meeting._id}`)}
-              className="glass border-border/50 hover:border-primary/50 transition-all duration-200 cursor-pointer group bg-card/40 flex flex-col justify-between"
+              interactive
+              className="glass cursor-pointer group bg-card/40 flex flex-col justify-between"
             >
               <CardContent className="p-5 space-y-4">
                 {/* Meeting Header */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="h-9 w-9 rounded-lg bg-muted border border-border flex items-center justify-center text-foreground group-hover:text-primary transition-colors shrink-0">
+                    <div className="icon-tile h-9 w-9 rounded-lg shrink-0">
                       <Presentation className="h-4 w-4" />
                     </div>
                     <div className="min-w-0">

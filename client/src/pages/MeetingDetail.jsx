@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import PageHeader from "@/components/layout/PageHeader";
 import {
   Clock,
   MessageSquare,
@@ -124,41 +125,24 @@ export default function MeetingDetail() {
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6">
-      {/* ─── Header & Breadcrumb ─────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/50">
-        <div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-            <Link
-              to={`/projects/${id}/meetings`}
-              className="hover:text-foreground flex items-center gap-1 transition-colors"
-            >
-              <ArrowLeft className="h-3 w-3" />
-              <span>Meetings</span>
-            </Link>
-            <span>/</span>
-            <span className="text-foreground font-medium truncate max-w-xs">{meeting.name}</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">{meeting.name}</h1>
-            <Badge variant="outline" className="text-xs font-mono bg-muted/60 border-border text-muted-foreground">
+      <PageHeader
+        icon={Presentation}
+        title={meeting.name}
+        description={`Processed on ${new Date(meeting.createdAt).toLocaleString()}`}
+        actions={
+          <>
+            <Badge variant="outline" className="text-xs font-mono bg-muted/60 border-gold/25 text-muted-foreground">
               {meeting.issues?.length || 0} Topics Extracted
             </Badge>
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Processed on {new Date(meeting.createdAt).toLocaleString()}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Link to={`/projects/${id}/meetings`}>
-            <Button variant="outline" size="sm" className="h-8 text-xs border-border/60">
-              <ArrowLeft className="h-3.5 w-3.5 mr-1" />
-              All Meetings
-            </Button>
-          </Link>
-        </div>
-      </div>
+            <Link to={`/projects/${id}/meetings`}>
+              <Button variant="outline" size="sm" className="h-8 text-xs border-border/60">
+                <ArrowLeft className="h-3.5 w-3.5 mr-1" />
+                All Meetings
+              </Button>
+            </Link>
+          </>
+        }
+      />
 
       {/* ─── Master-Detail Two-Column Screen Layout ──────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -197,10 +181,11 @@ export default function MeetingDetail() {
                     setAnswer("");
                     setQuery("");
                   }}
-                  className={`glass transition-all cursor-pointer border ${
+                  interactive={!isSelected}
+                  className={`glass cursor-pointer border ${
                     isSelected
-                      ? "border-primary/80 bg-primary/10 shadow-md ring-1 ring-primary/40"
-                      : "border-border/50 hover:border-primary/50 bg-card/40"
+                      ? "border-gold/50 bg-primary/10 shadow-md ring-1 ring-primary/30"
+                      : "border-border/50 bg-card/40"
                   }`}
                 >
                   <CardContent className="p-3.5 space-y-2">
@@ -243,7 +228,7 @@ export default function MeetingDetail() {
         {/* Right Column (7 cols): Deep Dive Detail Panel & Follow-Up Assistant */}
         <div className="lg:col-span-7">
           {selectedIssue ? (
-            <Card className="glass border-border/60 bg-card/40 shadow-xl">
+            <Card className="glass-premium">
               <CardHeader className="pb-4 border-b border-border/40">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1.5">

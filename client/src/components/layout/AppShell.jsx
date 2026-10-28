@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import ThemeToggle from "@/components/theme/ThemeToggle";
+import Atmosphere from "@/components/theme/Atmosphere";
 import { logout } from "@/store/slices/authSlice";
 import { createProject } from "@/store/slices/projectSlice";
 import {
@@ -82,47 +83,57 @@ export default function AppShell({ children }) {
   };
 
   const sidebarContent = (
-    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-sidebar px-6 pb-4">
-      {/* Logo */}
-      <div className="flex h-16 shrink-0 items-center gap-2">
-        <Zap className="h-7 w-7 text-primary" />
-        <span className="text-xl font-bold gradient-text">Dionysus</span>
+    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-sidebar/90 px-5 pb-4 backdrop-blur-md">
+      <div className="flex h-16 shrink-0 items-center gap-2.5">
+        <div className="icon-tile h-9 w-9">
+          <Zap className="h-4 w-4" />
+        </div>
+        <span className="text-lg font-semibold tracking-tight gradient-text">
+          Dionysus
+        </span>
       </div>
 
       <nav className="flex flex-1 flex-col">
         <ul className="flex flex-1 flex-col gap-y-7">
-          {/* Main Navigation */}
           <li>
-            <ul className="-mx-2 space-y-1">
-              {navigation.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    to={item.href}
-                    onClick={() => setSidebarOpen(false)}
-                    className={cn(
-                      location.pathname === item.href
-                        ? "bg-sidebar-accent text-foreground"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-foreground",
-                      "group flex gap-x-3 rounded-lg p-2.5 text-sm font-medium leading-6 transition-all duration-200"
-                    )}
-                  >
-                    <item.icon
-                      className="h-5 w-5 shrink-0"
-                      aria-hidden="true"
-                    />
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
+            <ul className="space-y-1">
+              {navigation.map((item) => {
+                const active = location.pathname === item.href;
+                return (
+                  <li key={item.name}>
+                    <Link
+                      to={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={cn(
+                        "group relative flex gap-x-3 rounded-lg p-2.5 text-sm font-medium leading-6 transition-all duration-200",
+                        active
+                          ? "bg-sidebar-accent text-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-foreground"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-gold transition-opacity",
+                          active ? "opacity-100" : "opacity-0 group-hover:opacity-40"
+                        )}
+                      />
+                      <item.icon
+                        className="h-5 w-5 shrink-0"
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </li>
 
-          {/* Projects List */}
           <li>
-            <div className="text-xs font-semibold leading-6 text-muted-foreground uppercase tracking-wider">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gold/80">
               Your Projects
             </div>
-            <ul className="-mx-2 mt-2 space-y-1">
+            <ul className="mt-2 space-y-1">
               {isLoading &&
                 [1, 2, 3].map((i) => (
                   <Skeleton key={i} className="h-9 bg-sidebar-accent" />
@@ -139,7 +150,7 @@ export default function AppShell({ children }) {
                       "group flex gap-x-3 rounded-lg p-2.5 text-sm font-medium leading-6 transition-all duration-200"
                     )}
                   >
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-sidebar-border bg-sidebar text-xs font-medium text-sidebar-foreground group-hover:text-foreground">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-gold/30 bg-sidebar text-xs font-medium text-gold group-hover:border-gold/60">
                       {project.name[0]?.toUpperCase()}
                     </span>
                     <span className="truncate">{project.name}</span>
@@ -148,11 +159,10 @@ export default function AppShell({ children }) {
               ))}
             </ul>
 
-            {/* Create Project */}
             {showCreateProject ? (
               <form
                 onSubmit={handleCreateProject}
-                className="mt-2 flex gap-2"
+                className="mt-2 flex animate-fade-up gap-2"
               >
                 <Input
                   value={newProjectName}
@@ -168,7 +178,7 @@ export default function AppShell({ children }) {
             ) : (
               <button
                 onClick={() => setShowCreateProject(true)}
-                className="mt-2 flex w-full items-center gap-2 rounded-lg border border-dashed border-sidebar-border p-2.5 text-sm text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all duration-200"
+                className="mt-2 flex w-full items-center gap-2 rounded-lg border border-dashed border-sidebar-border p-2.5 text-sm text-muted-foreground transition-all duration-200 hover:border-gold/50 hover:text-foreground"
               >
                 <Plus className="h-4 w-4" />
                 New Project
@@ -176,23 +186,23 @@ export default function AppShell({ children }) {
             )}
           </li>
 
-          {/* User & Logout */}
           <li className="mt-auto">
-            <div className="flex items-center gap-3 rounded-lg p-2 -mx-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">
+            <div className="gold-line mb-3" />
+            <div className="flex items-center gap-3 rounded-lg p-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gold/25 bg-primary/15 text-primary">
                 <User className="h-4 w-4" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-foreground">
                   {user?.name}
                 </p>
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="truncate text-xs text-muted-foreground">
                   {user?.email}
                 </p>
               </div>
               <button
                 onClick={handleLogout}
-                className="text-muted-foreground hover:text-destructive transition-colors"
+                className="text-muted-foreground transition-colors hover:text-destructive"
                 title="Logout"
               >
                 <LogOut className="h-4 w-4" />
@@ -205,8 +215,9 @@ export default function AppShell({ children }) {
   );
 
   return (
-    <div className="min-h-screen">
-      {/* Mobile sidebar overlay */}
+    <div className="relative min-h-screen bg-background">
+      <Atmosphere intensity="subtle" className="fixed inset-0" />
+
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
@@ -227,18 +238,15 @@ export default function AppShell({ children }) {
         </div>
       )}
 
-      {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col border-r border-sidebar-border">
+      <div className="hidden border-r border-sidebar-border lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
         {sidebarContent}
       </div>
 
-      {/* Main content */}
-      <div className="lg:pl-72">
-        {/* Top bar */}
-        <div className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-x-4 border-b border-border bg-background/80 backdrop-blur-md px-4 sm:px-6 lg:px-8">
+      <div className="relative lg:pl-72">
+        <div className="sticky top-0 z-40 flex h-12 shrink-0 items-center gap-x-4 border-b border-border/70 bg-background/65 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
           <button
             type="button"
-            className="-m-2.5 p-2.5 text-muted-foreground lg:hidden hover:text-foreground transition-colors"
+            className="-m-2.5 p-2.5 text-muted-foreground transition-colors hover:text-foreground lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-5 w-5" />
@@ -248,16 +256,15 @@ export default function AppShell({ children }) {
 
           <div className="flex flex-1 items-center gap-x-4 lg:gap-x-6">
             {currentProject && (
-              <h1 className="text-sm font-medium text-muted-foreground">
+              <span className="inline-flex items-center rounded-full border border-gold/25 bg-card/60 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
                 {currentProject.name}
-              </h1>
+              </span>
             )}
           </div>
 
           <ThemeToggle className="h-9 w-9 text-muted-foreground hover:text-foreground" />
         </div>
 
-        {/* Page content */}
         <main className="py-8">
           <div className="px-4 sm:px-6 lg:px-8">{children}</div>
         </main>

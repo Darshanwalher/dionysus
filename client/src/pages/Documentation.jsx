@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import PageHeader from "@/components/layout/PageHeader";
 
 const SECTIONS = [
   { name: "Introduction", icon: BookOpen },
@@ -147,32 +148,17 @@ export default function Documentation() {
 
   return (
     <div className="space-y-6">
-      {/* Top Banner / Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-border/50">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-              <BookText className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold tracking-tight">
-                  {currentProject?.name ? `${currentProject.name} Documentation` : "Documentation"}
-                </h1>
-                {currentProject?.githubUrl && (
-                  <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5">
-                    AI Generated
-                  </Badge>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Technical onboarding, architecture & codebase manual
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 self-end sm:self-auto">
+      <PageHeader
+        icon={BookText}
+        title={currentProject?.name ? `${currentProject.name} Documentation` : "Documentation"}
+        description="Technical onboarding, architecture and codebase manual"
+        actions={
+          <>
+            {currentProject?.githubUrl && (
+              <Badge variant="outline" className="text-primary border-gold/30 bg-primary/5">
+                AI Generated
+              </Badge>
+            )}
           {/* Reading stats */}
           <div className="hidden lg:flex items-center gap-3 text-xs text-muted-foreground mr-2">
             <span className="flex items-center gap-1">
@@ -199,8 +185,9 @@ export default function Documentation() {
             <Save className="h-4 w-4 mr-1.5" />
             Save Changes
           </Button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Main 2-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -256,7 +243,7 @@ export default function Documentation() {
 
         {/* Right Editor Area */}
         <div className="lg:col-span-9">
-          <Card className="glass border-border/50 shadow-xl overflow-hidden">
+          <Card className="glass-premium overflow-hidden">
             {/* Formatting Toolbar */}
             {editor && (
               <div className="flex items-center gap-1 p-2.5 border-b border-border/50 bg-card/60 backdrop-blur-md flex-wrap sticky top-0 z-10">

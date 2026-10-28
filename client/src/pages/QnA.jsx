@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import PageHeader from "@/components/layout/PageHeader";
 import {
   FileQuestion,
   Send,
@@ -96,39 +97,27 @@ export default function QnA() {
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-8">
-      {/* ─── Header ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/50">
-        <div className="flex items-center gap-3.5">
-          <div className="h-11 w-11 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground">
-            <Bot className="h-6 w-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                Codebase Q&A Assistant
-              </h1>
-              <Badge
-                variant="outline"
-                className="text-xs font-mono bg-muted/60 border-border text-muted-foreground"
-              >
-                RAG Vector Search
-              </Badge>
-            </div>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Ask deep questions about architecture, algorithms, and modules backed by Pinecone vector retrieval
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <Badge variant="secondary" className="font-mono text-xs px-3 py-1">
-            {questions.length} Question{questions.length === 1 ? "" : "s"} Recorded
-          </Badge>
-        </div>
-      </div>
+      <PageHeader
+        icon={Bot}
+        title="Codebase Q&A Assistant"
+        description="Ask deep questions about architecture, algorithms, and modules backed by vector retrieval"
+        actions={
+          <>
+            <Badge
+              variant="outline"
+              className="text-xs font-mono bg-muted/60 border-gold/25 text-muted-foreground"
+            >
+              RAG Vector Search
+            </Badge>
+            <Badge variant="secondary" className="font-mono text-xs px-3 py-1">
+              {questions.length} Question{questions.length === 1 ? "" : "s"} Recorded
+            </Badge>
+          </>
+        }
+      />
 
       {/* ─── Interactive Ask Question Card ───────────────────────────── */}
-      <Card className="glass border-border/60 bg-gradient-to-b from-card/80 to-card/40 shadow-xl overflow-hidden">
+      <Card className="glass-premium overflow-hidden">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -230,7 +219,7 @@ export default function QnA() {
         {questions.length === 0 && !isActionLoading && (
           <Card className="glass border-border/50">
             <CardContent className="py-16 text-center space-y-3">
-              <div className="h-12 w-12 rounded-2xl bg-muted border border-border flex items-center justify-center text-muted-foreground mx-auto">
+              <div className="icon-tile h-12 w-12 rounded-2xl mx-auto">
                 <FileQuestion className="h-6 w-6" />
               </div>
               <h3 className="text-base font-semibold text-foreground">No questions asked yet</h3>
@@ -248,13 +237,14 @@ export default function QnA() {
             return (
               <Card
                 key={q._id}
-                className="glass border-border/50 hover:border-primary/50 transition-all bg-card/40 overflow-hidden"
+                interactive
+                className="glass bg-card/40 overflow-hidden"
               >
                 <CardContent className="p-6 space-y-4">
                   {/* Question row */}
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <div className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center text-foreground shrink-0 mt-0.5">
+                      <div className="icon-tile h-8 w-8 rounded-lg shrink-0 mt-0.5">
                         <MessageSquare className="h-4 w-4" />
                       </div>
                       <div className="space-y-1 min-w-0">

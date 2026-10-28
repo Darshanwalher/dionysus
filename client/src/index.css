@@ -26,6 +26,8 @@
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-border: var(--sidebar-border);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
@@ -37,56 +39,60 @@
 
 :root {
   color-scheme: light;
-  --background: oklch(0.985 0.005 292);
-  --foreground: oklch(0.22 0.02 280);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.02 280);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.02 280);
-  --primary: oklch(0.52 0.22 292);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.95 0.012 292);
+  --background: oklch(0.975 0.008 85);
+  --foreground: oklch(0.2 0.02 280);
+  --card: oklch(0.995 0.004 85);
+  --card-foreground: oklch(0.2 0.02 280);
+  --popover: oklch(0.995 0.004 85);
+  --popover-foreground: oklch(0.2 0.02 280);
+  --primary: oklch(0.48 0.2 292);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.94 0.012 85);
   --secondary-foreground: oklch(0.25 0.02 280);
-  --muted: oklch(0.955 0.008 292);
-  --muted-foreground: oklch(0.5 0.02 280);
-  --accent: oklch(0.94 0.04 292);
-  --accent-foreground: oklch(0.32 0.12 292);
+  --muted: oklch(0.945 0.01 85);
+  --muted-foreground: oklch(0.48 0.02 280);
+  --accent: oklch(0.93 0.03 85);
+  --accent-foreground: oklch(0.32 0.1 85);
   --destructive: oklch(0.55 0.22 29);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.9 0.012 280);
-  --input: oklch(0.9 0.012 280);
-  --ring: oklch(0.52 0.22 292);
-  --sidebar: oklch(0.97 0.01 292);
-  --sidebar-foreground: oklch(0.45 0.02 280);
-  --sidebar-accent: oklch(0.93 0.04 292);
-  --sidebar-border: oklch(0.9 0.015 280);
+  --border: oklch(0.88 0.015 85);
+  --input: oklch(0.88 0.015 85);
+  --ring: oklch(0.48 0.2 292);
+  --sidebar: oklch(0.96 0.01 85);
+  --sidebar-foreground: oklch(0.42 0.02 280);
+  --sidebar-accent: oklch(0.92 0.025 85);
+  --sidebar-border: oklch(0.88 0.018 85);
+  --gold: oklch(0.62 0.12 85);
+  --gold-foreground: oklch(0.22 0.05 85);
 }
 
 .dark {
   color-scheme: dark;
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.17 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.17 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.67 0.22 292);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.25 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.25 0 0);
-  --muted-foreground: oklch(0.7 0 0);
-  --accent: oklch(0.3 0.05 292);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.55 0.22 29);
+  --background: oklch(0.12 0.012 280);
+  --foreground: oklch(0.96 0.01 90);
+  --card: oklch(0.155 0.014 280);
+  --card-foreground: oklch(0.96 0.01 90);
+  --popover: oklch(0.155 0.014 280);
+  --popover-foreground: oklch(0.96 0.01 90);
+  --primary: oklch(0.7 0.18 292);
+  --primary-foreground: oklch(0.98 0.01 90);
+  --secondary: oklch(0.2 0.016 280);
+  --secondary-foreground: oklch(0.96 0.01 90);
+  --muted: oklch(0.2 0.014 280);
+  --muted-foreground: oklch(0.68 0.02 280);
+  --accent: oklch(0.22 0.04 292);
+  --accent-foreground: oklch(0.92 0.04 90);
+  --destructive: oklch(0.58 0.2 25);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.3 0 0);
-  --input: oklch(0.3 0 0);
-  --ring: oklch(0.67 0.22 292);
-  --sidebar: oklch(0.12 0 0);
-  --sidebar-foreground: oklch(0.7 0 0);
-  --sidebar-accent: oklch(0.2 0.05 292);
-  --sidebar-border: oklch(0.22 0 0);
+  --border: oklch(0.26 0.018 280);
+  --input: oklch(0.26 0.018 280);
+  --ring: oklch(0.7 0.18 292);
+  --sidebar: oklch(0.1 0.012 280);
+  --sidebar-foreground: oklch(0.7 0.02 280);
+  --sidebar-accent: oklch(0.18 0.03 292);
+  --sidebar-border: oklch(0.22 0.016 280);
+  --gold: oklch(0.82 0.12 85);
+  --gold-foreground: oklch(0.18 0.04 85);
 }
 
 @layer base {
@@ -137,17 +143,163 @@
 
 /* Glassmorphism utility */
 .glass {
-  background: color-mix(in oklch, var(--card) 70%, transparent);
-  backdrop-filter: blur(16px);
-  border: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+  background: color-mix(in oklch, var(--card) 72%, transparent);
+  backdrop-filter: blur(18px);
+  border: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
 }
 
-/* Gradient text utility */
+.glass-premium {
+  background: color-mix(in oklch, var(--card) 78%, transparent);
+  backdrop-filter: blur(24px) saturate(1.2);
+  border: 1px solid color-mix(in oklch, var(--gold) 22%, var(--border));
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--primary) 8%, transparent),
+    0 24px 60px -28px color-mix(in oklch, var(--foreground) 18%, transparent);
+}
+
+.gold-line {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklch, var(--gold) 70%, transparent),
+    transparent
+  );
+}
+
 .gradient-text {
-  background: linear-gradient(135deg, var(--primary), oklch(0.62 0.18 250));
+  background: linear-gradient(135deg, var(--primary), var(--gold));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.atmosphere {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.atmosphere-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(color-mix(in oklch, var(--border) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklch, var(--border) 55%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 20%, transparent 75%);
+  opacity: 0.45;
+}
+
+.atmosphere-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  animation: orb-drift 22s ease-in-out infinite;
+}
+
+.atmosphere-orb--violet {
+  width: 28rem;
+  height: 28rem;
+  background: color-mix(in oklch, var(--primary) 35%, transparent);
+  top: -8rem;
+  left: -6rem;
+}
+
+.atmosphere-orb--gold {
+  width: 24rem;
+  height: 24rem;
+  background: color-mix(in oklch, var(--gold) 28%, transparent);
+  bottom: -8rem;
+  right: -5rem;
+  animation-delay: -8s;
+}
+
+.spotlight {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    420px circle at var(--spot-x, 50%) var(--spot-y, 30%),
+    color-mix(in oklch, var(--gold) 14%, transparent),
+    transparent 55%
+  );
+}
+
+.icon-tile {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklch, var(--gold) 28%, var(--border));
+  background: color-mix(in oklch, var(--primary) 12%, var(--card));
+  color: var(--primary);
+  box-shadow: inset 0 1px 0 color-mix(in oklch, var(--gold) 18%, transparent);
+}
+
+@keyframes orb-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(6%, 8%) scale(1.08);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes banner-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.55s ease-out both;
+}
+
+.animate-banner-in {
+  animation: banner-in 0.28s ease-out both;
+}
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.12s; }
+.stagger-3 { animation-delay: 0.18s; }
+.stagger-4 { animation-delay: 0.24s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .atmosphere-orb,
+  .animate-fade-up,
+  .animate-banner-in {
+    animation: none !important;
+  }
+
+  .spotlight {
+    display: none;
+  }
+
+  button {
+    transform: none !important;
+  }
 }
 
 /* TipTap Prose & Typography Styling */
@@ -189,7 +341,7 @@
   display: inline-block;
   width: 4px;
   height: 1.1em;
-  background: linear-gradient(to bottom, var(--primary), oklch(0.62 0.18 250));
+  background: linear-gradient(to bottom, var(--primary), var(--gold));
   border-radius: 2px;
 }
 
