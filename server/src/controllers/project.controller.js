@@ -1,5 +1,10 @@
 const Project = require('../models/Project');
 const User = require('../models/User');
+const Commit = require('../models/Commit');
+const Meeting = require('../models/Meeting');
+const Issue = require('../models/Issue');
+const Question = require('../models/Question');
+const { deleteNamespace, serializeNamespace } = require('../services/vector.service');
 
 // @desc    Create a new project
 // @route   POST /api/projects
@@ -155,10 +160,114 @@ const saveNote = async (req, res, next) => {
   }
 };
 
+// @desc    Update project (name, details)
+// @route   PUT /api/projects/:id
+const updateProject = async (req, res, next) => {
+  try {
+    const { name } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Project name cannot be empty',
+      });
+    }
+
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found',
+      });
+    }
+
+    // Only owner can update project settings
+    if (project.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the project owner can update project settings',
+      });
+    }
+
+    project.name = name.trim();
+    await project.save();
+
+    const updatedProject = await Project.findById(project._id)
+      .populate('commits')
+      .populate({ path: 'meetings', populate: { path: 'issues' } })
+      .populate('questions')
+      .populate('members', 'name email avatar');
+
+    res.json({
+      success: true,
+      data: updatedProject,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete project and cascade delete all related data
+// @route   DELETE /api/projects/:id
+const deleteProject = async (req, res, next) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found',
+      });
+    }
+
+    // Only owner can delete project
+    if (project.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the project owner can delete this project',
+      });
+    }
+
+    const projectId = project._id;
+
+    // 1. Delete associated commits
+    await Commit.deleteMany({ project: projectId });
+
+    // 2. Delete meetings and their issues
+    const meetings = await Meeting.find({ project: projectId }).select('_id');
+    const meetingIds = meetings.map((m) => m._id);
+    if (meetingIds.length > 0) {
+      await Issue.deleteMany({ meeting: { $in: meetingIds } });
+    }
+    await Meeting.deleteMany({ project: projectId });
+
+    // 3. Delete questions
+    await Question.deleteMany({ project: projectId });
+
+    // 4. Delete Pinecone vector namespace if repository was indexed
+    if (project.githubUrl) {
+      const namespace = serializeNamespace(project.githubUrl);
+      await deleteNamespace(namespace);
+    }
+
+    // 5. Delete project document
+    await Project.findByIdAndDelete(projectId);
+
+    res.json({
+      success: true,
+      message: 'Project and all associated data deleted successfully',
+      data: { id: projectId },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createProject,
   getMyProjects,
   getProject,
+  updateProject,
+  deleteProject,
   inviteUser,
   saveNote,
 };

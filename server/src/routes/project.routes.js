@@ -3,6 +3,8 @@ const {
   createProject,
   getMyProjects,
   getProject,
+  updateProject,
+  deleteProject,
   inviteUser,
   saveNote,
 } = require('../controllers/project.controller');
@@ -14,7 +16,10 @@ router.use(protect);
 
 router.post('/', createProject);
 router.get('/', getMyProjects);
-router.get('/:id', getProject);
+router.route('/:id')
+  .get(getProject)
+  .put(updateProject)
+  .delete(deleteProject);
 router.post('/:id/invite', inviteUser);
 router.put('/:id/note', saveNote);
 

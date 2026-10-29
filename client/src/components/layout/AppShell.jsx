@@ -23,11 +23,14 @@ import {
   User,
   ChevronsUpDown,
   ChevronRight,
+  Settings,
 } from "lucide-react";
+import ProjectSettingsModal from "@/components/project/ProjectSettingsModal";
 
 export default function AppShell({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCreateProject, setShowCreateProject] = useState(false);
+  const [showProjectSettings, setShowProjectSettings] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
@@ -36,6 +39,12 @@ export default function AppShell({ children }) {
   const { user } = useSelector((state) => state.auth);
   const { projects, currentProject, isLoading } = useSelector(
     (state) => state.project
+  );
+
+  const isOwner = Boolean(
+    user?._id &&
+      currentProject &&
+      String(currentProject.owner?._id || currentProject.owner) === String(user._id)
   );
 
   const navigation = currentProject
@@ -80,14 +89,28 @@ export default function AppShell({ children }) {
 
       {/* Project Switcher Pill */}
       {currentProject && (
-        <div className="mx-0.5 flex items-center gap-2 rounded-lg border border-border/60 bg-sidebar-accent/50 px-3 py-2 hover:bg-sidebar-accent transition-colors duration-150">
-          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-primary/30 bg-primary/10 text-[10px] font-bold text-primary">
-            {currentProject.name[0]?.toUpperCase()}
-          </span>
-          <span className="flex-1 truncate text-xs font-semibold text-foreground">
-            {currentProject.name}
-          </span>
-          <ChevronsUpDown className="h-3 w-3 text-muted-foreground shrink-0" />
+        <div className="mx-0.5 flex items-center justify-between gap-2 rounded-lg border border-border/60 bg-sidebar-accent/50 px-3 py-2 hover:bg-sidebar-accent transition-colors duration-150">
+          <Link
+            to={`/projects/${currentProject._id}`}
+            onClick={() => setSidebarOpen(false)}
+            className="flex items-center gap-2 min-w-0 flex-1"
+          >
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-primary/30 bg-primary/10 text-[10px] font-bold text-primary">
+              {currentProject.name[0]?.toUpperCase()}
+            </span>
+            <span className="flex-1 truncate text-xs font-semibold text-foreground">
+              {currentProject.name}
+            </span>
+          </Link>
+          {isOwner && (
+            <button
+              onClick={() => setShowProjectSettings(true)}
+              className="text-muted-foreground hover:text-foreground opacity-60 hover:opacity-100 transition-opacity p-1 rounded hover:bg-background/40 cursor-pointer"
+              title="Project settings"
+            >
+              <Settings className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
       )}
 
@@ -289,6 +312,13 @@ export default function AppShell({ children }) {
           <div className="px-4 sm:px-6 lg:px-8">{children}</div>
         </main>
       </div>
+
+      {/* Project Settings Modal */}
+      <ProjectSettingsModal
+        project={currentProject}
+        isOpen={showProjectSettings}
+        onClose={() => setShowProjectSettings(false)}
+      />
     </div>
   );
 }

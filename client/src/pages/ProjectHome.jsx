@@ -35,7 +35,9 @@ import {
   X,
   CornerDownLeft,
   Mail,
+  Settings,
 } from "lucide-react";
+import ProjectSettingsModal from "@/components/project/ProjectSettingsModal";
 
 export default function ProjectHome() {
   const { id } = useParams();
@@ -44,8 +46,10 @@ export default function ProjectHome() {
   const { currentProject, isLoading, isActionLoading } = useSelector(
     (state) => state.project
   );
+  const { user } = useSelector((state) => state.auth);
 
   // Local interactive state
+  const [showSettings, setShowSettings] = useState(false);
   const [githubUrl, setGithubUrl] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [showInvite, setShowInvite] = useState(false);
@@ -56,6 +60,12 @@ export default function ProjectHome() {
   const [activeTab, setActiveTab] = useState("commits"); // "commits" | "quickstart" | "team"
   const [onlyAiSummaries, setOnlyAiSummaries] = useState(false);
   const [quickQuestion, setQuickQuestion] = useState("");
+
+  const isOwner = useMemo(() => {
+    if (!user || !currentProject) return false;
+    const ownerId = currentProject.owner?._id || currentProject.owner;
+    return String(ownerId) === String(user._id);
+  }, [user, currentProject]);
 
   useEffect(() => {
     dispatch(fetchProject(id));
@@ -229,6 +239,19 @@ export default function ProjectHome() {
                 <ArrowRight className="h-3 w-3 ml-1 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
               </Button>
             </Link>
+
+            {isOwner && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSettings(true)}
+                className="text-xs h-8 border-border hover:bg-secondary transition-all cursor-pointer"
+                title="Project Settings"
+              >
+                <Settings className="h-3 w-3 mr-1.5 text-muted-foreground" />
+                Settings
+              </Button>
+            )}
           </div>
         }
       />
@@ -898,6 +921,13 @@ export default function ProjectHome() {
           </CardContent>
         </Card>
       )}
+
+      {/* Project Settings Modal */}
+      <ProjectSettingsModal
+        project={currentProject}
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
     </div>
   );
 }

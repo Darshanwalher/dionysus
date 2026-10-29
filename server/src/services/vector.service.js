@@ -70,6 +70,27 @@ const queryEmbeddings = async (namespace, queryVector, topK = 10) => {
 };
 
 /**
+ * Delete all vectors in a Pinecone namespace
+ * @param {string} namespace - Namespace to delete
+ */
+const deleteNamespace = async (namespace) => {
+  try {
+    if (!process.env.PINECONE_API_KEY || process.env.PINECONE_API_KEY === 'dummy_key') {
+      return false;
+    }
+    const index = await getIndex();
+    const ns = index.namespace(namespace);
+    if (typeof ns.deleteAll === 'function') {
+      await ns.deleteAll();
+    }
+    return true;
+  } catch (error) {
+    console.warn(`[Pinecone] Warning deleting namespace ${namespace}:`, error.message);
+    return false;
+  }
+};
+
+/**
  * Serialize a URL or github URL into a valid namespace string
  */
 const serializeNamespace = (url) => {
@@ -79,5 +100,6 @@ const serializeNamespace = (url) => {
 module.exports = {
   upsertEmbeddings,
   queryEmbeddings,
+  deleteNamespace,
   serializeNamespace,
 };
