@@ -27,13 +27,14 @@ import {
   Clock,
   Sparkles,
   ChevronDown,
-  ChevronUp,
   ShieldCheck,
   Code2,
   Terminal,
   Activity,
   ArrowRight,
-  Filter,
+  X,
+  CornerDownLeft,
+  Mail,
 } from "lucide-react";
 
 export default function ProjectHome() {
@@ -44,7 +45,7 @@ export default function ProjectHome() {
     (state) => state.project
   );
 
-  // Local state
+  // Local interactive state
   const [githubUrl, setGithubUrl] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [showInvite, setShowInvite] = useState(false);
@@ -65,7 +66,7 @@ export default function ProjectHome() {
     if (!githubUrl.trim()) return;
     const res = await dispatch(linkRepo({ projectId: id, githubUrl }));
     if (res.meta.requestStatus === "fulfilled") {
-      toast.success("GitHub repository linked successfully!");
+      toast.success("GitHub repository connected!");
     } else {
       toast.error(res.payload || "Failed to link repository");
     }
@@ -85,7 +86,7 @@ export default function ProjectHome() {
     if (!inviteEmail.trim()) return;
     const res = await dispatch(inviteUser({ projectId: id, email: inviteEmail }));
     if (res.meta.requestStatus === "fulfilled") {
-      toast.success(`Invitation sent to ${inviteEmail}`);
+      toast.success(`Invite sent to ${inviteEmail}`);
       setInviteEmail("");
       setShowInvite(false);
     } else {
@@ -129,6 +130,10 @@ export default function ProjectHome() {
     );
   }, [currentProject?.commits, commitFilter, onlyAiSummaries]);
 
+  const aiSummaryCount = useMemo(() => {
+    return currentProject?.commits?.filter((c) => Boolean(c.summary))?.length || 0;
+  }, [currentProject?.commits]);
+
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
     const d = new Date(dateStr);
@@ -144,7 +149,7 @@ export default function ProjectHome() {
     return (
       <div className="w-full max-w-7xl mx-auto space-y-6">
         <Skeleton className="h-10 w-72" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-24 rounded-xl" />
           ))}
@@ -158,25 +163,22 @@ export default function ProjectHome() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6 animate-fade-up">
       {/* ─── Top Page Header ────────────────────────────────────────── */}
       <PageHeader
         icon={Sparkles}
         title={currentProject.name}
-        description="Engineering workspace with codebase intelligence, vector search, and meeting synthesis"
+        description="Engineering intelligence workspace · Code search, architecture diagrams, and meeting synthesis"
         actions={
-          <>
-            <Badge
-              variant="outline"
-              className="text-xs font-mono text-muted-foreground gap-1.5 py-1 px-2.5"
-            >
-              <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-              Active
-            </Badge>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono bg-secondary/80 border border-border text-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Live Workspace
+            </span>
 
             <button
               onClick={() => handleCopy(id, "id")}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono rounded-md bg-secondary text-muted-foreground hover:text-foreground transition-colors border border-border"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono rounded-md bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground transition-all duration-150 border border-border active:scale-95"
               title="Copy Project ID"
             >
               {copiedId ? (
@@ -193,10 +195,12 @@ export default function ProjectHome() {
                 size="sm"
                 onClick={handlePollCommits}
                 disabled={isActionLoading}
-                className="text-xs h-8 border-border"
+                className="group text-xs h-8 border-border hover:bg-secondary transition-all"
               >
                 <RefreshCw
-                  className={`h-3 w-3 mr-1.5 ${isActionLoading ? "animate-spin text-primary" : ""}`}
+                  className={`h-3 w-3 mr-1.5 transition-transform duration-300 group-hover:rotate-45 ${
+                    isActionLoading ? "animate-spin text-primary" : "text-muted-foreground"
+                  }`}
                 />
                 Sync Commits
               </Button>
@@ -206,28 +210,35 @@ export default function ProjectHome() {
               variant="outline"
               size="sm"
               onClick={() => setShowInvite(!showInvite)}
-              className="text-xs h-8 border-border"
+              className={`text-xs h-8 border-border transition-all ${
+                showInvite ? "bg-secondary text-foreground" : "hover:bg-secondary"
+              }`}
             >
-              <UserPlus className="h-3 w-3 mr-1.5" />
+              <UserPlus className="h-3 w-3 mr-1.5 text-muted-foreground" />
               Invite
             </Button>
 
             <Link to={`/projects/${id}/visualise`}>
-              <Button size="sm" className="text-xs h-8">
-                <FolderTree className="h-3 w-3 mr-1.5" />
-                Architecture
+              <Button
+                variant="outline"
+                size="sm"
+                className="group text-xs h-8 border-border hover:bg-secondary transition-all"
+              >
+                <FolderTree className="h-3 w-3 mr-1.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                <span>Architecture</span>
+                <ArrowRight className="h-3 w-3 ml-1 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
               </Button>
             </Link>
-          </>
+          </div>
         }
       />
 
       {/* ─── Inline Invite Drawer ───────────────────────────────────── */}
       {showInvite && (
-        <Card className="border-border animate-fade-up">
+        <Card className="border-border animate-fade-up bg-card/90 backdrop-blur-sm">
           <CardContent className="p-3.5 flex flex-col sm:flex-row items-center gap-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground min-w-[130px]">
-              <Users className="h-4 w-4 text-primary" />
+              <Mail className="h-3.5 w-3.5 text-primary" />
               <span>Invite teammate:</span>
             </div>
             <form onSubmit={handleInvite} className="flex-1 flex gap-2 w-full">
@@ -236,10 +247,10 @@ export default function ProjectHome() {
                 onChange={(e) => setInviteEmail(e.target.value)}
                 placeholder="colleague@company.com"
                 type="email"
-                className="text-xs h-8 bg-background/60"
+                className="text-xs h-8 bg-background/70"
                 autoFocus
               />
-              <Button size="sm" type="submit" disabled={isActionLoading} className="h-8 px-3 text-xs">
+              <Button size="sm" type="submit" disabled={isActionLoading} className="h-8 px-3.5 text-xs">
                 Send Invite
               </Button>
               <Button
@@ -247,7 +258,7 @@ export default function ProjectHome() {
                 variant="ghost"
                 type="button"
                 onClick={() => setShowInvite(false)}
-                className="h-8 text-xs"
+                className="h-8 text-xs text-muted-foreground hover:text-foreground"
               >
                 Cancel
               </Button>
@@ -257,24 +268,49 @@ export default function ProjectHome() {
       )}
 
       {/* ─── Interactive AI Quick Search Bar ────────────────────────── */}
-      <div className="rounded-xl border border-border bg-card p-3 shadow-xs animate-fade-up">
+      <div className="rounded-xl border border-border bg-card p-3 shadow-xs transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/50">
         <form onSubmit={handleQuickAsk} className="flex items-center gap-2">
-          <div className="relative flex-1">
+          <div className="relative flex-1 flex items-center">
             <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-primary" />
             <input
               type="text"
               value={quickQuestion}
               onChange={(e) => setQuickQuestion(e.target.value)}
               placeholder="Ask AI anything about this codebase…"
-              className="w-full pl-9 pr-3 py-1.5 text-xs sm:text-sm bg-transparent border-0 text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+              className="w-full pl-9 pr-9 py-1 text-xs sm:text-sm bg-transparent border-0 text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
             />
+            {quickQuestion && (
+              <button
+                type="button"
+                onClick={() => setQuickQuestion("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded text-muted-foreground hover:text-foreground transition-colors"
+                title="Clear input"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
-          <Button type="submit" size="sm" className="h-8 px-3 text-xs font-medium shrink-0">
-            Ask
-            <ArrowRight className="h-3 w-3 ml-1" />
-          </Button>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {quickQuestion.trim() && (
+              <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-border text-[10px] font-mono text-muted-foreground">
+                <CornerDownLeft className="h-2.5 w-2.5" />
+                Enter
+              </span>
+            )}
+            <Button
+              type="submit"
+              size="sm"
+              disabled={!quickQuestion.trim()}
+              className="group h-8 px-3 text-xs font-medium"
+            >
+              <span>Ask</span>
+              <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-0.5 transition-transform" />
+            </Button>
+          </div>
         </form>
-        <div className="mt-2 pt-2 border-t border-border/50 flex items-center gap-2 overflow-x-auto scrollbar-none text-[11px] text-muted-foreground">
+
+        <div className="mt-2.5 pt-2 border-t border-border/50 flex items-center gap-2 overflow-x-auto scrollbar-none text-[11px] text-muted-foreground">
           <span className="shrink-0 font-medium text-foreground/80">Suggestions:</span>
           {[
             "Where is auth handled?",
@@ -289,7 +325,7 @@ export default function ProjectHome() {
                 setQuickQuestion(prompt);
                 navigate(`/projects/${id}/qna?q=${encodeURIComponent(prompt)}`);
               }}
-              className="px-2 py-0.5 rounded bg-secondary hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
+              className="px-2 py-0.5 rounded bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground hover:-translate-y-px border border-border/60 transition-all duration-150 active:scale-95 shrink-0"
             >
               {prompt}
             </button>
@@ -298,13 +334,15 @@ export default function ProjectHome() {
       </div>
 
       {/* ─── Metric Cards Grid ────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 animate-fade-up stagger-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 animate-fade-up stagger-1">
         {/* Total Commits */}
         <div onClick={() => setActiveTab("commits")} className="cursor-pointer group">
           <Card
             interactive
-            className={`border transition-all ${
-              activeTab === "commits" ? "border-primary/50 bg-secondary/50" : "border-border"
+            className={`border transition-all duration-200 hover:-translate-y-0.5 ${
+              activeTab === "commits"
+                ? "border-primary/50 bg-secondary/50 shadow-xs"
+                : "border-border hover:border-border/90"
             }`}
           >
             <CardContent className="p-4 flex items-center justify-between">
@@ -315,11 +353,12 @@ export default function ProjectHome() {
                 <div className="text-xl font-bold font-mono text-foreground">
                   {currentProject.commits?.length || 0}
                 </div>
-                <p className="text-[11px] text-muted-foreground truncate group-hover:text-primary transition-colors">
-                  {currentProject.githubUrl ? "Live synced" : "No repo"}
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1 group-hover:text-primary transition-colors">
+                  <span>{currentProject.githubUrl ? "Live synced" : "No repo"}</span>
+                  <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                 </p>
               </div>
-              <div className="icon-tile group-hover:border-primary/40 shrink-0">
+              <div className="icon-tile group-hover:scale-105 transition-transform duration-200 shrink-0">
                 <GitGraph className="h-4 w-4" />
               </div>
             </CardContent>
@@ -328,7 +367,10 @@ export default function ProjectHome() {
 
         {/* Documentation Sections */}
         <Link to={`/projects/${id}/documentation`} className="block group">
-          <Card interactive className="border-border h-full">
+          <Card
+            interactive
+            className="border-border hover:border-border/90 hover:-translate-y-0.5 transition-all duration-200 h-full"
+          >
             <CardContent className="p-4 flex items-center justify-between">
               <div className="space-y-1 min-w-0">
                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
@@ -337,11 +379,12 @@ export default function ProjectHome() {
                 <div className="text-xl font-bold font-mono text-foreground group-hover:text-primary transition-colors">
                   12 Sections
                 </div>
-                <p className="text-[11px] text-muted-foreground truncate group-hover:text-primary transition-colors">
-                  Technical manual
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1 group-hover:text-primary transition-colors">
+                  <span>Technical manual</span>
+                  <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                 </p>
               </div>
-              <div className="icon-tile group-hover:border-primary/40 shrink-0">
+              <div className="icon-tile group-hover:scale-105 transition-transform duration-200 shrink-0">
                 <BookText className="h-4 w-4" />
               </div>
             </CardContent>
@@ -350,7 +393,10 @@ export default function ProjectHome() {
 
         {/* Codebase Q&A */}
         <Link to={`/projects/${id}/qna`} className="block group">
-          <Card interactive className="border-border h-full">
+          <Card
+            interactive
+            className="border-border hover:border-border/90 hover:-translate-y-0.5 transition-all duration-200 h-full"
+          >
             <CardContent className="p-4 flex items-center justify-between">
               <div className="space-y-1 min-w-0">
                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
@@ -359,11 +405,12 @@ export default function ProjectHome() {
                 <div className="text-xl font-bold font-mono text-foreground group-hover:text-primary transition-colors">
                   AI Ready
                 </div>
-                <p className="text-[11px] text-muted-foreground truncate group-hover:text-primary transition-colors">
-                  Vector search
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1 group-hover:text-primary transition-colors">
+                  <span>Vector search</span>
+                  <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                 </p>
               </div>
-              <div className="icon-tile group-hover:border-primary/40 shrink-0">
+              <div className="icon-tile group-hover:scale-105 transition-transform duration-200 shrink-0">
                 <FileQuestion className="h-4 w-4" />
               </div>
             </CardContent>
@@ -372,7 +419,10 @@ export default function ProjectHome() {
 
         {/* Meeting Audio */}
         <Link to={`/projects/${id}/meetings`} className="block group">
-          <Card interactive className="border-border h-full">
+          <Card
+            interactive
+            className="border-border hover:border-border/90 hover:-translate-y-0.5 transition-all duration-200 h-full"
+          >
             <CardContent className="p-4 flex items-center justify-between">
               <div className="space-y-1 min-w-0">
                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
@@ -381,11 +431,12 @@ export default function ProjectHome() {
                 <div className="text-xl font-bold font-mono text-foreground group-hover:text-primary transition-colors">
                   {currentProject.meetings?.length || 0} Sessions
                 </div>
-                <p className="text-[11px] text-muted-foreground truncate group-hover:text-primary transition-colors">
-                  Transcription log
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1 group-hover:text-primary transition-colors">
+                  <span>Transcription log</span>
+                  <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                 </p>
               </div>
-              <div className="icon-tile group-hover:border-primary/40 shrink-0">
+              <div className="icon-tile group-hover:scale-105 transition-transform duration-200 shrink-0">
                 <Presentation className="h-4 w-4" />
               </div>
             </CardContent>
@@ -394,25 +445,28 @@ export default function ProjectHome() {
       </div>
 
       {/* ─── Navigation Tabs ─────────────────────────────────────────── */}
-      <div className="flex items-center gap-1 border-b border-border pb-1">
+      <div className="flex items-center gap-1.5 border-b border-border pb-1">
         <button
           onClick={() => setActiveTab("commits")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-150 active:scale-95 ${
             activeTab === "commits"
-              ? "bg-secondary text-foreground"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-secondary text-foreground shadow-2xs border border-border"
+              : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
           }`}
         >
           <Activity className="h-3.5 w-3.5" />
-          <span>Commits ({filteredCommits.length})</span>
+          <span>Commits</span>
+          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-background/80 border border-border/60">
+            {filteredCommits.length}
+          </span>
         </button>
 
         <button
           onClick={() => setActiveTab("quickstart")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-150 active:scale-95 ${
             activeTab === "quickstart"
-              ? "bg-secondary text-foreground"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-secondary text-foreground shadow-2xs border border-border"
+              : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
           }`}
         >
           <Terminal className="h-3.5 w-3.5" />
@@ -421,20 +475,23 @@ export default function ProjectHome() {
 
         <button
           onClick={() => setActiveTab("team")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-150 active:scale-95 ${
             activeTab === "team"
-              ? "bg-secondary text-foreground"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-secondary text-foreground shadow-2xs border border-border"
+              : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
           }`}
         >
           <Users className="h-3.5 w-3.5" />
-          <span>Team ({currentProject.members?.length || 1})</span>
+          <span>Team</span>
+          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-background/80 border border-border/60">
+            {currentProject.members?.length || 1}
+          </span>
         </button>
       </div>
 
-      {/* ─── Tab Content: Commits Stream (Clean, unified list) ───────── */}
+      {/* ─── Tab Content: Commits Stream (Clean, unified table list) ─── */}
       {activeTab === "commits" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fade-up">
           <div className="lg:col-span-8 space-y-3">
             {/* Filter toolbar */}
             <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg border border-border bg-card">
@@ -445,28 +502,39 @@ export default function ProjectHome() {
                   value={commitFilter}
                   onChange={(e) => setCommitFilter(e.target.value)}
                   placeholder="Filter commits by author, hash, or message…"
-                  className="w-full pl-8 pr-3 py-1 text-xs bg-transparent border-0 text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                  className="w-full pl-8 pr-7 py-1 text-xs bg-transparent border-0 text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
                 />
+                {commitFilter && (
+                  <button
+                    type="button"
+                    onClick={() => setCommitFilter("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded text-muted-foreground hover:text-foreground transition-colors"
+                    title="Clear filter"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
               </div>
 
               <button
                 type="button"
                 onClick={() => setOnlyAiSummaries(!onlyAiSummaries)}
-                className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded border transition-colors shrink-0 ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded border transition-all duration-150 shrink-0 active:scale-95 ${
                   onlyAiSummaries
                     ? "bg-secondary text-foreground border-border font-medium shadow-xs"
                     : "border-border/60 text-muted-foreground hover:text-foreground hover:bg-secondary/40"
                 }`}
               >
-                <Sparkles className="h-3 w-3" />
-                <span>AI Summaries only</span>
+                <Sparkles className="h-3 w-3 text-primary" />
+                <span>AI Summaries</span>
+                <span className="text-[10px] font-mono opacity-80">({aiSummaryCount})</span>
               </button>
             </div>
 
             {/* Continuous Unified Commits Panel */}
-            <div className="rounded-xl border border-border bg-card overflow-hidden">
+            <div className="rounded-xl border border-border bg-card overflow-hidden shadow-xs">
               {filteredCommits.length === 0 ? (
-                <div className="py-12 text-center space-y-2">
+                <div className="py-14 text-center space-y-2">
                   <GitGraph className="h-8 w-8 text-muted-foreground mx-auto opacity-40" />
                   <p className="text-xs text-muted-foreground">
                     {commitFilter
@@ -481,7 +549,7 @@ export default function ProjectHome() {
                     return (
                       <div
                         key={commit._id}
-                        className="p-3 sm:px-4 hover:bg-secondary/40 transition-colors duration-150"
+                        className="p-3 sm:px-4 hover:bg-secondary/35 transition-colors duration-150"
                       >
                         <div className="flex items-start justify-between gap-3">
                           {/* Left: Avatar + Commit details */}
@@ -506,7 +574,7 @@ export default function ProjectHome() {
 
                               {/* Author and Date */}
                               <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-1">
-                                <span className="font-medium text-foreground/80">
+                                <span className="font-medium text-foreground/85">
                                   {commit.commitAuthorName}
                                 </span>
                                 <span>•</span>
@@ -521,7 +589,7 @@ export default function ProjectHome() {
                             {commit.summary && (
                               <button
                                 onClick={() => setExpandedCommit(isExpanded ? null : commit._id)}
-                                className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded border transition-colors ${
+                                className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded border transition-all duration-150 active:scale-95 ${
                                   isExpanded
                                     ? "bg-primary text-primary-foreground border-primary/40 shadow-xs font-medium"
                                     : "bg-secondary/60 hover:bg-secondary text-muted-foreground hover:text-foreground border-border"
@@ -530,11 +598,11 @@ export default function ProjectHome() {
                               >
                                 <Sparkles className={`h-3 w-3 ${isExpanded ? "text-primary-foreground" : "text-primary"}`} />
                                 <span className="hidden sm:inline">AI Summary</span>
-                                {isExpanded ? (
-                                  <ChevronUp className="h-3 w-3" />
-                                ) : (
-                                  <ChevronDown className="h-3 w-3" />
-                                )}
+                                <ChevronDown
+                                  className={`h-3 w-3 transition-transform duration-200 ${
+                                    isExpanded ? "rotate-180" : ""
+                                  }`}
+                                />
                               </button>
                             )}
 
@@ -542,7 +610,7 @@ export default function ProjectHome() {
                             {commit.commitHash && (
                               <button
                                 onClick={() => handleCopy(commit.commitHash, commit._id)}
-                                className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-secondary hover:bg-muted text-muted-foreground hover:text-foreground border border-border transition-colors"
+                                className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground border border-border transition-all duration-150 active:scale-95"
                                 title="Click to copy hash"
                               >
                                 {copiedCmd === commit._id ? (
@@ -560,7 +628,7 @@ export default function ProjectHome() {
                                 href={`${currentProject.githubUrl}/commit/${commit.commitHash}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-1 rounded text-muted-foreground hover:text-foreground transition-colors"
+                                className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
                                 title="Open on GitHub"
                               >
                                 <ExternalLink className="h-3.5 w-3.5" />
@@ -572,9 +640,22 @@ export default function ProjectHome() {
                         {/* Unfolded AI Summary */}
                         {commit.summary && isExpanded && (
                           <div className="mt-3 ml-8 p-3 rounded-lg bg-secondary/70 border border-border text-xs space-y-1.5 animate-fade-up">
-                            <div className="flex items-center gap-1.5 text-primary font-semibold text-[11px]">
-                              <Sparkles className="h-3 w-3" />
-                              <span>AI Code Analysis</span>
+                            <div className="flex items-center justify-between text-[11px] text-primary font-semibold">
+                              <span className="flex items-center gap-1.5">
+                                <Sparkles className="h-3 w-3" />
+                                AI Code Analysis
+                              </span>
+                              <button
+                                onClick={() => handleCopy(commit.summary, `sum-${commit._id}`)}
+                                className="text-muted-foreground hover:text-foreground transition-colors p-0.5"
+                                title="Copy analysis text"
+                              >
+                                {copiedCmd === `sum-${commit._id}` ? (
+                                  <Check className="h-3 w-3 text-primary" />
+                                ) : (
+                                  <Copy className="h-3 w-3" />
+                                )}
+                              </button>
                             </div>
                             <p className="text-foreground/90 font-mono whitespace-pre-wrap leading-relaxed text-[11px]">
                               {commit.summary}
@@ -634,10 +715,10 @@ export default function ProjectHome() {
                     href={currentProject.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-mono text-foreground hover:underline flex items-center justify-between p-2 rounded bg-secondary border border-border"
+                    className="text-xs font-mono text-foreground hover:underline flex items-center justify-between p-2 rounded bg-secondary/80 border border-border group"
                   >
                     <span className="truncate">{currentProject.githubUrl.replace("https://github.com/", "")}</span>
-                    <ExternalLink className="h-3 w-3 text-muted-foreground shrink-0 ml-1" />
+                    <ExternalLink className="h-3 w-3 text-muted-foreground group-hover:text-foreground shrink-0 ml-1 transition-colors" />
                   </a>
 
                   <div className="space-y-1">
@@ -652,7 +733,7 @@ export default function ProjectHome() {
                         size="sm"
                         variant="outline"
                         onClick={() => handleCopy(`git clone ${currentProject.githubUrl}.git`, "clone")}
-                        className="h-7 px-2 text-xs"
+                        className="h-7 px-2 text-xs hover:bg-secondary active:scale-95 transition-all"
                       >
                         {copiedCmd === "clone" ? (
                           <Check className="h-3 w-3 text-primary" />
@@ -683,13 +764,13 @@ export default function ProjectHome() {
                   <Link
                     key={idx}
                     to={item.href}
-                    className="flex items-center justify-between p-2 rounded hover:bg-secondary transition-colors text-xs text-foreground group"
+                    className="flex items-center justify-between p-2 rounded hover:bg-secondary/70 transition-colors text-xs text-foreground group"
                   >
                     <div className="flex items-center gap-2">
                       <item.icon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
                       <span>{item.title}</span>
                     </div>
-                    <ArrowRight className="h-3 w-3 text-muted-foreground group-hover:text-foreground transition-transform" />
+                    <ArrowRight className="h-3 w-3 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 ))}
               </CardContent>
@@ -720,16 +801,16 @@ export default function ProjectHome() {
               ].map((item, idx) => (
                 <div key={idx} className="space-y-1">
                   <span className="text-[11px] text-muted-foreground font-medium">{item.label}</span>
-                  <div className="flex items-center justify-between p-2 rounded bg-secondary border border-border text-xs font-mono">
+                  <div className="flex items-center justify-between p-2 rounded bg-secondary/80 border border-border text-xs font-mono">
                     <span className="truncate pr-2">{item.cmd}</span>
                     <button
                       onClick={() => handleCopy(item.cmd, `cli-${idx}`)}
-                      className="p-1 rounded text-muted-foreground hover:text-foreground shrink-0"
+                      className="p-1 rounded text-muted-foreground hover:text-foreground active:scale-95 transition-all shrink-0"
                     >
                       {copiedCmd === `cli-${idx}` ? (
-                        <Check className="h-3 w-3 text-primary" />
+                        <Check className="h-3.5 w-3.5 text-primary" />
                       ) : (
-                        <Copy className="h-3 w-3" />
+                        <Copy className="h-3.5 w-3.5" />
                       )}
                     </button>
                   </div>
@@ -798,7 +879,7 @@ export default function ProjectHome() {
           <CardContent className="p-4 pt-1">
             <div className="divide-y divide-border/50">
               {currentProject.members?.map((member, i) => (
-                <div key={member._id || i} className="py-2.5 flex items-center justify-between">
+                <div key={member._id || i} className="py-2.5 flex items-center justify-between hover:bg-secondary/30 transition-colors px-2 rounded">
                   <div className="flex items-center gap-2.5">
                     <div className="h-7 w-7 rounded-full bg-secondary border border-border flex items-center justify-center text-xs font-bold text-foreground">
                       {member.name?.[0]?.toUpperCase() || "U"}
