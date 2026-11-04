@@ -188,6 +188,35 @@ export const saveNote = createAsyncThunk(
   }
 );
 
+export const uploadMeeting = createAsyncThunk(
+  "project/uploadMeeting",
+  async ({ projectId, file, name }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("audio", file);
+      if (name) {
+        formData.append("name", name);
+      }
+
+      const { data } = await api.post(
+        `/projects/${projectId}/meetings/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          timeout: 900000,
+        }
+      );
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to upload and process meeting"
+      );
+    }
+  }
+);
+
 export const processMeeting = createAsyncThunk(
   "project/processMeeting",
   async ({ projectId, audio_url }, { rejectWithValue }) => {
@@ -436,6 +465,18 @@ const projectSlice = createSlice({
         state.currentProject = action.payload;
         state.architectureGraph = action.payload.architectureGraph || null;
         state.dependencyGraph = action.payload.dependencyGraph || null;
+      })
+      // Upload Meeting
+      .addCase(uploadMeeting.pending, (state) => {
+        state.isActionLoading = true;
+      })
+      .addCase(uploadMeeting.fulfilled, (state, action) => {
+        state.isActionLoading = false;
+        state.meetings.unshift(action.payload);
+      })
+      .addCase(uploadMeeting.rejected, (state, action) => {
+        state.isActionLoading = false;
+        state.error = action.payload;
       })
       // Process Meeting
       .addCase(processMeeting.pending, (state) => {

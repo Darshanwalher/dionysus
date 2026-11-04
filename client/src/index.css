@@ -7,6 +7,7 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-surface-elevated: var(--surface-elevated);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
@@ -15,8 +16,10 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-text-muted: var(--text-muted);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-cyan: var(--accent-cyan);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -27,68 +30,78 @@
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-border: var(--sidebar-border);
   --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --font-sans: "Inter", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Inter", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ─── Light theme (Clean, balanced) ───────────────────────────────── */
+/* ─── Light theme: Alabaster ──────────────────────────────────────── */
 :root {
   color-scheme: light;
-  --background:  oklch(0.985 0.002 260);
-  --foreground:  oklch(0.18 0.012 260);
-  --card:        oklch(1.00 0.000 260);
-  --card-foreground: oklch(0.18 0.012 260);
-  --popover:     oklch(1.00 0.000 260);
-  --popover-foreground: oklch(0.18 0.012 260);
-  --primary:     oklch(0.48 0.14 275);      /* Refined, mature indigo-slate */
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary:   oklch(0.955 0.003 260);
-  --secondary-foreground: oklch(0.20 0.012 260);
-  --muted:       oklch(0.955 0.003 260);
-  --muted-foreground: oklch(0.48 0.010 260);
-  --accent:      oklch(0.94 0.006 260);
-  --accent-foreground: oklch(0.20 0.012 260);
-  --destructive: oklch(0.55 0.22 29);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border:      oklch(0.90 0.004 260);
-  --input:       oklch(0.90 0.004 260);
-  --ring:        oklch(0.48 0.14 275);
-  --sidebar:     oklch(0.975 0.003 260);
-  --sidebar-foreground: oklch(0.42 0.010 260);
-  --sidebar-accent: oklch(0.94 0.005 260);
-  --sidebar-border: oklch(0.90 0.004 260);
+  --background:           #F7F8FA;
+  --foreground:           #171923;
+  --card:                 #FFFFFF;
+  --card-foreground:      #171923;
+  --surface-elevated:     #FFFFFF;
+  --popover:              #FFFFFF;
+  --popover-foreground:   #171923;
+  --primary:              #5558E8;
+  --primary-foreground:   #FFFFFF;
+  --secondary:            #F1F3F6;
+  --secondary-foreground: #171923;
+  --muted:                #F1F3F6;
+  --muted-foreground:     #525866;
+  --text-muted:           #858B98;
+  --accent:               #F1F3F6;
+  --accent-foreground:    #171923;
+  --accent-cyan:          #0284C7;
+  --destructive:          #DC2626;
+  --destructive-foreground:#FFFFFF;
+  --border:               #E5E7EB;
+  --input:                #E5E7EB;
+  --ring:                 #5558E8;
+  --sidebar:              #FFFFFF;
+  --sidebar-foreground:   #525866;
+  --sidebar-accent:       #F1F3F6;
+  --sidebar-border:       #E5E7EB;
+  --success:              #16803C;
+  --warning:              #B45309;
 }
 
-/* ─── Dark theme (Refined developer slate: comfortable, minimal, not pitch-black) ─── */
+/* ─── Dark theme: Obsidian Slate ──────────────────────────────────── */
 .dark {
   color-scheme: dark;
-  --background:  oklch(0.165 0.010 260);     /* Soft modern dark (~#131418) */
-  --foreground:  oklch(0.94 0.005 260);      /* Clean soft white */
-  --card:        oklch(0.195 0.012 260);     /* Surface (~#1a1b22) */
-  --card-foreground: oklch(0.94 0.005 260);
-  --popover:     oklch(0.195 0.012 260);
-  --popover-foreground: oklch(0.94 0.005 260);
-  --primary:     oklch(0.62 0.13 275);      /* Desaturated, sophisticated indigo-violet */
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary:   oklch(0.23 0.012 260);     /* Interactive fill (~#23252d) */
-  --secondary-foreground: oklch(0.92 0.006 260);
-  --muted:       oklch(0.22 0.010 260);     /* Muted fill */
-  --muted-foreground: oklch(0.65 0.012 260); /* Comfortable slate-gray text */
-  --accent:      oklch(0.25 0.014 260);
-  --accent-foreground: oklch(0.95 0.005 260);
-  --destructive: oklch(0.60 0.18 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border:      oklch(0.255 0.010 260);    /* Clean subtle borders */
-  --input:       oklch(0.255 0.010 260);
-  --ring:        oklch(0.62 0.13 275);
-  --sidebar:     oklch(0.145 0.008 260);
-  --sidebar-foreground: oklch(0.65 0.010 260);
-  --sidebar-accent: oklch(0.21 0.012 260);
-  --sidebar-border: oklch(0.22 0.008 260);
+  --background:           #0D1117;
+  --foreground:           #F0F6FC;
+  --card:                 #111820;
+  --card-foreground:      #F0F6FC;
+  --surface-elevated:     #1C2330;
+  --popover:              #161B22;
+  --popover-foreground:   #F0F6FC;
+  --primary:              #7C83FF;
+  --primary-foreground:   #FFFFFF;
+  --secondary:            #161B22;
+  --secondary-foreground: #F0F6FC;
+  --muted:                #161B22;
+  --muted-foreground:     #9198A1;
+  --text-muted:           #6E7681;
+  --accent:               #1C2330;
+  --accent-foreground:    #F0F6FC;
+  --accent-cyan:          #38BDF8;
+  --destructive:          #F85149;
+  --destructive-foreground:#FFFFFF;
+  --border:               #30363D;
+  --input:                #30363D;
+  --ring:                 #7C83FF;
+  --sidebar:              #0D1117;
+  --sidebar-foreground:   #9198A1;
+  --sidebar-accent:       #161B22;
+  --sidebar-border:       #30363D;
+  --success:              #3FB950;
+  --warning:              #D29922;
 }
 
 /* ─── Base Typography & Focus ─────────────────────────────── */
@@ -101,37 +114,37 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
+    letter-spacing: -0.01em;
   }
 
   code, kbd, samp, pre {
     font-family: var(--font-mono);
-    font-feature-settings: "calt", "liga";
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
+    font-weight: 600;
   }
 
   *:focus-visible {
     outline: 2px solid var(--ring);
-    outline-offset: 2px;
+    outline-offset: 1px;
   }
 
   ::selection {
-    background: color-mix(in oklch, var(--primary) 28%, transparent);
+    background: color-mix(in srgb, var(--primary) 22%, transparent);
     color: var(--foreground);
   }
 }
 
-/* ─── Minimal Scrollbar ───────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+/* ─── Scrollbars ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--border);
@@ -144,7 +157,7 @@
 .scrollbar-none { scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
-/* ─── Minimal Surfaces ────────────────────────────────────── */
+/* ─── Refined Surfaces ───────────────────────────────────── */
 .glass {
   background: var(--card);
   border: 1px solid var(--border);
@@ -153,76 +166,58 @@
 .glass-premium {
   background: var(--card);
   border: 1px solid var(--border);
-  box-shadow: 0 4px 16px -6px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 8px 24px -6px rgba(0, 0, 0, 0.15);
 }
 
-.accent-line,
-.gold-line {
+.surface-elevated {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+}
+
+.accent-line {
   height: 1px;
   width: 100%;
   background: linear-gradient(
     90deg,
     transparent,
-    color-mix(in oklch, var(--primary) 40%, transparent),
+    var(--border),
     transparent
   );
 }
 
-.gradient-text {
-  color: var(--foreground);
-}
-
-/* ─── Clean Icon Tile ─────────────────────────────────────── */
+/* ─── Icon Tile ──────────────────────────────────────────── */
 .icon-tile {
   display: flex;
-  height: 2.25rem;
-  width: 2.25rem;
+  height: 2rem;
+  width: 2rem;
   align-items: center;
   justify-content: center;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   border: 1px solid var(--border);
   background: var(--secondary);
   color: var(--primary);
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
-/* ─── Atmosphere (Very subtle, unobtrusive) ────────────────── */
-.atmosphere {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
+/* ─── Keyboard Shortcut Badge ────────────────────────────── */
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border);
+  background: var(--secondary);
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 0.1rem 0.35rem;
+  line-height: 1;
 }
 
-.atmosphere-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(color-mix(in oklch, var(--border) 25%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in oklch, var(--border) 25%, transparent) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(ellipse 65% 55% at 50% 20%, black 10%, transparent 70%);
-  opacity: 0.2;
-}
-
-.atmosphere-orb--subtle {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(140px);
-  width: 28rem;
-  height: 18rem;
-  background: color-mix(in oklch, var(--primary) 7%, transparent);
-  top: -5rem;
-  left: 25%;
-}
-
-.spotlight {
-  display: none;
-}
-
-/* ─── Animations ──────────────────────────────────────────── */
+/* ─── Animations (Smooth, short, restrained 150-250ms) ───── */
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -231,15 +226,21 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade-up    { animation: fade-up 0.25s cubic-bezier(0.16,1,0.3,1) both; }
-.animate-banner-in  { animation: banner-in 0.20s ease-out both; }
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-fade-up   { animation: fade-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-banner-in { animation: banner-in 0.18s ease-out both; }
+.animate-pulse-subtle { animation: pulse-subtle 2s infinite ease-in-out; }
 
 .stagger-1 { animation-delay: 0.03s; }
 .stagger-2 { animation-delay: 0.06s; }
 .stagger-3 { animation-delay: 0.09s; }
 .stagger-4 { animation-delay: 0.12s; }
 
-/* ─── TipTap / Markdown Typography ────────────────────────── */
+/* ─── TipTap & Prose Typography ───────────────────────────── */
 .tiptap,
 .prose {
   color: var(--foreground);
@@ -249,32 +250,32 @@
 
 .tiptap h1,
 .prose h1 {
-  font-size: 1.65rem;
+  font-size: 1.625rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
   color: var(--foreground);
   border-bottom: 1px solid var(--border);
-  padding-bottom: 0.4rem;
+  padding-bottom: 0.375rem;
 }
 
 .tiptap h2,
 .prose h2 {
   font-size: 1.25rem;
   font-weight: 600;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   margin-top: 1.5rem;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
   color: var(--foreground);
 }
 
 .tiptap h3,
 .prose h3 {
-  font-size: 1.05rem;
+  font-size: 1.0625rem;
   font-weight: 600;
-  margin-top: 1.2rem;
-  margin-bottom: 0.4rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.375rem;
   color: var(--foreground);
 }
 
@@ -302,7 +303,7 @@
 
 .tiptap li,
 .prose li {
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.25rem;
   color: var(--foreground);
 }
 
@@ -320,7 +321,7 @@
   background: var(--muted);
   color: var(--foreground);
   padding: 0.15rem 0.375rem;
-  border-radius: 0.375rem;
+  border-radius: 0.25rem;
   border: 1px solid var(--border);
 }
 
@@ -328,7 +329,7 @@
 .prose pre {
   background: var(--secondary);
   border: 1px solid var(--border);
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   padding: 0.875rem;
   overflow-x: auto;
   margin-top: 0.75rem;
@@ -354,5 +355,5 @@
   margin-bottom: 0.75rem;
   color: var(--muted-foreground);
   background: var(--muted);
-  border-radius: 0 0.375rem 0.375rem 0;
+  border-radius: 0 0.25rem 0.25rem 0;
 }

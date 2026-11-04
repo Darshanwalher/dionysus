@@ -43,11 +43,25 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
+  // Multer errors
+  if (err.name === 'MulterError' || err.code === 'LIMIT_FILE_SIZE') {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({
+        success: false,
+        message: 'File size exceeds maximum allowed limit of 500 MB',
+      });
+    }
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
   // Default server error
-  const statusCode = err.statusCode || 500;
+  const statusCode = err.statusCode || err.http_code || 500;
   res.status(statusCode).json({
     success: false,
-    message: err.message || 'Internal Server Error',
+    message: err.message || err.error?.message || 'Internal Server Error',
   });
 };
 

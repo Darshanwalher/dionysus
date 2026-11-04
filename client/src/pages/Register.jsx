@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import PasswordField from "@/components/ui/password-field";
 import AuthLayout from "@/components/layout/AuthLayout";
-import { Mail, UserIcon } from "lucide-react";
+import { Mail, UserIcon, ArrowRight } from "lucide-react";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -27,10 +27,10 @@ export default function Register() {
 
   return (
     <AuthLayout
-      title="Create an account"
-      description="Join Dionysus to supercharge your dev workflow"
+      title="Create your account"
+      description="Start collaborating around code, architecture, and meeting insights."
       footer={
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Already have an account?{" "}
           <Link to="/login" className="font-medium text-primary hover:underline">
             Sign in
@@ -38,37 +38,41 @@ export default function Register() {
         </p>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3.5">
         {error && (
-          <div className="animate-banner-in rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
+          <div className="rounded border border-destructive/30 bg-destructive/10 p-2.5 text-xs text-destructive">
             {error}
           </div>
         )}
 
-        <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="name" className="text-xs font-medium text-foreground">
+            Full Name
+          </Label>
           <div className="relative">
-            <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="name"
               type="text"
-              placeholder="John Doe"
+              placeholder="Darshan Walher"
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
                 dispatch(clearError());
               }}
-              className="h-11 pl-10"
+              className="h-9 pl-9 text-xs sm:text-sm"
               required
               autoComplete="name"
             />
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-xs font-medium text-foreground">
+            Email
+          </Label>
           <div className="relative">
-            <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Mail className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="email"
               type="email"
@@ -78,7 +82,7 @@ export default function Register() {
                 setEmail(e.target.value);
                 dispatch(clearError());
               }}
-              className="h-11 pl-10"
+              className="h-9 pl-9 text-xs sm:text-sm"
               required
               autoComplete="email"
             />
@@ -86,17 +90,24 @@ export default function Register() {
         </div>
 
         <PasswordField
-          id="new-password"
+          id="password"
+          label="Password"
           value={password}
           onChange={(e) => {
             setPassword(e.target.value);
             dispatch(clearError());
           }}
           minLength={6}
+          required
         />
 
-        <Button type="submit" className="mt-2 h-11 w-full" isLoading={isLoading}>
+        <Button
+          type="submit"
+          className="w-full h-9 text-xs font-semibold mt-1"
+          isLoading={isLoading}
+        >
           Create Account
+          <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
         </Button>
       </form>
     </AuthLayout>

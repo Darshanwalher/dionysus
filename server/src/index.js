@@ -40,8 +40,8 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Body parsing
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Logging
 app.use(morgan('dev'));
@@ -65,9 +65,12 @@ const PORT = process.env.PORT || 5000;
 
 const start = async () => {
   await connectDB();
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
   });
+  server.timeout = 15 * 60 * 1000;
+  server.keepAliveTimeout = 15 * 60 * 1000;
+  server.headersTimeout = 16 * 60 * 1000;
 };
 
 start();

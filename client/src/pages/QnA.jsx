@@ -15,11 +15,10 @@ import {
   Trash2,
   MessageSquare,
   Bot,
-  Sparkles,
   Copy,
   Check,
   Search,
-  Zap,
+  Loader2,
 } from "lucide-react";
 
 const SUGGESTED_QUESTIONS = [
@@ -100,33 +99,30 @@ export default function QnA() {
   }, [questions, searchFilter]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-8">
+    <div className="w-full max-w-7xl mx-auto space-y-6">
       <PageHeader
         icon={Bot}
         title="Codebase Q&A Assistant"
-        description="Ask deep questions about architecture, algorithms, and modules backed by vector retrieval"
+        description="Natural language developer queries grounded in vectorized repository context"
         actions={
-          <>
-            <Badge
-              variant="outline"
-              className="text-xs font-mono text-muted-foreground"
-            >
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs font-mono">
               RAG Vector Search
             </Badge>
-            <Badge variant="secondary" className="font-mono text-xs px-3 py-1">
-              {questions.length} Question{questions.length === 1 ? "" : "s"} Recorded
+            <Badge variant="secondary" className="font-mono text-xs">
+              {questions.length} Question{questions.length === 1 ? "" : "s"}
             </Badge>
-          </>
+          </div>
         }
       />
 
-      {/* ─── Interactive Ask Question Card ───────────────────────────── */}
-      <Card className="glass-premium overflow-hidden animate-fade-up">
-        <CardContent className="p-6 space-y-4">
+      {/* ─── Ask Question Card ───────────────────────────────────────── */}
+      <Card className="animate-fade-up">
+        <CardContent className="p-4 sm:p-5 space-y-3.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span>Ask about any code, logic, or file</span>
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+              <Bot className="h-4 w-4 text-primary" />
+              <span>Query repository knowledge</span>
             </div>
             <span className="text-[11px] text-muted-foreground font-mono hidden sm:inline">
               Ctrl + Enter to send
@@ -134,29 +130,27 @@ export default function QnA() {
           </div>
 
           <form onSubmit={handleAsk} className="space-y-3">
-            <div className="relative">
-              <Textarea
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask anything about your codebase (e.g., 'How does authentication flow work?')..."
-                className="min-h-[100px] resize-none text-sm bg-background/50 border-border/70 focus:border-ring rounded-xl p-4 leading-relaxed"
-                disabled={isActionLoading}
-              />
-            </div>
+            <Textarea
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask anything about this codebase (e.g., 'How does authentication flow work?')..."
+              className="min-h-[90px] text-xs sm:text-sm bg-card p-3 leading-relaxed"
+              disabled={isActionLoading}
+            />
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
               {/* Suggestions */}
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[11px] text-muted-foreground font-medium mr-1 flex items-center gap-1">
-                  <Zap className="h-3 w-3 text-primary" /> Suggestions:
+                <span className="text-[11px] text-muted-foreground font-mono mr-1">
+                  Suggestions:
                 </span>
                 {SUGGESTED_QUESTIONS.map((sq, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => setQuestion(sq)}
-                    className="text-[11px] px-2.5 py-1 rounded-md bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors border border-border/40 text-left"
+                    className="text-[11px] px-2 py-0.5 rounded bg-secondary hover:bg-muted text-muted-foreground hover:text-foreground transition-colors border border-border text-left cursor-pointer"
                   >
                     {sq.length > 36 ? sq.slice(0, 36) + "…" : sq}
                   </button>
@@ -166,16 +160,16 @@ export default function QnA() {
               <Button
                 type="submit"
                 disabled={isActionLoading || !question.trim()}
-                className="h-10 px-5 text-xs font-semibold shrink-0"
+                className="h-8.5 px-4 text-xs font-semibold shrink-0"
               >
                 {isActionLoading ? (
                   <>
-                    <Bot className="h-4 w-4 mr-2 animate-bounce" />
+                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                     Searching Codebase…
                   </>
                 ) : (
                   <>
-                    <Send className="h-3.5 w-3.5 mr-2" />
+                    <Send className="h-3.5 w-3.5 mr-1.5" />
                     Ask Assistant
                   </>
                 )}
@@ -186,76 +180,72 @@ export default function QnA() {
       </Card>
 
       {/* ─── Question History & Search Stream ─────────────────────────── */}
-      <div className="space-y-5 animate-fade-up stagger-1">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/40">
+      <div className="space-y-4 animate-fade-up stagger-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border/80">
           <div className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-base font-semibold text-foreground">Conversation History</h2>
-            <Badge variant="outline" className="text-xs font-mono ml-1">
+            <h2 className="text-sm font-semibold text-foreground">Conversation History</h2>
+            <Badge variant="outline" className="text-xs font-mono">
               {filteredQuestions.length}
             </Badge>
           </div>
 
           {questions.length > 0 && (
-            <div className="relative w-full sm:w-72">
-              <Search className="h-3.5 w-3.5 absolute left-3 top-2.5 text-muted-foreground" />
+            <div className="relative w-full sm:w-64">
+              <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
                 placeholder="Search questions & answers…"
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:border-ring text-foreground"
+                className="w-full pl-8 pr-3 py-1 text-xs bg-card border border-border rounded-md focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground"
               />
             </div>
           )}
         </div>
 
-        {/* Loading skeleton while fetching */}
+        {/* Loading skeleton */}
         {isActionLoading && questions.length === 0 && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[1, 2].map((i) => (
-              <Skeleton key={i} className="h-40 w-full rounded-xl" />
+              <Skeleton key={i} className="h-36 w-full rounded-md" />
             ))}
           </div>
         )}
 
         {/* Empty State */}
         {questions.length === 0 && !isActionLoading && (
-          <Card className="glass border-border/50">
-            <CardContent className="py-16 text-center space-y-3">
-              <div className="icon-tile h-12 w-12 rounded-2xl mx-auto">
-                <FileQuestion className="h-6 w-6" />
+          <Card className="border-border">
+            <CardContent className="py-12 text-center space-y-2.5">
+              <div className="icon-tile h-10 w-10 rounded-md mx-auto">
+                <FileQuestion className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-semibold text-foreground">No questions asked yet</h3>
-              <p className="text-xs text-muted-foreground max-w-md mx-auto">
-                Use the input above to ask any question about your codebase. The AI will search your vectorized files and provide structured, code-informed answers.
+              <h3 className="text-sm font-semibold text-foreground">No questions asked yet</h3>
+              <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                Use the input above to ask any question about your codebase. The AI will search your vectorized files and provide grounded, code-informed answers.
               </p>
             </CardContent>
           </Card>
         )}
 
         {/* List of Q&A Cards */}
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {filteredQuestions.map((q) => {
             const isCopied = copiedId === q._id;
             return (
-              <Card
-                key={q._id}
-                interactive
-                className="glass bg-card/40 overflow-hidden"
-              >
-                <CardContent className="p-6 space-y-4">
+              <Card key={q._id} className="overflow-hidden">
+                <CardContent className="p-4 sm:p-5 space-y-3.5">
                   {/* Question row */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <div className="icon-tile h-8 w-8 rounded-lg shrink-0 mt-0.5">
-                        <MessageSquare className="h-4 w-4" />
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                      <div className="icon-tile h-7 w-7 rounded shrink-0 mt-0.5">
+                        <MessageSquare className="h-3.5 w-3.5" />
                       </div>
-                      <div className="space-y-1 min-w-0">
-                        <span className="text-[10px] uppercase font-mono text-muted-foreground tracking-wider font-semibold">
+                      <div className="space-y-0.5 min-w-0">
+                        <span className="text-[10px] uppercase font-mono text-muted-foreground font-semibold">
                           Question
                         </span>
-                        <h3 className="text-sm font-semibold text-foreground leading-snug">
+                        <h3 className="text-xs sm:text-sm font-semibold text-foreground leading-snug">
                           {q.question}
                         </h3>
                       </div>
@@ -267,17 +257,17 @@ export default function QnA() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleCopyAnswer(q)}
-                        className="h-8 text-xs text-muted-foreground hover:text-foreground border border-border/40"
+                        className="h-7 text-xs text-muted-foreground hover:text-foreground border border-border"
                         title="Copy question and answer"
                       >
                         {isCopied ? (
                           <>
-                            <Check className="h-3.5 w-3.5 mr-1 text-primary" />
+                            <Check className="h-3 w-3 mr-1 text-primary" />
                             Copied
                           </>
                         ) : (
                           <>
-                            <Copy className="h-3.5 w-3.5 mr-1" />
+                            <Copy className="h-3 w-3 mr-1" />
                             Copy
                           </>
                         )}
@@ -286,35 +276,32 @@ export default function QnA() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(q._id)}
-                        className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive border border-border/40"
+                        className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive border border-border"
                         title="Delete question"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
 
-                  {/* Divider */}
-                  <div className="border-t border-border/30 my-2" />
-
                   {/* AI Answer Block */}
-                  <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 mt-0.5">
-                      <Bot className="h-4 w-4" />
+                  <div className="flex items-start gap-2.5 pt-2 border-t border-border/50">
+                    <div className="h-7 w-7 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 mt-0.5">
+                      <Bot className="h-3.5 w-3.5" />
                     </div>
-                    <div className="space-y-2 flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] uppercase font-mono text-primary font-semibold tracking-wider">
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-center justify-between text-[10px] font-mono">
+                        <span className="text-primary font-semibold uppercase">
                           AI Codebase Reasoning
                         </span>
-                        <span className="text-[10px] text-muted-foreground font-mono">
+                        <span className="text-muted-foreground">
                           {new Date(q.createdAt).toLocaleString()}
                         </span>
                       </div>
 
                       {/* Answer Body */}
                       <div
-                        className="text-xs text-foreground/90 leading-relaxed font-sans prose prose-xs max-w-none [&_pre]:bg-muted [&_pre]:border [&_pre]:border-border [&_pre]:p-3 [&_pre]:rounded-lg [&_code]:text-primary [&_code]:font-mono [&_p]:my-1.5"
+                        className="text-xs text-foreground leading-relaxed font-sans prose prose-xs max-w-none [&_pre]:bg-secondary [&_pre]:border [&_pre]:border-border [&_pre]:p-3 [&_pre]:rounded [&_code]:text-primary [&_code]:font-mono [&_p]:my-1.5"
                         dangerouslySetInnerHTML={{ __html: q.answer }}
                       />
                     </div>

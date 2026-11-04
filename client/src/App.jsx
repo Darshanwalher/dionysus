@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 import AppShell from "./components/layout/AppShell";
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProjectHome from "./pages/ProjectHome";
@@ -18,7 +19,7 @@ import MeetingDetail from "./pages/MeetingDetail";
 import FileVisualisation from "./pages/FileVisualisation";
 
 function ProtectedRoute({ children }) {
-  const { token, isLoading } = useSelector((state) => state.auth);
+  const { token } = useSelector((state) => state.auth);
   if (!token) return <Navigate to="/login" replace />;
   return <AppShell>{children}</AppShell>;
 }
@@ -29,10 +30,40 @@ function PublicRoute({ children }) {
   return children;
 }
 
+function RootRoute() {
+  const { token } = useSelector((state) => state.auth);
+  const { projects } = useSelector((state) => state.project);
+
+  if (!token) {
+    return <LandingPage />;
+  }
+
+  if (projects.length > 0) {
+    return <Navigate to={`/projects/${projects[0]._id}`} replace />;
+  }
+
+  return (
+    <AppShell>
+      <div className="mx-auto max-w-xl py-16 animate-fade-up">
+        <div className="p-6 rounded-lg border border-border bg-card space-y-3">
+          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-primary">
+            Workspace Initialized
+          </span>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+            Welcome to Dionysus
+          </h1>
+          <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
+            Create or select a project from the sidebar to explore repository architecture, analyze meeting audio, and query technical documentation.
+          </p>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
 function AppRoutes() {
   const dispatch = useDispatch();
   const { token, user } = useSelector((state) => state.auth);
-  const { projects } = useSelector((state) => state.project);
 
   useEffect(() => {
     if (token && !user) {
@@ -48,7 +79,10 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Root route: Landing Page for guests, Project Workspace for users */}
+      <Route path="/" element={<RootRoute />} />
+
+      {/* Public auth routes */}
       <Route
         path="/login"
         element={
@@ -66,32 +100,7 @@ function AppRoutes() {
         }
       />
 
-      {/* Protected routes */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            {projects.length > 0 ? (
-              <Navigate to={`/projects/${projects[0]._id}`} replace />
-            ) : (
-              <div className="mx-auto max-w-xl py-16 animate-fade-up">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">
-                  New workspace
-                </p>
-                <h1 className="mt-3 text-3xl font-semibold tracking-tight gradient-text">
-                  Welcome to Dionysus
-                </h1>
-                <div className="gold-line my-6 max-w-xs" />
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Create your first project from the sidebar to open documentation,
-                  codebase Q&amp;A, and meeting intelligence in one editorial workspace.
-                </p>
-              </div>
-            )}
-          </ProtectedRoute>
-        }
-      />
-
+      {/* Protected application workspace routes */}
       <Route
         path="/projects/:id"
         element={
@@ -160,6 +169,7 @@ export default function App() {
                 background: "var(--card)",
                 border: "1px solid var(--border)",
                 color: "var(--foreground)",
+                fontSize: "12px",
               },
             }}
           />

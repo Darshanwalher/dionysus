@@ -1,12 +1,13 @@
-import { BookText, FileQuestion, Presentation, Zap } from "lucide-react";
-import Atmosphere from "@/components/theme/Atmosphere";
+import { Link } from "react-router-dom";
+import { BookText, FileQuestion, Presentation, FolderTree, GitBranch, Zap, ArrowLeft } from "lucide-react";
 import ThemeToggle from "@/components/theme/ThemeToggle";
-import { cn } from "@/lib/utils";
 
 const CAPABILITIES = [
-  { icon: BookText, label: "Living documentation" },
-  { icon: FileQuestion, label: "Codebase Q&A" },
-  { icon: Presentation, label: "Meeting intelligence" },
+  { icon: GitBranch, label: "Repository commits & structure tracking" },
+  { icon: FolderTree, label: "Deterministic architecture & dependency graphs" },
+  { icon: Presentation, label: "500 MB meeting audio transcription & chapters" },
+  { icon: FileQuestion, label: "Pinecone vector Q&A with source citations" },
+  { icon: BookText, label: "Distraction-free living technical documentation" },
 ];
 
 export default function AuthLayout({
@@ -16,83 +17,101 @@ export default function AuthLayout({
   footer,
 }) {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background">
-      <Atmosphere spotlight className="fixed inset-0" />
-
-      <div className="relative z-10 grid min-h-screen lg:grid-cols-2">
-        {/* Left panel */}
-        <aside className="relative hidden flex-col justify-between border-r border-border/60 p-10 lg:flex">
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-between">
+      <div className="grid min-h-screen lg:grid-cols-2">
+        {/* Left Editorial Panel */}
+        <aside className="hidden lg:flex flex-col justify-between border-r border-border bg-card p-10 xl:p-12">
+          {/* Brand & Nav */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5 animate-fade-up">
-              <div className="icon-tile h-8 w-8 rounded-lg">
+            <Link to="/" className="flex items-center gap-2.5">
+              <div className="icon-tile h-7 w-7 rounded">
                 <Zap className="h-4 w-4" />
               </div>
-              <span className="text-base font-semibold tracking-tight text-foreground">
+              <span className="font-semibold text-sm tracking-tight text-foreground">
                 Dionysus
               </span>
-            </div>
-            <ThemeToggle className="h-9 w-9 text-muted-foreground hover:text-foreground" />
+            </Link>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-medium"
+            >
+              <ArrowLeft className="h-3 w-3" />
+              Back to Home
+            </Link>
           </div>
 
+          {/* Central Message */}
           <div className="max-w-md space-y-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary/80 animate-fade-up stagger-1">
-              Developer collaboration
-            </p>
-            <h1 className="text-4xl font-bold tracking-tight text-foreground animate-fade-up stagger-2 leading-tight">
-              Intelligence for the repositories you already ship.
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-primary font-semibold">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              Developer Intelligence Platform
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground leading-tight">
+              Understand your codebase. Build with confidence.
             </h1>
-            <p className="text-sm leading-relaxed text-muted-foreground animate-fade-up stagger-3">
-              Dionysus turns commits, docs, and meeting audio into a quiet
-              operating layer for your team — search, summarise, and stay
-              oriented without leaving the repo.
+            <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
+              Dionysus connects code repositories, architecture graphs, technical documentation, and meeting audio in one unified engineering workspace.
             </p>
-            <div className="accent-line animate-fade-up stagger-3" />
-            <ul className="space-y-3">
-              {CAPABILITIES.map(({ icon: Icon, label }, i) => (
-                <li
-                  key={label}
-                  className={cn(
-                    "flex items-center gap-3 text-sm text-muted-foreground animate-fade-up",
-                    `stagger-${i + 3}`
-                  )}
-                >
-                  <span className="icon-tile h-8 w-8 rounded-lg shrink-0">
+
+            <ul className="space-y-3 pt-2">
+              {CAPABILITIES.map(({ icon: Icon, label }) => (
+                <li key={label} className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <div className="h-6 w-6 rounded border border-border bg-secondary flex items-center justify-center text-primary shrink-0">
                     <Icon className="h-3.5 w-3.5" />
-                  </span>
-                  {label}
+                  </div>
+                  <span>{label}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          <p className="text-xs text-muted-foreground/60 animate-fade-up">
-            Minimal workspace · calm monochrome & violet
-          </p>
+          {/* Footer Note */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
+            <span>Obsidian Slate &amp; Alabaster UI</span>
+            <span>v2.0</span>
+          </div>
         </aside>
 
-        {/* Right panel */}
-        <main className="relative flex flex-col px-4 py-8 sm:px-8 lg:px-12">
-          <div className="mb-8 flex items-center justify-between lg:hidden">
-            <div className="flex items-center gap-2">
-              <div className="icon-tile h-8 w-8 rounded-lg">
-                <Zap className="h-4 w-4" />
+        {/* Right Form Panel */}
+        <main className="flex flex-col justify-between p-6 sm:p-10 lg:p-12">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between lg:hidden mb-8">
+            <Link to="/" className="flex items-center gap-2">
+              <div className="icon-tile h-7 w-7 rounded">
+                <Zap className="h-3.5 w-3.5" />
               </div>
-              <span className="font-semibold text-foreground">Dionysus</span>
+              <span className="font-semibold text-sm text-foreground">Dionysus</span>
+            </Link>
+            <div className="flex items-center gap-2">
+              <ThemeToggle className="h-8 w-8" />
+              <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">
+                Home
+              </Link>
             </div>
-            <ThemeToggle className="h-9 w-9 text-muted-foreground hover:text-foreground" />
           </div>
 
-          <div className="flex flex-1 items-center justify-center">
-            <div className="glass-premium animate-fade-up w-full max-w-md rounded-2xl p-7 sm:p-8">
-              <div className="mb-6 space-y-1.5">
-                <h2 className="text-2xl font-bold tracking-tight text-foreground">
+          <div className="hidden lg:flex justify-end">
+            <ThemeToggle className="h-8 w-8" />
+          </div>
+
+          {/* Form Card */}
+          <div className="flex flex-1 items-center justify-center py-8">
+            <div className="w-full max-w-sm rounded-lg border border-border bg-card p-6 sm:p-7 shadow-xs space-y-5 animate-fade-up">
+              <div className="space-y-1">
+                <h2 className="text-xl font-bold tracking-tight text-foreground">
                   {title}
                 </h2>
-                <p className="text-sm text-muted-foreground">{description}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {description}
+                </p>
               </div>
               {children}
-              {footer ? <div className="mt-6 text-center">{footer}</div> : null}
+              {footer ? <div className="pt-2 text-center text-xs">{footer}</div> : null}
             </div>
+          </div>
+
+          <div className="text-center text-[11px] text-muted-foreground font-mono">
+            Secure token auth with bcrypt &amp; JWT
           </div>
         </main>
       </div>

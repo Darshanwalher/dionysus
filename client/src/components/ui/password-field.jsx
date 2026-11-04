@@ -15,17 +15,19 @@ export default function PasswordField({
   const [visible, setVisible] = useState(false);
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
+    <div className="space-y-1.5">
+      <Label htmlFor={id} className="text-xs font-medium text-foreground">
+        {label}
+      </Label>
       <div className="relative">
-        <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Lock className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
         <Input
           id={id}
           type={visible ? "text" : "password"}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className="h-11 pl-10 pr-10"
+          className="h-9 pl-9 pr-9 text-xs sm:text-sm"
           minLength={minLength}
           required={required}
           autoComplete={id === "password" ? "current-password" : "new-password"}
@@ -33,10 +35,10 @@ export default function PasswordField({
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground cursor-pointer"
           aria-label={visible ? "Hide password" : "Show password"}
         >
-          {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          {visible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
         </button>
       </div>
     </div>
