@@ -23,6 +23,7 @@ import { getEdgeStyle } from "@/lib/graphStyles";
 import { toast } from "sonner";
 import { RefreshCw, Boxes, AlertCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
 const nodeTypes = {
   architectureNode: ArchitectureNode,
@@ -42,6 +43,8 @@ function ArchitectureOverviewFlow({
 }) {
   const reactFlowWrapper = useRef(null);
   const { fitView, zoomIn, zoomOut, setCenter } = useReactFlow();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const [direction, setDirection] = useState("TB");
   const [searchTerm, setSearchTerm] = useState("");
@@ -451,8 +454,13 @@ function ArchitectureOverviewFlow({
           defaultViewport={{ x: 0, y: 0, zoom: 0.85 }}
           proOptions={{ hideAttribution: true }}
         >
-          {/* Subtle Dot Grid Canvas Background (Reference 1 & 2) */}
-          <Background color="var(--border)" gap={22} size={1.2} />
+          {/* High-Contrast Dot Grid Canvas Background (Reference 1 & 2) */}
+          <Background
+            variant="dots"
+            color={isDark ? "#3f3f46" : "#94a3b8"}
+            gap={22}
+            size={1.6}
+          />
 
           <Controls
             showInteractive={false}

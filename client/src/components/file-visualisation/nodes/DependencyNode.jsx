@@ -35,7 +35,7 @@ function DependencyNode({ data, selected }) {
 
   return (
     <div
-      className={`group relative w-[275px] rounded-xl border transition-all duration-200 select-none flex flex-col justify-between p-3.5 bg-card text-card-foreground shadow-sm hover:shadow-md cursor-pointer ${
+      className={`group relative w-[280px] rounded-xl border transition-all duration-200 select-none flex flex-col justify-between p-3.5 bg-card text-card-foreground shadow-sm hover:shadow-md cursor-pointer ${
         isCircular
           ? "border-rose-500/80 ring-2 ring-rose-500/25 shadow-md scale-[1.01]"
           : selected
@@ -49,11 +49,11 @@ function DependencyNode({ data, selected }) {
         style={{ backgroundColor: isCircular ? "#f43f5e" : extStyle.accent }}
       />
 
-      {/* Target connection handle (Input) */}
+      {/* Target connection handle (Input) - invisible so sharp arrowheads connect cleanly */}
       <Handle
         type="target"
         position={data.targetPosition === "left" ? Position.Left : Position.Top}
-        className="!h-3 !w-3 !border-2 !border-background !bg-muted-foreground group-hover:!bg-primary transition-all !rounded-full shadow-xs"
+        className="!opacity-0 !w-1 !h-1 !border-0 !pointer-events-none"
       />
 
       {/* 2. Top Header: File Icon + Ext Tag + "Details ↗" (Reference 2) */}
@@ -155,7 +155,7 @@ function DependencyNode({ data, selected }) {
       <Handle
         type="source"
         position={data.sourcePosition === "right" ? Position.Right : Position.Bottom}
-        className="!h-3 !w-3 !border-2 !border-background !bg-muted-foreground group-hover:!bg-primary transition-all !rounded-full shadow-xs"
+        className="!opacity-0 !w-1 !h-1 !border-0 !pointer-events-none"
       />
     </div>
   );

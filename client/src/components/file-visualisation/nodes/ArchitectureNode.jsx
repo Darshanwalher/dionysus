@@ -11,13 +11,13 @@ import { ArrowUpRight, CheckCircle2, AlertCircle } from "lucide-react";
  * - High-contrast title and responsibility description
  * - Horizontal status / progress indicator bar (Reference 2)
  * - 3-column mini metrics row (Callers / Deps / Status)
- * - Fully adapted for both light and dark mode
+ * - Invisible handles so sharp edge arrowheads connect cleanly to borders
  */
 function ArchitectureNode({ data, selected }) {
   const meta = getComponentMeta(data.type);
   const Icon = meta.icon;
 
-  // Incoming and outgoing connections count (defaulting sensibly if not passed)
+  // Incoming and outgoing connections count
   const incoming = data.incomingCount ?? data.inDegree ?? (data.dependencies ? data.dependencies.length : 1);
   const outgoing = data.outgoingCount ?? data.outDegree ?? 1;
 
@@ -27,7 +27,7 @@ function ArchitectureNode({ data, selected }) {
 
   return (
     <div
-      className={`group relative w-[285px] rounded-xl border transition-all duration-200 select-none flex flex-col justify-between p-3.5 bg-card text-card-foreground shadow-sm hover:shadow-md cursor-pointer ${
+      className={`group relative w-[290px] rounded-xl border transition-all duration-200 select-none flex flex-col justify-between p-3.5 bg-card text-card-foreground shadow-sm hover:shadow-md cursor-pointer ${
         selected
           ? "border-primary ring-2 ring-primary/25 shadow-lg scale-[1.01] z-30"
           : "border-border hover:border-foreground/30"
@@ -39,11 +39,11 @@ function ArchitectureNode({ data, selected }) {
         style={{ backgroundColor: meta.color }}
       />
 
-      {/* Target connection handle (Input) */}
+      {/* Target connection handle (Input) - invisible so arrowhead connects cleanly to card */}
       <Handle
         type="target"
         position={data.targetPosition === "left" ? Position.Left : Position.Top}
-        className="!h-3 !w-3 !border-2 !border-background !bg-muted-foreground group-hover:!bg-primary transition-all !rounded-full shadow-xs"
+        className="!opacity-0 !w-1 !h-1 !border-0 !pointer-events-none"
       />
 
       {/* 2. Top Header: Category Icon + Tag Badge + "Details ↗" (Reference 2) */}
@@ -143,11 +143,11 @@ function ArchitectureNode({ data, selected }) {
         </div>
       </div>
 
-      {/* Source connection handle (Output) */}
+      {/* Source connection handle (Output) - invisible so lines originate cleanly from card */}
       <Handle
         type="source"
         position={data.sourcePosition === "right" ? Position.Right : Position.Bottom}
-        className="!h-3 !w-3 !border-2 !border-background !bg-muted-foreground group-hover:!bg-primary transition-all !rounded-full shadow-xs"
+        className="!opacity-0 !w-1 !h-1 !border-0 !pointer-events-none"
       />
     </div>
   );

@@ -51,6 +51,7 @@ const getGroupTier = (groupId = "", groupLabel = "") => {
 /**
  * GitDiagram & DoubleLoop-Style Group-Clustered Architecture Layout
  * Creates visual group containers with multi-column internal node grids
+ * Features generous spacing ("long layout") so curved flowing edges and arrowheads are prominently visible
  */
 export const layoutArchitectureDiagram = (rawNodes = [], rawEdges = [], direction = "TB") => {
   if (!rawNodes || rawNodes.length === 0) {
@@ -58,13 +59,13 @@ export const layoutArchitectureDiagram = (rawNodes = [], rawEdges = [], directio
   }
 
   const isHorizontal = direction === "LR";
-  const NODE_WIDTH = 285;
-  const NODE_HEIGHT = 160;
-  const PADDING_X = 26;
-  const PADDING_TOP = 58; // Room for group header
-  const PADDING_BOTTOM = 26;
-  const GAP_X = 24;
-  const GAP_Y = 22;
+  const NODE_WIDTH = 290;
+  const NODE_HEIGHT = 165;
+  const PADDING_X = 40;
+  const PADDING_TOP = 72; // Generous room for group header
+  const PADDING_BOTTOM = 60;
+  const GAP_X = 65; // Clear horizontal clearance
+  const GAP_Y = 100; // Generous vertical clearance so curved edges & arrowheads breathe
 
   // 1. Group nodes by their group ID
   const groupBuckets = new Map();
@@ -95,7 +96,7 @@ export const layoutArchitectureDiagram = (rawNodes = [], rawEdges = [], directio
     const nodesInGroup = groupBuckets.get(groupId) || [];
     const count = nodesInGroup.length;
 
-    // Pick 2 or 3 columns based on count to keep it compact and readable
+    // Pick 2 or 3 columns based on count
     let cols = 2;
     if (count >= 5) cols = 3;
     if (count <= 1) cols = 1;
@@ -116,15 +117,15 @@ export const layoutArchitectureDiagram = (rawNodes = [], rawEdges = [], directio
     });
   });
 
-  // 4. Lay out the group containers using Dagre
+  // 4. Lay out the group containers using Dagre with generous vertical/horizontal separation
   const groupGraph = new dagre.graphlib.Graph();
   groupGraph.setDefaultEdgeLabel(() => ({}));
   groupGraph.setGraph({
     rankdir: direction,
-    nodesep: isHorizontal ? 70 : 80,
-    ranksep: isHorizontal ? 90 : 80,
-    marginx: 40,
-    marginy: 40,
+    nodesep: isHorizontal ? 100 : 120,
+    ranksep: isHorizontal ? 140 : 180,
+    marginx: 50,
+    marginy: 50,
   });
 
   groupBoxes.forEach((box) => {
@@ -178,7 +179,7 @@ export const layoutArchitectureDiagram = (rawNodes = [], rawEdges = [], directio
       },
     });
 
-    // Position each child node inside this group box
+    // Position each child node inside this group box with generous clearance
     box.nodes.forEach((node, idx) => {
       const col = idx % box.cols;
       const row = Math.floor(idx / box.cols);
@@ -218,15 +219,15 @@ export const layoutDependencyGraph = (nodes = [], edges = [], direction = "LR") 
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-  const nodeWidth = 275;
-  const nodeHeight = 150;
+  const nodeWidth = 280;
+  const nodeHeight = 155;
 
   dagreGraph.setGraph({
     rankdir: direction,
-    nodesep: 45,
-    ranksep: 75,
-    marginx: 50,
-    marginy: 50,
+    nodesep: 65,
+    ranksep: 120, // Generous separation so edge curves and pill badges flow cleanly
+    marginx: 60,
+    marginy: 60,
   });
 
   nodes.forEach((node) => {
