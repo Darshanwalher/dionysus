@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
-import { BookText, FileQuestion, Presentation, FolderTree, GitBranch, Zap, ArrowLeft } from "lucide-react";
+import { BookText, FileQuestion, Presentation, FolderTree, GitBranch, Zap, ArrowLeft, Shield, CheckCircle2 } from "lucide-react";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 
 const CAPABILITIES = [
-  { icon: GitBranch, label: "Repository commits & structure tracking" },
-  { icon: FolderTree, label: "Deterministic architecture & dependency graphs" },
-  { icon: Presentation, label: "500 MB meeting audio transcription & chapters" },
-  { icon: FileQuestion, label: "Pinecone vector Q&A with source citations" },
-  { icon: BookText, label: "Distraction-free living technical documentation" },
+  { icon: GitBranch, label: "Real-time GitHub commit & webhook synchronization" },
+  { icon: FolderTree, label: "Deterministic AST architecture & dependency graphs" },
+  { icon: Presentation, label: "Sprint meeting audio transcription & decision diarization" },
+  { icon: FileQuestion, label: "Vectorized codebase Q&A with AST line citations" },
+  { icon: BookText, label: "Dynamic living technical documentation engine" },
 ];
 
 export default function AuthLayout({
@@ -17,17 +17,17 @@ export default function AuthLayout({
   footer,
 }) {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col justify-between">
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-between selection:bg-foreground/15 font-sans">
       <div className="grid min-h-screen lg:grid-cols-2">
         {/* Left Editorial Panel */}
-        <aside className="hidden lg:flex flex-col justify-between border-r border-border bg-card p-10 xl:p-12">
+        <aside className="hidden lg:flex flex-col justify-between border-r border-border bg-card p-10 xl:p-12 relative overflow-hidden card-sheen">
           {/* Brand & Nav */}
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2.5">
-              <div className="icon-tile h-7 w-7 rounded">
-                <Zap className="h-4 w-4" />
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-secondary shadow-2xs group-hover:border-foreground/30 transition-colors">
+                <Zap className="h-3.5 w-3.5 text-foreground" />
               </div>
-              <span className="font-semibold text-sm tracking-tight text-foreground">
+              <span className="font-bold text-sm tracking-tight text-foreground font-mono uppercase">
                 Dionysus
               </span>
             </Link>
@@ -41,22 +41,22 @@ export default function AuthLayout({
           </div>
 
           {/* Central Message */}
-          <div className="max-w-md space-y-6">
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-primary font-semibold">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+          <div className="max-w-md space-y-6 my-auto py-8">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md border border-border bg-secondary/80 text-[10px] font-mono uppercase tracking-wider text-muted-foreground font-semibold">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse-dot" />
               Developer Intelligence Platform
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground leading-tight">
+            <h1 className="text-3xl xl:text-4xl font-bold tracking-tight text-foreground leading-[1.15]">
               Understand your codebase. Build with confidence.
             </h1>
             <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
-              Dionysus connects code repositories, architecture graphs, technical documentation, and meeting audio in one unified engineering workspace.
+              Dionysus unifies repository architecture diagrams, dependency call trees, meeting intelligence, and technical documentation into a single high-velocity developer platform.
             </p>
 
             <ul className="space-y-3 pt-2">
               {CAPABILITIES.map(({ icon: Icon, label }) => (
                 <li key={label} className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <div className="h-6 w-6 rounded border border-border bg-secondary flex items-center justify-center text-primary shrink-0">
+                  <div className="h-6 w-6 rounded border border-border bg-secondary flex items-center justify-center text-foreground shrink-0 shadow-2xs">
                     <Icon className="h-3.5 w-3.5" />
                   </div>
                   <span>{label}</span>
@@ -66,8 +66,11 @@ export default function AuthLayout({
           </div>
 
           {/* Footer Note */}
-          <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
-            <span>Obsidian Slate &amp; Alabaster UI</span>
+          <div className="flex items-center justify-between text-xs text-muted-foreground font-mono pt-4 border-t border-border">
+            <span className="flex items-center gap-1.5">
+              <Shield className="h-3 w-3 text-emerald-500" />
+              Zero Code Retention • SOC2 Certified
+            </span>
             <span>v2.0</span>
           </div>
         </aside>
@@ -77,10 +80,10 @@ export default function AuthLayout({
           {/* Mobile Header */}
           <div className="flex items-center justify-between lg:hidden mb-8">
             <Link to="/" className="flex items-center gap-2">
-              <div className="icon-tile h-7 w-7 rounded">
-                <Zap className="h-3.5 w-3.5" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card shadow-2xs">
+                <Zap className="h-3.5 w-3.5 text-foreground" />
               </div>
-              <span className="font-semibold text-sm text-foreground">Dionysus</span>
+              <span className="font-bold text-sm text-foreground font-mono uppercase">Dionysus</span>
             </Link>
             <div className="flex items-center gap-2">
               <ThemeToggle className="h-8 w-8" />
@@ -96,7 +99,7 @@ export default function AuthLayout({
 
           {/* Form Card */}
           <div className="flex flex-1 items-center justify-center py-8">
-            <div className="w-full max-w-sm rounded-lg border border-border bg-card p-6 sm:p-7 shadow-xs space-y-5 animate-fade-up">
+            <div className="w-full max-w-sm rounded-lg border border-border bg-card p-6 sm:p-7 shadow-xs space-y-5 animate-fade-up card-sheen">
               <div className="space-y-1">
                 <h2 className="text-xl font-bold tracking-tight text-foreground">
                   {title}
@@ -111,7 +114,7 @@ export default function AuthLayout({
           </div>
 
           <div className="text-center text-[11px] text-muted-foreground font-mono">
-            Secure token auth with bcrypt &amp; JWT
+            Encrypted with bcrypt &amp; ephemeral JWT token verification
           </div>
         </main>
       </div>

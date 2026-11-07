@@ -31,133 +31,133 @@ export default function GraphControls({
   onExportJSON,
   onRefresh,
   isLoading = false,
-  placeholder = "Search...",
+  placeholder = "Search nodes, symbols, paths...",
 }) {
   return (
-    <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-border/40 bg-card/50 backdrop-blur-md flex-shrink-0">
-      {/* Search */}
-      <div className="relative flex-1 min-w-[160px] max-w-xs">
-        <Search className="h-3 w-3 absolute left-2.5 top-[7px] text-muted-foreground/60" />
+    <div className="flex items-center gap-2 px-3 py-1.5 border-b border-border bg-card/90 backdrop-blur-md flex-shrink-0 select-none overflow-x-auto scrollbar-none">
+      {/* Search Bar */}
+      <div className="relative flex-1 min-w-[170px] max-w-xs">
+        <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full pl-7 pr-7 py-1 text-[11px] bg-muted/30 hover:bg-muted/50 focus:bg-background border border-border/40 focus:border-ring/60 rounded-md transition-all text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
+          className="w-full pl-8 pr-7 py-1 text-xs bg-secondary/80 focus:bg-background border border-border focus:border-foreground/30 rounded-md transition-colors text-foreground placeholder:text-muted-foreground focus:outline-none font-sans"
         />
         {searchTerm ? (
           <button
             onClick={() => onSearchChange("")}
-            className="absolute right-2 top-[6px] text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <X className="h-3 w-3" />
           </button>
         ) : (
-          <span className="absolute right-2 top-[6px] text-[8px] font-mono text-muted-foreground/40 border border-border/30 rounded px-0.5 select-none pointer-events-none">
+          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-mono text-muted-foreground border border-border rounded px-1 select-none pointer-events-none">
             /
           </span>
         )}
       </div>
 
-      <div className="h-4 w-px bg-border/40 mx-0.5 flex-shrink-0" />
+      <div className="h-4 w-px bg-border flex-shrink-0" />
 
-      {/* Zoom Group */}
-      <div className="flex items-center border border-border/40 rounded-md p-px bg-background/40">
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground" onClick={onZoomOut} title="Zoom Out">
+      {/* Zoom Controls */}
+      <div className="flex items-center border border-border rounded-md p-0.5 bg-secondary/60">
+        <Button variant="ghost" size="icon-sm" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={onZoomOut} title="Zoom Out">
           <ZoomOut className="h-3 w-3" />
         </Button>
-        <span className="text-[10px] font-mono px-1.5 text-muted-foreground min-w-[34px] text-center select-none">
+        <span className="text-[10px] font-mono px-1.5 text-foreground min-w-[36px] text-center select-none font-semibold">
           {Math.round(zoom * 100)}%
         </span>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground" onClick={onZoomIn} title="Zoom In">
+        <Button variant="ghost" size="icon-sm" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={onZoomIn} title="Zoom In">
           <ZoomIn className="h-3 w-3" />
         </Button>
-        <div className="w-px h-3 bg-border/40" />
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground" onClick={onFitView} title="Fit">
+        <div className="w-px h-3 bg-border mx-0.5" />
+        <Button variant="ghost" size="icon-sm" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={onFitView} title="Fit Viewport">
           <Maximize2 className="h-3 w-3" />
         </Button>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground" onClick={onResetView} title="Reset">
+        <Button variant="ghost" size="icon-sm" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={onResetView} title="Reset Position">
           <RotateCcw className="h-3 w-3" />
         </Button>
       </div>
 
       {/* Direction Toggle */}
-      <div className="flex items-center p-px rounded-md border border-border/40 bg-background/40">
+      <div className="flex items-center p-0.5 rounded-md border border-border bg-secondary/60">
         <button
           onClick={() => onToggleDirection("TB")}
-          className={`flex items-center gap-1 px-2 py-1 rounded-[3px] text-[10px] font-medium transition-all ${
+          className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
             direction === "TB"
-              ? "bg-muted text-foreground font-semibold"
+              ? "bg-foreground text-background font-semibold"
               : "text-muted-foreground hover:text-foreground"
           }`}
-          title="Vertical"
+          title="Top to Bottom (Vertical)"
         >
-          <ArrowDownUp className="h-2.5 w-2.5" />
+          <ArrowDownUp className="h-3 w-3" />
           <span className="hidden xl:inline">Vertical</span>
         </button>
         <button
           onClick={() => onToggleDirection("LR")}
-          className={`flex items-center gap-1 px-2 py-1 rounded-[3px] text-[10px] font-medium transition-all ${
+          className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
             direction === "LR"
-              ? "bg-muted text-foreground font-semibold"
+              ? "bg-foreground text-background font-semibold"
               : "text-muted-foreground hover:text-foreground"
           }`}
-          title="Horizontal"
+          title="Left to Right (Horizontal)"
         >
-          <ArrowLeftRight className="h-2.5 w-2.5" />
+          <ArrowLeftRight className="h-3 w-3" />
           <span className="hidden xl:inline">Horizontal</span>
         </button>
       </div>
 
-      {/* Minimap */}
+      {/* Minimap Toggle */}
       <Button
         variant="ghost"
         size="sm"
-        className={`h-6 px-2 text-[10px] transition-all ${
+        className={`h-7 px-2.5 text-xs transition-colors ${
           showMinimap
-            ? "bg-muted text-foreground font-semibold"
-            : "text-muted-foreground hover:text-foreground"
+            ? "bg-foreground text-background font-semibold hover:bg-foreground/90"
+            : "text-muted-foreground hover:text-foreground border border-border"
         }`}
         onClick={onToggleMinimap}
-        title="Minimap"
+        title="Toggle Minimap"
       >
-        <Map className="h-3 w-3 mr-1" />
+        <Map className="h-3.5 w-3.5 mr-1.5" />
         <span className="hidden lg:inline">Minimap</span>
       </Button>
 
-      {/* Refresh */}
+      {/* Refresh Graph */}
       <Button
         variant="ghost"
         size="sm"
-        className="h-6 px-2 text-[10px] text-muted-foreground hover:text-foreground"
+        className="h-7 px-2.5 text-xs text-muted-foreground hover:text-foreground border border-border"
         onClick={onRefresh}
         disabled={isLoading}
-        title="Refresh"
+        title="Recompile graph from AST"
       >
-        <RefreshCw className={`h-3 w-3 mr-1 ${isLoading ? "animate-spin text-amber-400" : ""}`} />
-        <span className="hidden lg:inline">Refresh</span>
+        <RefreshCw className={`h-3 w-3 mr-1.5 ${isLoading ? "animate-spin text-foreground" : ""}`} />
+        <span className="hidden lg:inline">Recompile</span>
       </Button>
 
-      <div className="h-4 w-px bg-border/40 mx-0.5 flex-shrink-0" />
+      <div className="h-4 w-px bg-border flex-shrink-0" />
 
-      {/* Export */}
-      <div className="flex items-center gap-0.5">
+      {/* Export Controls */}
+      <div className="flex items-center gap-1">
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          className="h-6 px-2 text-[10px] text-muted-foreground hover:text-foreground"
+          className="h-7 px-2 text-xs font-mono"
           onClick={onExportSVG}
-          title="Export SVG"
+          title="Export vector SVG"
         >
           <Download className="h-3 w-3 mr-1" />
           SVG
         </Button>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          className="h-6 px-2 text-[10px] text-muted-foreground hover:text-foreground"
+          className="h-7 px-2 text-xs font-mono"
           onClick={onExportJSON}
-          title="Export JSON"
+          title="Export JSON graph schema"
         >
           <FileJson className="h-3 w-3 mr-1" />
           JSON

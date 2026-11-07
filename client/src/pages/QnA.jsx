@@ -19,13 +19,17 @@ import {
   Check,
   Search,
   Loader2,
+  Sparkles,
+  Terminal,
+  Code2,
+  CornerDownLeft,
 } from "lucide-react";
 
 const SUGGESTED_QUESTIONS = [
-  "How does authentication and session flow work?",
-  "Where are backend API routes and controllers located?",
-  "Explain database models and relationships.",
-  "What third-party dependencies are critical here?",
+  "How does authentication and session lifecycle work?",
+  "Where are core API endpoints and middleware located?",
+  "Explain data models and entity relationships.",
+  "Which third-party packages or external services are invoked?",
 ];
 
 export default function QnA() {
@@ -55,9 +59,9 @@ export default function QnA() {
     setQuestion("");
     const res = await dispatch(askQuestion({ projectId: id, question: currentQ }));
     if (res.meta.requestStatus === "fulfilled") {
-      toast.success("Answer received from AI!");
+      toast.success("Answer synthesized from AST context!");
     } else {
-      toast.error(res.payload || "Failed to get answer");
+      toast.error(res.payload || "Failed to query codebase");
       setQuestion(currentQ);
     }
   };
@@ -72,9 +76,9 @@ export default function QnA() {
   const handleDelete = async (questionId) => {
     const res = await dispatch(deleteQuestion(questionId));
     if (res.meta.requestStatus === "fulfilled") {
-      toast.success("Question deleted");
+      toast.success("Query deleted");
     } else {
-      toast.error("Failed to delete question");
+      toast.error("Failed to delete query");
     }
   };
 
@@ -84,7 +88,7 @@ export default function QnA() {
     const cleanText = tempDiv.textContent || tempDiv.innerText || "";
     navigator.clipboard.writeText(`Q: ${q.question}\n\nA:\n${cleanText}`);
     setCopiedId(q._id);
-    toast.success("Answer copied to clipboard!");
+    toast.success("Analysis copied to clipboard!");
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -99,32 +103,33 @@ export default function QnA() {
   }, [questions, searchFilter]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6 animate-fade-up font-sans selection:bg-foreground/15">
       <PageHeader
-        icon={Bot}
-        title="Codebase Q&A Assistant"
-        description="Natural language developer queries grounded in vectorized repository context"
+        icon={Sparkles}
+        title="Intelligent Codebase Chat"
+        description="Semantic AST question answering · Grounded in repository dependencies and code symbols"
         actions={
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs font-mono">
-              RAG Vector Search
-            </Badge>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono bg-secondary border border-border text-foreground">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse-dot" />
+              AST Semantic Indexing
+            </span>
             <Badge variant="secondary" className="font-mono text-xs">
-              {questions.length} Question{questions.length === 1 ? "" : "s"}
+              {questions.length} Query{questions.length === 1 ? "" : "s"}
             </Badge>
           </div>
         }
       />
 
       {/* ─── Ask Question Card ───────────────────────────────────────── */}
-      <Card className="animate-fade-up">
+      <Card className="card-sheen shadow-2xs">
         <CardContent className="p-4 sm:p-5 space-y-3.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-              <Bot className="h-4 w-4 text-primary" />
-              <span>Query repository knowledge</span>
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground font-mono">
+              <Terminal className="h-3.5 w-3.5 text-foreground" />
+              <span>Query Repository Knowledge Engine</span>
             </div>
-            <span className="text-[11px] text-muted-foreground font-mono hidden sm:inline">
+            <span className="text-[10px] text-muted-foreground font-mono hidden sm:inline">
               Ctrl + Enter to send
             </span>
           </div>
@@ -134,8 +139,8 @@ export default function QnA() {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask anything about this codebase (e.g., 'How does authentication flow work?')..."
-              className="min-h-[90px] text-xs sm:text-sm bg-card p-3 leading-relaxed"
+              placeholder="Ask anything about this codebase (e.g., 'How does the authentication middleware validate tokens?')..."
+              className="min-h-[90px] text-xs sm:text-sm bg-card p-3 leading-relaxed border-border focus-visible:border-foreground/30 font-sans"
               disabled={isActionLoading}
             />
 
@@ -143,16 +148,16 @@ export default function QnA() {
               {/* Suggestions */}
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-[11px] text-muted-foreground font-mono mr-1">
-                  Suggestions:
+                  Suggested:
                 </span>
                 {SUGGESTED_QUESTIONS.map((sq, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => setQuestion(sq)}
-                    className="text-[11px] px-2 py-0.5 rounded bg-secondary hover:bg-muted text-muted-foreground hover:text-foreground transition-colors border border-border text-left cursor-pointer"
+                    className="text-[11px] font-mono px-2 py-0.5 rounded bg-secondary hover:bg-surface-hover text-muted-foreground hover:text-foreground transition-colors border border-border text-left cursor-pointer"
                   >
-                    {sq.length > 36 ? sq.slice(0, 36) + "…" : sq}
+                    {sq.length > 34 ? sq.slice(0, 34) + "…" : sq}
                   </button>
                 ))}
               </div>
@@ -165,12 +170,12 @@ export default function QnA() {
                 {isActionLoading ? (
                   <>
                     <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                    Searching Codebase…
+                    Analyzing AST Context…
                   </>
                 ) : (
                   <>
                     <Send className="h-3.5 w-3.5 mr-1.5" />
-                    Ask Assistant
+                    Execute Query
                   </>
                 )}
               </Button>
@@ -180,14 +185,14 @@ export default function QnA() {
       </Card>
 
       {/* ─── Question History & Search Stream ─────────────────────────── */}
-      <div className="space-y-4 animate-fade-up stagger-1">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border/80">
+      <div className="space-y-4 animate-fade-up">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border">
           <div className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-sm font-semibold text-foreground">Conversation History</h2>
-            <Badge variant="outline" className="text-xs font-mono">
+            <h2 className="text-sm font-semibold text-foreground">Conversation & Answers</h2>
+            <span className="text-[10px] font-mono px-1.5 rounded bg-secondary text-muted-foreground border border-border">
               {filteredQuestions.length}
-            </Badge>
+            </span>
           </div>
 
           {questions.length > 0 && (
@@ -197,8 +202,8 @@ export default function QnA() {
                 type="text"
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                placeholder="Search questions & answers…"
-                className="w-full pl-8 pr-3 py-1 text-xs bg-card border border-border rounded-md focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground"
+                placeholder="Search queries and answers…"
+                className="w-full pl-8 pr-3 py-1 text-xs bg-card border border-border rounded-md focus:outline-none focus:border-foreground/30 text-foreground placeholder:text-muted-foreground font-sans"
               />
             </div>
           )}
@@ -216,13 +221,13 @@ export default function QnA() {
         {/* Empty State */}
         {questions.length === 0 && !isActionLoading && (
           <Card className="border-border">
-            <CardContent className="py-12 text-center space-y-2.5">
-              <div className="icon-tile h-10 w-10 rounded-md mx-auto">
+            <CardContent className="py-14 text-center space-y-2.5">
+              <div className="h-10 w-10 rounded-md border border-border bg-secondary flex items-center justify-center mx-auto text-muted-foreground">
                 <FileQuestion className="h-5 w-5" />
               </div>
-              <h3 className="text-sm font-semibold text-foreground">No questions asked yet</h3>
+              <h3 className="text-sm font-semibold text-foreground">No queries executed yet</h3>
               <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                Use the input above to ask any question about your codebase. The AI will search your vectorized files and provide grounded, code-informed answers.
+                Ask any question above. Dionysus will trace AST call hierarchies and synthesize a compiler-grounded response.
               </p>
             </CardContent>
           </Card>
@@ -233,17 +238,17 @@ export default function QnA() {
           {filteredQuestions.map((q) => {
             const isCopied = copiedId === q._id;
             return (
-              <Card key={q._id} className="overflow-hidden">
+              <Card key={q._id} className="overflow-hidden card-sheen">
                 <CardContent className="p-4 sm:p-5 space-y-3.5">
                   {/* Question row */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-2.5 flex-1 min-w-0">
-                      <div className="icon-tile h-7 w-7 rounded shrink-0 mt-0.5">
+                      <div className="h-7 w-7 rounded-md border border-border bg-secondary flex items-center justify-center text-foreground shrink-0 mt-0.5">
                         <MessageSquare className="h-3.5 w-3.5" />
                       </div>
                       <div className="space-y-0.5 min-w-0">
                         <span className="text-[10px] uppercase font-mono text-muted-foreground font-semibold">
-                          Question
+                          Developer Query
                         </span>
                         <h3 className="text-xs sm:text-sm font-semibold text-foreground leading-snug">
                           {q.question}
@@ -262,7 +267,7 @@ export default function QnA() {
                       >
                         {isCopied ? (
                           <>
-                            <Check className="h-3 w-3 mr-1 text-primary" />
+                            <Check className="h-3 w-3 mr-1 text-emerald-500" />
                             Copied
                           </>
                         ) : (
@@ -285,14 +290,14 @@ export default function QnA() {
                   </div>
 
                   {/* AI Answer Block */}
-                  <div className="flex items-start gap-2.5 pt-2 border-t border-border/50">
-                    <div className="h-7 w-7 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 mt-0.5">
-                      <Bot className="h-3.5 w-3.5" />
+                  <div className="flex items-start gap-2.5 pt-3 border-t border-border">
+                    <div className="h-7 w-7 rounded-md bg-foreground text-background flex items-center justify-center shrink-0 mt-0.5 font-bold font-mono text-[10px]">
+                      AI
                     </div>
-                    <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="space-y-2 flex-1 min-w-0">
                       <div className="flex items-center justify-between text-[10px] font-mono">
-                        <span className="text-primary font-semibold uppercase">
-                          AI Codebase Reasoning
+                        <span className="text-foreground font-semibold uppercase">
+                          Synthesized Answer
                         </span>
                         <span className="text-muted-foreground">
                           {new Date(q.createdAt).toLocaleString()}
@@ -301,7 +306,7 @@ export default function QnA() {
 
                       {/* Answer Body */}
                       <div
-                        className="text-xs text-foreground leading-relaxed font-sans prose prose-xs max-w-none [&_pre]:bg-secondary [&_pre]:border [&_pre]:border-border [&_pre]:p-3 [&_pre]:rounded [&_code]:text-primary [&_code]:font-mono [&_p]:my-1.5"
+                        className="text-xs text-foreground leading-relaxed font-sans prose prose-xs max-w-none [&_pre]:bg-secondary [&_pre]:border [&_pre]:border-border [&_pre]:p-3 [&_pre]:rounded [&_code]:font-mono [&_p]:my-1.5"
                         dangerouslySetInnerHTML={{ __html: q.answer }}
                       />
                     </div>

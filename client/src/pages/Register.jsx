@@ -32,7 +32,7 @@ export default function Register() {
       footer={
         <p className="text-xs text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/login" className="font-medium text-primary hover:underline">
+          <Link to="/login" className="font-semibold text-foreground underline underline-offset-4 hover:opacity-80">
             Sign in
           </Link>
         </p>

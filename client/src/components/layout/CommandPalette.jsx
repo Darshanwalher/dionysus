@@ -232,20 +232,20 @@ export default function CommandPalette({ isOpen, onClose, onOpenCreateProject, o
                   onMouseEnter={() => setSelectedIndex(idx)}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-xs transition-colors duration-100 cursor-pointer ${
                     isSelected
-                      ? "bg-primary text-primary-foreground font-medium"
+                      ? "bg-foreground text-background font-medium"
                       : "text-foreground hover:bg-secondary"
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Icon className={`h-4 w-4 shrink-0 ${isSelected ? "text-primary-foreground" : "text-muted-foreground"}`} />
+                    <Icon className={`h-4 w-4 shrink-0 ${isSelected ? "text-background" : "text-muted-foreground"}`} />
                     <span className="truncate">{item.title}</span>
                     {item.current && (
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${isSelected ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${isSelected ? "bg-background/20 text-background" : "bg-muted text-muted-foreground"}`}>
                         Active
                       </span>
                     )}
                   </div>
-                  <span className={`text-[10px] shrink-0 font-mono ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                  <span className={`text-[10px] shrink-0 font-mono ${isSelected ? "text-background/80" : "text-muted-foreground"}`}>
                     {item.group}
                   </span>
                 </button>

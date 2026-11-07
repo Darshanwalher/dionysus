@@ -9,18 +9,15 @@ function ArchitectureNode({ data, selected }) {
 
   return (
     <div
-      className={`group relative w-[270px] h-[105px] rounded-xl border-2 transition-all duration-150 select-none flex flex-col justify-between p-3 ${
+      className={`group relative w-[270px] h-[105px] rounded-lg border transition-all duration-150 select-none flex flex-col justify-between p-3 card-sheen bg-card shadow-2xs ${
         selected
-          ? "border-amber-500 ring-4 ring-amber-500/20 shadow-xl scale-[1.02] z-20"
-          : "border-slate-200 dark:border-zinc-700 hover:border-slate-400 dark:hover:border-zinc-500 shadow-sm hover:shadow-md hover:scale-[1.01]"
+          ? "border-foreground ring-2 ring-foreground/20 shadow-md scale-[1.01] z-20"
+          : "border-border hover:border-foreground/30 hover:shadow-xs"
       }`}
-      style={{
-        backgroundColor: "var(--card)",
-      }}
     >
-      {/* Left colored category strip */}
+      {/* Category indicator strip */}
       <div
-        className="absolute left-0 inset-y-0 w-1.5 rounded-l-[10px]"
+        className="absolute left-0 inset-y-0 w-1 rounded-l-md"
         style={{ backgroundColor: meta.color }}
       />
 
@@ -28,14 +25,14 @@ function ArchitectureNode({ data, selected }) {
       <Handle
         type="target"
         position={data.targetPosition === "left" ? Position.Left : Position.Top}
-        className="!h-3 !w-3 !border-2 !border-background !bg-slate-400 dark:!bg-zinc-400 group-hover:!bg-amber-400 transition-transform group-hover:scale-125"
+        className="!h-2.5 !w-2.5 !border-2 !border-background !bg-muted-foreground group-hover:!bg-foreground transition-transform"
       />
 
       {/* Header: Icon, Label, and Type Badge */}
-      <div className="flex items-start justify-between gap-2 pl-1">
+      <div className="flex items-start justify-between gap-2 pl-1.5">
         <div className="flex items-center gap-2 min-w-0">
           <div
-            className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md border shadow-2xs"
+            className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded border shadow-2xs"
             style={{
               backgroundColor: meta.bg,
               borderColor: meta.border,
@@ -46,7 +43,7 @@ function ArchitectureNode({ data, selected }) {
           </div>
 
           <div className="min-w-0">
-            <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 tracking-tight truncate leading-tight">
+            <h4 className="text-xs font-bold text-foreground tracking-tight truncate leading-tight font-sans">
               {data.label}
             </h4>
           </div>
@@ -59,19 +56,19 @@ function ArchitectureNode({ data, selected }) {
         </span>
       </div>
 
-      {/* Responsibility text with high contrast */}
-      <p className="text-[11px] text-slate-600 dark:text-zinc-400 line-clamp-1 leading-snug pl-1 font-medium">
-        {data.responsibility || data.description || "Core application component."}
+      {/* Responsibility text */}
+      <p className="text-[11px] text-muted-foreground line-clamp-1 leading-snug pl-1.5 font-normal">
+        {data.responsibility || data.description || "Core application subsystem."}
       </p>
 
       {/* Footer: Monospace Path and Action */}
-      <div className="flex items-center justify-between pt-1.5 border-t border-slate-100 dark:border-zinc-800/80 text-[10px] font-mono text-slate-500 dark:text-zinc-400 pl-1">
-        <span className="flex items-center gap-1 truncate max-w-[190px]" title={data.path}>
-          <FileText className="h-3 w-3 flex-shrink-0 opacity-70" />
+      <div className="flex items-center justify-between pt-1.5 border-t border-border text-[10px] font-mono text-muted-foreground pl-1.5">
+        <span className="flex items-center gap-1 truncate max-w-[200px]" title={data.path}>
+          <FileText className="h-3 w-3 flex-shrink-0 opacity-60" />
           <span className="truncate">{data.path || "virtual"}</span>
         </span>
 
-        <span className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 text-slate-800 dark:text-slate-200 font-sans font-semibold">
+        <span className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 text-foreground">
           <ArrowUpRight className="h-3 w-3" />
         </span>
       </div>
@@ -80,7 +77,7 @@ function ArchitectureNode({ data, selected }) {
       <Handle
         type="source"
         position={data.sourcePosition === "right" ? Position.Right : Position.Bottom}
-        className="!h-3 !w-3 !border-2 !border-background !bg-slate-400 dark:!bg-zinc-400 group-hover:!bg-amber-400 transition-transform group-hover:scale-125"
+        className="!h-2.5 !w-2.5 !border-2 !border-background !bg-muted-foreground group-hover:!bg-foreground transition-transform"
       />
     </div>
   );
