@@ -28,31 +28,31 @@ export default function GraphStats({
 }) {
   if (mode === "architecture") {
     return (
-      <div className="flex items-center gap-2.5 px-3 py-1.5 border-b border-border/30 bg-muted/10 text-[10px] overflow-x-auto select-none flex-shrink-0">
+      <div className="flex items-center gap-2.5 px-3 py-1.5 border-b border-border bg-card/60 text-[10px] overflow-x-auto select-none flex-shrink-0">
         {/* Architectural Style */}
         <div className="flex items-center gap-1 font-mono text-muted-foreground flex-shrink-0">
-          <Sparkles className="h-3 w-3 text-amber-400" />
+          <Sparkles className="h-3 w-3 text-amber-500" />
           <span className="font-semibold text-foreground text-[11px]">
             {metadata.architecturalStyle || "Architecture"}
           </span>
         </div>
 
-        <div className="h-3 w-px bg-border/40 flex-shrink-0" />
+        <div className="h-3 w-px bg-border flex-shrink-0" />
 
         {/* Metrics */}
         <div className="flex items-center gap-2 text-muted-foreground font-mono flex-shrink-0">
           <span className="flex items-center gap-0.5">
-            <Boxes className="h-2.5 w-2.5 text-sky-400" />
+            <Boxes className="h-2.5 w-2.5 text-sky-500" />
             <strong className="text-foreground">{stats.nodeCount || 0}</strong>
           </span>
           <span>·</span>
           <span className="flex items-center gap-0.5">
-            <Layers className="h-2.5 w-2.5 text-indigo-400" />
+            <Layers className="h-2.5 w-2.5 text-indigo-500" />
             <strong className="text-foreground">{stats.groupCount || 0}</strong>
           </span>
           <span>·</span>
           <span className="flex items-center gap-0.5">
-            <Network className="h-2.5 w-2.5 text-emerald-400" />
+            <Network className="h-2.5 w-2.5 text-emerald-500" />
             <strong className="text-foreground">{stats.edgeCount || 0}</strong>
           </span>
         </div>
@@ -60,14 +60,14 @@ export default function GraphStats({
         {/* Group Filter Chips */}
         {groups && groups.length > 0 && (
           <>
-            <div className="h-3 w-px bg-border/40 flex-shrink-0 hidden md:block" />
+            <div className="h-3 w-px bg-border flex-shrink-0 hidden md:block" />
             <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
               <button
                 onClick={() => onGroupSelect && onGroupSelect("all")}
-                className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all flex-shrink-0 ${
+                className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all flex-shrink-0 cursor-pointer ${
                   activeGroup === "all"
-                    ? "bg-muted text-foreground font-semibold border border-border/60"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-foreground text-background font-semibold shadow-2xs"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}
               >
                 All
@@ -76,10 +76,10 @@ export default function GraphStats({
                 <button
                   key={g.id}
                   onClick={() => onGroupSelect && onGroupSelect(g.id)}
-                  className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all flex-shrink-0 ${
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all flex-shrink-0 cursor-pointer ${
                     activeGroup === g.id
-                      ? "bg-muted text-foreground font-semibold border border-border/60"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-foreground text-background font-semibold shadow-2xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                   }`}
                 >
                   {g.label || g.name || g.id}
@@ -90,7 +90,7 @@ export default function GraphStats({
         )}
 
         {metadata.summary && (
-          <span className="ml-auto text-[10px] text-muted-foreground/70 truncate max-w-xs hidden xl:inline-block" title={metadata.summary}>
+          <span className="ml-auto text-[10px] text-muted-foreground truncate max-w-xs hidden xl:inline-block" title={metadata.summary}>
             {metadata.summary}
           </span>
         )}
@@ -108,16 +108,16 @@ export default function GraphStats({
       </span>
       <span>·</span>
       <span className="flex items-center gap-0.5">
-        <Layers className="h-3 w-3 text-sky-400" />
+        <Layers className="h-3 w-3 text-sky-500" />
         <strong className="text-foreground">{stats.totalDependencies || 0}</strong> deps
       </span>
       <span>·</span>
-      <span className="flex items-center gap-0.5 text-rose-400 font-semibold">
+      <span className="flex items-center gap-0.5 text-rose-500 font-semibold">
         <AlertTriangle className="h-3 w-3" />
         {stats.circularDependencies || 0}
       </span>
       <span>·</span>
-      <span className="flex items-center gap-0.5 text-zinc-400">
+      <span className="flex items-center gap-0.5 text-muted-foreground">
         <Radio className="h-3 w-3" />
         {stats.isolatedFiles || 0}
       </span>
@@ -125,17 +125,17 @@ export default function GraphStats({
       {/* Directory Filter */}
       {folders && folders.length > 0 && (
         <>
-          <div className="h-3 w-px bg-border/40 hidden sm:block flex-shrink-0" />
+          <div className="h-3 w-px bg-border hidden sm:block flex-shrink-0" />
           <div className="flex items-center gap-1 flex-shrink-0">
-            <Filter className="h-2.5 w-2.5 text-muted-foreground/60" />
+            <Filter className="h-2.5 w-2.5 text-muted-foreground" />
             <select
               value={selectedFolder}
               onChange={(e) => onFolderChange(e.target.value)}
-              className="bg-transparent border border-border/40 hover:border-border rounded px-1.5 py-0.5 text-[10px] font-mono text-foreground focus:outline-none transition-colors"
+              className="bg-card border border-border hover:border-foreground/30 rounded px-1.5 py-0.5 text-[10px] font-mono text-foreground focus:outline-none transition-colors"
             >
-              <option value="all">All Folders</option>
+              <option value="all" className="bg-card text-foreground">All Folders</option>
               {folders.map((f) => (
-                <option key={f} value={f}>
+                <option key={f} value={f} className="bg-card text-foreground">
                   {f}
                 </option>
               ))}
@@ -149,11 +149,11 @@ export default function GraphStats({
         <select
           value={selectedExt}
           onChange={(e) => onExtChange(e.target.value)}
-          className="bg-transparent border border-border/40 hover:border-border rounded px-1.5 py-0.5 text-[10px] font-mono text-foreground focus:outline-none transition-colors flex-shrink-0"
+          className="bg-card border border-border hover:border-foreground/30 rounded px-1.5 py-0.5 text-[10px] font-mono text-foreground focus:outline-none transition-colors flex-shrink-0"
         >
-          <option value="all">All Ext</option>
+          <option value="all" className="bg-card text-foreground">All Ext</option>
           {extensions.map((ext) => (
-            <option key={ext} value={ext}>
+            <option key={ext} value={ext} className="bg-card text-foreground">
               {ext}
             </option>
           ))}
@@ -164,13 +164,13 @@ export default function GraphStats({
       {stats.circularDependencies > 0 && (
         <button
           onClick={onToggleCircularOnly}
-          className={`ml-auto flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono border transition-all ${
+          className={`ml-auto flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono border transition-all cursor-pointer ${
             showCircularOnly
-              ? "bg-rose-500/20 text-rose-400 border-rose-500/40"
-              : "border-border/40 text-muted-foreground hover:text-foreground"
+              ? "bg-rose-500/15 text-rose-500 border-rose-500/30 font-semibold"
+              : "border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
           }`}
         >
-          <AlertTriangle className="h-2.5 w-2.5 text-rose-400" />
+          <AlertTriangle className="h-2.5 w-2.5 text-rose-500" />
           {showCircularOnly ? "Cycles Only" : "Filter Cycles"}
         </button>
       )}

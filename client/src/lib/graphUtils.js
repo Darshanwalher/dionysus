@@ -5,26 +5,51 @@ import dagre from "@dagrejs/dagre";
  */
 const getGroupTier = (groupId = "", groupLabel = "") => {
   const str = `${groupId} ${groupLabel}`.toLowerCase();
-  if (str.includes("frontend") || str.includes("client") || str.includes("ui") || str.includes("presentation") || str.includes("view")) {
+  if (
+    str.includes("frontend") ||
+    str.includes("client") ||
+    str.includes("ui") ||
+    str.includes("presentation") ||
+    str.includes("view")
+  ) {
     return 0; // Top tier
   }
   if (str.includes("api") || str.includes("gateway") || str.includes("route")) {
     return 1; // API Layer
   }
-  if (str.includes("backend") || str.includes("server") || str.includes("controller") || str.includes("service") || str.includes("business") || str.includes("auth")) {
+  if (
+    str.includes("backend") ||
+    str.includes("server") ||
+    str.includes("controller") ||
+    str.includes("service") ||
+    str.includes("business") ||
+    str.includes("auth")
+  ) {
     return 2; // Business logic / Backend
   }
-  if (str.includes("database") || str.includes("db") || str.includes("model") || str.includes("data") || str.includes("storage")) {
+  if (
+    str.includes("database") ||
+    str.includes("db") ||
+    str.includes("model") ||
+    str.includes("data") ||
+    str.includes("storage")
+  ) {
     return 3; // Database / Persistence
   }
-  if (str.includes("ai") || str.includes("external") || str.includes("third") || str.includes("worker") || str.includes("background")) {
+  if (
+    str.includes("ai") ||
+    str.includes("external") ||
+    str.includes("third") ||
+    str.includes("worker") ||
+    str.includes("background")
+  ) {
     return 4; // External services / Workers
   }
   return 2;
 };
 
 /**
- * GitDiagram-Style Group-Clustered Architecture Layout
+ * GitDiagram & DoubleLoop-Style Group-Clustered Architecture Layout
  * Creates visual group containers with multi-column internal node grids
  */
 export const layoutArchitectureDiagram = (rawNodes = [], rawEdges = [], direction = "TB") => {
@@ -33,13 +58,13 @@ export const layoutArchitectureDiagram = (rawNodes = [], rawEdges = [], directio
   }
 
   const isHorizontal = direction === "LR";
-  const NODE_WIDTH = 270;
-  const NODE_HEIGHT = 105;
-  const PADDING_X = 24;
-  const PADDING_TOP = 52; // Room for group header
-  const PADDING_BOTTOM = 24;
-  const GAP_X = 20;
-  const GAP_Y = 18;
+  const NODE_WIDTH = 285;
+  const NODE_HEIGHT = 160;
+  const PADDING_X = 26;
+  const PADDING_TOP = 58; // Room for group header
+  const PADDING_BOTTOM = 26;
+  const GAP_X = 24;
+  const GAP_Y = 22;
 
   // 1. Group nodes by their group ID
   const groupBuckets = new Map();
@@ -70,7 +95,7 @@ export const layoutArchitectureDiagram = (rawNodes = [], rawEdges = [], directio
     const nodesInGroup = groupBuckets.get(groupId) || [];
     const count = nodesInGroup.length;
 
-    // Pick 2 or 3 columns based on count to keep it compact
+    // Pick 2 or 3 columns based on count to keep it compact and readable
     let cols = 2;
     if (count >= 5) cols = 3;
     if (count <= 1) cols = 1;
@@ -96,17 +121,14 @@ export const layoutArchitectureDiagram = (rawNodes = [], rawEdges = [], directio
   groupGraph.setDefaultEdgeLabel(() => ({}));
   groupGraph.setGraph({
     rankdir: direction,
-    nodesep: isHorizontal ? 60 : 70,
-    ranksep: isHorizontal ? 80 : 70,
-    marginx: 50,
-    marginy: 50,
+    nodesep: isHorizontal ? 70 : 80,
+    ranksep: isHorizontal ? 90 : 80,
+    marginx: 40,
+    marginy: 40,
   });
 
-  sortedGroupIds.forEach((groupId) => {
-    const box = groupBoxes.get(groupId);
-    if (box) {
-      groupGraph.setNode(box.id, { width: box.width, height: box.height });
-    }
+  groupBoxes.forEach((box) => {
+    groupGraph.setNode(box.id, { width: box.width, height: box.height });
   });
 
   // Add inter-group edges to dagre to respect natural data flow
@@ -196,13 +218,13 @@ export const layoutDependencyGraph = (nodes = [], edges = [], direction = "LR") 
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-  const nodeWidth = 260;
-  const nodeHeight = 85;
+  const nodeWidth = 275;
+  const nodeHeight = 150;
 
   dagreGraph.setGraph({
     rankdir: direction,
-    nodesep: 35,
-    ranksep: 55,
+    nodesep: 45,
+    ranksep: 75,
     marginx: 50,
     marginy: 50,
   });

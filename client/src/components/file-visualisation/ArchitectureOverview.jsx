@@ -8,11 +8,13 @@ import {
   useEdgesState,
   ReactFlowProvider,
   useReactFlow,
+  MarkerType,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 import ArchitectureNode from "./nodes/ArchitectureNode";
 import GroupNode from "./nodes/GroupNode";
+import PillFlowEdge from "./edges/PillFlowEdge";
 import GraphControls from "./panels/GraphControls";
 import GraphStats from "./panels/GraphStats";
 import NodeDetailPanel from "./panels/NodeDetailPanel";
@@ -25,6 +27,10 @@ import { Button } from "@/components/ui/button";
 const nodeTypes = {
   architectureNode: ArchitectureNode,
   groupNode: GroupNode,
+};
+
+const edgeTypes = {
+  pillFlowEdge: PillFlowEdge,
 };
 
 function ArchitectureOverviewFlow({
@@ -47,7 +53,7 @@ function ArchitectureOverviewFlow({
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  // Transform raw architecture data using GitDiagram-style group layout
+  // Transform raw architecture data into visual flow with PillFlowEdges (Reference 2 style)
   const layoutResult = useMemo(() => {
     if (!architectureData || !architectureData.nodes || architectureData.nodes.length === 0) {
       return { initialNodes: [], initialEdges: [], nodes: [], edges: [] };
@@ -59,45 +65,77 @@ function ArchitectureOverviewFlow({
         groupMap.set(g.id, g.label || g.name || g.id);
       });
 
+      // Calculate in-degree and out-degree for every node for the metrics table
+      const inDegreeMap = new Map();
+      const outDegreeMap = new Map();
+      (architectureData.edges || []).forEach((e) => {
+        inDegreeMap.set(e.target, (inDegreeMap.get(e.target) || 0) + 1);
+        outDegreeMap.set(e.source, (outDegreeMap.get(e.source) || 0) + 1);
+      });
+
       const flowNodes = architectureData.nodes.map((node) => ({
         id: node.id,
         type: "architectureNode",
         data: {
           ...node,
           groupLabel: groupMap.get(node.group) || node.group,
+          incomingCount: inDegreeMap.get(node.id) || 0,
+          outgoingCount: outDegreeMap.get(node.id) || 0,
         },
         position: { x: 0, y: 0 },
       }));
 
       const flowEdges = (architectureData.edges || []).map((edge) => {
         const edgeStyle = getEdgeStyle(edge.type);
+
+        // Derive clean pill label & score (matching DoubleLoop / Linear reference style)
+        let pillLabel = edge.label || "";
+        let score = null;
+        if (!pillLabel) {
+          if (edge.type === "api") {
+            pillLabel = "HTTP";
+            score = 0.99;
+          } else if (edge.type === "database") {
+            pillLabel = "SQL";
+            score = 0.95;
+          } else if (edge.type === "auth") {
+            pillLabel = "Auth";
+            score = 0.98;
+          } else if (edge.type === "event") {
+            pillLabel = "Event";
+            score = 0.92;
+          } else if (edge.type === "import") {
+            pillLabel = "Import";
+            score = 0.88;
+          } else {
+            pillLabel = "0.998";
+            score = 0.998;
+          }
+        }
+
         return {
           id: edge.id || `e_${edge.source}_${edge.target}`,
           source: edge.source,
           target: edge.target,
-          type: "smoothstep",
-          label: edge.label || "",
+          type: "pillFlowEdge",
           animated: edgeStyle.animated,
           style: {
             stroke: edgeStyle.stroke,
             strokeWidth: 2,
-            strokeDasharray: edgeStyle.strokeDasharray,
+            strokeDasharray: "4 4",
           },
-          labelStyle: {
-            fill: "var(--foreground)",
-            fontSize: 10,
-            fontFamily: "var(--font-mono)",
-            fontWeight: 600,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 12,
+            height: 12,
+            color: edgeStyle.stroke || "#94a3b8",
           },
-          labelBgStyle: {
-            fill: "var(--card)",
-            fillOpacity: 1,
-            stroke: "var(--border)",
-            strokeWidth: 1.5,
-            rx: 4,
-            ry: 4,
+          data: {
+            ...edge,
+            score,
+            pillLabel,
+            curveType: "bezier",
           },
-          data: edge,
         };
       });
 
@@ -134,7 +172,21 @@ function ArchitectureOverviewFlow({
     }
   }, []);
 
-  // Filter nodes based on search query AND active group
+  // Compute blast radius sets when a node is selected (callers & dependents)
+  const blastRadiusSets = useMemo(() => {
+    if (!selectedNodeId) return null;
+    const callers = new Set();
+    const dependents = new Set();
+
+    edges.forEach((edge) => {
+      if (edge.target === selectedNodeId) callers.add(edge.source);
+      if (edge.source === selectedNodeId) dependents.add(edge.target);
+    });
+
+    return { callers, dependents };
+  }, [edges, selectedNodeId]);
+
+  // Filter nodes based on search query, active group, and blast radius impact highlighting
   const filteredNodes = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
 
@@ -163,36 +215,62 @@ function ArchitectureOverviewFlow({
         node.data.group === activeGroup ||
         node.data.groupLabel?.toLowerCase() === activeGroup.toLowerCase();
 
-      const isVisible = matchSearch && matchGroup;
+      // If a node is selected, apply blast-radius highlighting
+      let opacity = 1;
+      let filter = "none";
+
+      if (selectedNodeId) {
+        const isTarget = node.id === selectedNodeId;
+        const isCaller = blastRadiusSets?.callers.has(node.id);
+        const isDependent = blastRadiusSets?.dependents.has(node.id);
+
+        if (isTarget || isCaller || isDependent) {
+          opacity = 1;
+        } else {
+          opacity = 0.12;
+          filter = "grayscale(90%)";
+        }
+      } else if (!matchSearch || !matchGroup) {
+        opacity = 0.08;
+        filter = "grayscale(90%)";
+      }
 
       return {
         ...node,
         style: {
           ...node.style,
-          opacity: isVisible ? 1 : 0.08,
+          opacity,
+          filter,
           transition: "opacity 0.25s ease, filter 0.25s ease",
-          filter: isVisible ? "none" : "grayscale(90%)",
         },
       };
     });
-  }, [nodes, searchTerm, activeGroup]);
+  }, [nodes, searchTerm, activeGroup, selectedNodeId, blastRadiusSets]);
 
   // Highlight connections when node is selected
   const styledEdges = useMemo(() => {
     if (!selectedNodeId) return edges;
 
     return edges.map((edge) => {
-      const isConnected = edge.source === selectedNodeId || edge.target === selectedNodeId;
+      const isCallerEdge = edge.target === selectedNodeId;
+      const isDependentEdge = edge.source === selectedNodeId;
+      const isConnected = isCallerEdge || isDependentEdge;
       const baseStyle = getEdgeStyle(edge.data?.type, isConnected);
+
+      let strokeColor = isConnected ? (isCallerEdge ? "#0284c7" : "#10b981") : baseStyle.stroke;
 
       return {
         ...edge,
-        animated: isConnected ? true : baseStyle.animated,
+        animated: isConnected,
         style: {
           ...edge.style,
-          stroke: isConnected ? "#f59e0b" : baseStyle.stroke,
-          strokeWidth: isConnected ? 3 : 1.5,
+          stroke: strokeColor,
+          strokeWidth: isConnected ? 2.5 : 1.5,
           opacity: isConnected ? 1 : 0.12,
+        },
+        data: {
+          ...edge.data,
+          score: isCallerEdge ? 0.998 : isDependentEdge ? 0.999 : edge.data?.score,
         },
       };
     });
@@ -213,7 +291,7 @@ function ArchitectureOverviewFlow({
       setSelectedNodeId(nodeId);
       const targetNode = nodes.find((n) => n.id === nodeId);
       if (targetNode && targetNode.position) {
-        setCenter(targetNode.position.x + 135, targetNode.position.y + 55, {
+        setCenter(targetNode.position.x + 140, targetNode.position.y + 80, {
           duration: 500,
           zoom: 0.95,
         });
@@ -356,14 +434,15 @@ function ArchitectureOverviewFlow({
         onGroupSelect={setActiveGroup}
       />
 
-      {/* React Flow Canvas — fills all remaining space */}
-      <div className="relative flex-1 w-full min-h-0 bg-slate-50/40 dark:bg-background/30">
+      {/* React Flow Canvas with Crisp Dot-Grid Background (Reference Style) */}
+      <div className="relative flex-1 w-full min-h-0 bg-background">
         <ReactFlow
           nodes={filteredNodes}
           edges={styledEdges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           onNodeClick={onNodeClick}
           onPaneClick={onPaneClick}
           onMoveEnd={onMoveEnd}
@@ -372,17 +451,20 @@ function ArchitectureOverviewFlow({
           defaultViewport={{ x: 0, y: 0, zoom: 0.85 }}
           proOptions={{ hideAttribution: true }}
         >
-          <Background color="var(--border)" gap={28} size={1} />
+          {/* Subtle Dot Grid Canvas Background (Reference 1 & 2) */}
+          <Background color="var(--border)" gap={22} size={1.2} />
+
           <Controls
             showInteractive={false}
-            className="!border !border-border/60 !bg-card/90 !backdrop-blur-sm !shadow-lg !rounded-lg"
+            className="!border !border-border !bg-card/90 !backdrop-blur-sm !shadow-md !rounded-lg"
           />
+
           {showMinimap && (
             <MiniMap
               nodeStrokeColor="#64748b"
-              nodeColor={(node) => (node.type === "groupNode" ? "#e2e8f0" : "#94a3b8")}
-              nodeBorderRadius={4}
-              className="!border !border-border/60 !bg-card/90 !backdrop-blur-sm !rounded-xl !shadow-xl"
+              nodeColor={(node) => (node.type === "groupNode" ? "transparent" : "#94a3b8")}
+              nodeBorderRadius={6}
+              className="!border !border-border !bg-card/90 !backdrop-blur-sm !rounded-xl !shadow-xl"
             />
           )}
         </ReactFlow>

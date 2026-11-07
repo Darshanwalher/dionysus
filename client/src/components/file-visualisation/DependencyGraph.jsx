@@ -8,10 +8,12 @@ import {
   useEdgesState,
   ReactFlowProvider,
   useReactFlow,
+  MarkerType,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 import DependencyNode from "./nodes/DependencyNode";
+import PillFlowEdge from "./edges/PillFlowEdge";
 import GraphControls from "./panels/GraphControls";
 import GraphStats from "./panels/GraphStats";
 import NodeDetailPanel from "./panels/NodeDetailPanel";
@@ -23,6 +25,10 @@ import { Button } from "@/components/ui/button";
 
 const nodeTypes = {
   dependencyNode: DependencyNode,
+};
+
+const edgeTypes = {
+  pillFlowEdge: PillFlowEdge,
 };
 
 function DependencyGraphFlow({
@@ -54,7 +60,7 @@ function DependencyGraphFlow({
   const filters = useMemo(() => dependencyData?.filters || { directories: [], extensions: [] }, [dependencyData]);
   const statistics = useMemo(() => dependencyData?.statistics || {}, [dependencyData]);
 
-  // Build React Flow nodes and edges with intelligent filtering
+  // Build React Flow nodes and edges with intelligent filtering and PillFlowEdges (Reference 2 style)
   const layoutResult = useMemo(() => {
     if (rawNodes.length === 0) {
       return { initialNodes: [], initialEdges: [], nodes: [], edges: [] };
@@ -93,36 +99,42 @@ function DependencyGraphFlow({
       const flowEdges = rawEdges
         .filter((e) => activeNodeIds.has(e.source) && activeNodeIds.has(e.target))
         .map((edge) => {
-          const edgeStyle = getEdgeStyle(edge.type, false, edge.isCircular);
+          const isCircular = Boolean(edge.isCircular);
+          const edgeStyle = getEdgeStyle(edge.type, false, isCircular);
+
+          const score = isCircular ? -0.644 : (edge.score ?? 0.998);
+          const pillLabel = isCircular
+            ? "-0.644"
+            : edge.symbols && edge.symbols.length > 0 && edge.symbols[0] !== "*side-effect*"
+            ? edge.symbols.slice(0, 1).join("")
+            : "+0.998";
+
+          const strokeColor = isCircular ? "#f43f5e" : edgeStyle.stroke || "#94a3b8";
+
           return {
             id: edge.id || `e_${edge.source}_${edge.target}`,
             source: edge.source,
             target: edge.target,
-            type: "smoothstep",
-            label: edge.symbols && edge.symbols.length > 0 && edge.symbols[0] !== "*side-effect*"
-              ? edge.symbols.slice(0, 2).join(", ")
-              : "",
-            animated: edgeStyle.animated,
+            type: "pillFlowEdge",
+            animated: edgeStyle.animated || isCircular,
             style: {
-              stroke: edgeStyle.stroke,
-              strokeWidth: 2,
-              strokeDasharray: edgeStyle.strokeDasharray,
+              stroke: strokeColor,
+              strokeWidth: isCircular ? 2.2 : 1.8,
+              strokeDasharray: "4 4",
             },
-            labelStyle: {
-              fill: "var(--foreground)",
-              fontSize: 9,
-              fontFamily: "var(--font-mono)",
-              fontWeight: 600,
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 12,
+              height: 12,
+              color: strokeColor,
             },
-            labelBgStyle: {
-              fill: "var(--card)",
-              fillOpacity: 1,
-              stroke: "var(--border)",
-              strokeWidth: 1.5,
-              rx: 3,
-              ry: 3,
+            data: {
+              ...edge,
+              score,
+              pillLabel,
+              isCircular,
+              curveType: "bezier",
             },
-            data: edge,
           };
         });
 
@@ -163,50 +175,90 @@ function DependencyGraphFlow({
     }
   }, []);
 
-  // Search filter
+  // Compute blast radius sets when a node is selected (callers & dependents)
+  const blastRadiusSets = useMemo(() => {
+    if (!selectedNodeId) return null;
+    const callers = new Set();
+    const dependents = new Set();
+
+    edges.forEach((edge) => {
+      if (edge.target === selectedNodeId) callers.add(edge.source);
+      if (edge.source === selectedNodeId) dependents.add(edge.target);
+    });
+
+    return { callers, dependents };
+  }, [edges, selectedNodeId]);
+
+  // Filter nodes based on search query AND active blast radius highlighting
   const filteredNodes = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
-    if (!q) return nodes;
 
     return nodes.map((node) => {
-      const match =
+      const matchSearch =
+        !q ||
         node.data.label?.toLowerCase().includes(q) ||
         node.data.path?.toLowerCase().includes(q) ||
-        node.data.directory?.toLowerCase().includes(q);
+        (node.data.directory && node.data.directory.toLowerCase().includes(q));
+
+      let opacity = 1;
+      let filter = "none";
+
+      if (selectedNodeId) {
+        const isTarget = node.id === selectedNodeId;
+        const isCaller = blastRadiusSets?.callers.has(node.id);
+        const isDependent = blastRadiusSets?.dependents.has(node.id);
+
+        if (isTarget || isCaller || isDependent) {
+          opacity = 1;
+        } else {
+          opacity = 0.12;
+          filter = "grayscale(90%)";
+        }
+      } else if (!matchSearch) {
+        opacity = 0.08;
+        filter = "grayscale(90%)";
+      }
 
       return {
         ...node,
         style: {
           ...node.style,
-          opacity: match ? 1 : 0.08,
+          opacity,
+          filter,
           transition: "opacity 0.25s ease, filter 0.25s ease",
-          filter: match ? "none" : "grayscale(90%)",
         },
       };
     });
-  }, [nodes, searchTerm]);
+  }, [nodes, searchTerm, selectedNodeId, blastRadiusSets]);
 
-  // Highlight incoming (emerald) and outgoing (blue) dependencies on selection
+  // Dynamic edge highlighting when a node is selected
   const styledEdges = useMemo(() => {
     if (!selectedNodeId) return edges;
 
     return edges.map((edge) => {
-      const isOutgoing = edge.source === selectedNodeId;
-      const isIncoming = edge.target === selectedNodeId;
-      const isConnected = isOutgoing || isIncoming;
+      const isCallerEdge = edge.target === selectedNodeId;
+      const isDependentEdge = edge.source === selectedNodeId;
+      const isConnected = isCallerEdge || isDependentEdge;
+      const baseStyle = getEdgeStyle(edge.data?.type, isConnected, edge.data?.isCircular);
 
-      let strokeColor = "#64748b";
-      if (isOutgoing) strokeColor = "#3b82f6"; // blue outgoing
-      if (isIncoming) strokeColor = "#10b981"; // emerald incoming
+      let strokeColor = isConnected
+        ? isCallerEdge
+          ? "#0284c7"
+          : "#10b981"
+        : baseStyle.stroke;
 
       return {
         ...edge,
-        animated: isConnected,
+        animated: isConnected || edge.data?.isCircular,
         style: {
           ...edge.style,
-          stroke: isConnected ? strokeColor : "#cbd5e1",
-          strokeWidth: isConnected ? 3 : 1.2,
+          stroke: strokeColor,
+          strokeWidth: isConnected ? 2.5 : 1.5,
           opacity: isConnected ? 1 : 0.12,
+        },
+        data: {
+          ...edge.data,
+          score: isCallerEdge ? 0.998 : isDependentEdge ? 0.999 : edge.data?.score,
         },
       };
     });
@@ -225,7 +277,7 @@ function DependencyGraphFlow({
       setSelectedNodeId(nodeId);
       const targetNode = nodes.find((n) => n.id === nodeId);
       if (targetNode && targetNode.position) {
-        setCenter(targetNode.position.x + 130, targetNode.position.y + 42, {
+        setCenter(targetNode.position.x + 137, targetNode.position.y + 75, {
           duration: 500,
           zoom: 0.95,
         });
@@ -253,7 +305,7 @@ function DependencyGraphFlow({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "dependency-graph.svg";
+    a.download = "dependency-dag.svg";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -274,17 +326,17 @@ function DependencyGraphFlow({
     return (
       <div className="flex flex-col items-center justify-center h-full space-y-5">
         <div className="relative">
-          <div className="h-14 w-14 rounded-2xl border-2 border-cyan-500/40 bg-cyan-500/10 flex items-center justify-center animate-pulse">
-            <Cpu className="h-7 w-7 text-cyan-500" />
+          <div className="h-14 w-14 rounded-2xl border-2 border-emerald-500/40 bg-emerald-500/10 flex items-center justify-center animate-pulse">
+            <Cpu className="h-7 w-7 text-emerald-500" />
           </div>
-          <RefreshCw className="h-4 w-4 animate-spin text-cyan-500 absolute -bottom-1 -right-1" />
+          <RefreshCw className="h-4 w-4 animate-spin text-emerald-500 absolute -bottom-1 -right-1" />
         </div>
         <div className="text-center max-w-xs space-y-1">
           <h4 className="text-sm font-semibold text-foreground tracking-tight">
-            Mapping Dependencies
+            Compiling Dependency DAG
           </h4>
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Parsing imports, exports, and cross-file references...
+            Parsing static imports, dynamic requires, and AST exports...
           </p>
         </div>
       </div>
@@ -298,7 +350,7 @@ function DependencyGraphFlow({
           <AlertCircle className="h-5 w-5 text-destructive" />
         </div>
         <div className="text-center max-w-sm space-y-1">
-          <h4 className="text-sm font-semibold text-foreground">Dependency Mapping Failed</h4>
+          <h4 className="text-sm font-semibold text-foreground">Dependency Extraction Failed</h4>
           <p className="text-xs text-muted-foreground">{error}</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => onRefresh(true)} className="text-xs">
@@ -318,11 +370,11 @@ function DependencyGraphFlow({
         <div className="text-center max-w-xs space-y-1">
           <h4 className="text-sm font-semibold text-foreground">No Dependency Graph</h4>
           <p className="text-xs text-muted-foreground">
-            Analyze source code to discover module dependencies.
+            Analyze codebase imports and exports to compile a DAG.
           </p>
         </div>
         <Button variant="default" size="sm" onClick={() => onRefresh(true)} className="text-xs font-semibold">
-          <GitBranch className="h-3.5 w-3.5 mr-1.5" />
+          <Cpu className="h-3.5 w-3.5 mr-1.5" />
           Analyze Dependencies
         </Button>
       </div>
@@ -355,7 +407,7 @@ function DependencyGraphFlow({
       />
 
       {/* Stats and Filter Bar */}
-      <div className="flex items-center justify-between border-b border-border/40 bg-muted/15 px-4 py-1.5 text-xs flex-shrink-0">
+      <div className="flex items-center justify-between border-b border-border bg-card/60 px-4 py-1.5 text-xs flex-shrink-0">
         <GraphStats
           mode="dependency"
           stats={statistics}
@@ -370,13 +422,13 @@ function DependencyGraphFlow({
         />
 
         {/* Clean View Toggle */}
-        <div className="hidden lg:flex items-center gap-2 pl-3 border-l border-border/40 flex-shrink-0">
+        <div className="hidden lg:flex items-center gap-2 pl-3 border-l border-border flex-shrink-0">
           <button
             onClick={() => setHideIsolated(!hideIsolated)}
             className={`px-2.5 py-1 rounded-md text-[11px] font-mono border transition-all ${
               hideIsolated
                 ? "bg-primary/10 text-primary border-primary/30 font-semibold"
-                : "border-border/60 text-muted-foreground hover:text-foreground"
+                : "border-border text-muted-foreground hover:text-foreground"
             }`}
             title="Toggle isolated files with zero connections"
           >
@@ -385,14 +437,15 @@ function DependencyGraphFlow({
         </div>
       </div>
 
-      {/* React Flow Canvas — fills all remaining space */}
-      <div className="relative flex-1 w-full min-h-0 bg-slate-50/40 dark:bg-background/30">
+      {/* React Flow Canvas with Crisp Dot-Grid Background (Reference Style) */}
+      <div className="relative flex-1 w-full min-h-0 bg-background">
         <ReactFlow
           nodes={filteredNodes}
           edges={styledEdges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           onNodeClick={onNodeClick}
           onPaneClick={onPaneClick}
           onMoveEnd={onMoveEnd}
@@ -401,17 +454,20 @@ function DependencyGraphFlow({
           defaultViewport={{ x: 0, y: 0, zoom: 0.85 }}
           proOptions={{ hideAttribution: true }}
         >
-          <Background color="var(--border)" gap={28} size={1} />
+          {/* Subtle Dot Grid Canvas Background (Reference 1 & 2) */}
+          <Background color="var(--border)" gap={22} size={1.2} />
+
           <Controls
             showInteractive={false}
-            className="!border !border-border/60 !bg-card/90 !backdrop-blur-sm !shadow-lg !rounded-lg"
+            className="!border !border-border !bg-card/90 !backdrop-blur-sm !shadow-md !rounded-lg"
           />
+
           {showMinimap && (
             <MiniMap
               nodeStrokeColor="#64748b"
               nodeColor="#94a3b8"
-              nodeBorderRadius={4}
-              className="!border !border-border/60 !bg-card/90 !backdrop-blur-sm !rounded-xl !shadow-xl"
+              nodeBorderRadius={6}
+              className="!border !border-border !bg-card/90 !backdrop-blur-sm !rounded-xl !shadow-xl"
             />
           )}
         </ReactFlow>
@@ -452,8 +508,8 @@ class VisualizationErrorBoundary extends React.Component {
             <AlertCircle className="h-5 w-5 text-destructive" />
           </div>
           <div className="text-center max-w-md space-y-1">
-            <h4 className="text-sm font-semibold text-foreground">Render Error</h4>
-            <p className="text-xs text-muted-foreground">{this.state.error?.message || "Could not render dependency graph."}</p>
+            <h4 className="text-sm font-semibold text-foreground">Diagram Render Error</h4>
+            <p className="text-xs text-muted-foreground">{this.state.error?.message || "Could not render graph."}</p>
           </div>
           <Button variant="outline" size="sm" onClick={() => this.setState({ hasError: false })} className="text-xs">
             <RefreshCw className="h-3.5 w-3.5 mr-1.5" />

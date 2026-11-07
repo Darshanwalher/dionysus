@@ -1,38 +1,56 @@
 import React, { memo } from "react";
 import { Handle, Position } from "@xyflow/react";
 import { getComponentMeta } from "@/lib/graphStyles";
-import { FileText, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, AlertCircle } from "lucide-react";
 
+/**
+ * Modern ArchitectureNode inspired by DoubleLoop / Linear metric & causal flow cards
+ * Matches the reference design with:
+ * - Left vertical accent lifeline strip (Reference 1)
+ * - Category badge + icon + "Details ↗" link
+ * - High-contrast title and responsibility description
+ * - Horizontal status / progress indicator bar (Reference 2)
+ * - 3-column mini metrics row (Callers / Deps / Status)
+ * - Fully adapted for both light and dark mode
+ */
 function ArchitectureNode({ data, selected }) {
   const meta = getComponentMeta(data.type);
   const Icon = meta.icon;
 
+  // Incoming and outgoing connections count (defaulting sensibly if not passed)
+  const incoming = data.incomingCount ?? data.inDegree ?? (data.dependencies ? data.dependencies.length : 1);
+  const outgoing = data.outgoingCount ?? data.outDegree ?? 1;
+
+  // Health calculation / status score
+  const isHealthy = !data.isCircular && (data.errorCount || 0) === 0;
+  const healthPercent = Math.min(100, Math.max(35, 100 - (outgoing > 6 ? (outgoing - 6) * 10 : 0)));
+
   return (
     <div
-      className={`group relative w-[270px] h-[105px] rounded-lg border transition-all duration-150 select-none flex flex-col justify-between p-3 card-sheen bg-card shadow-2xs ${
+      className={`group relative w-[285px] rounded-xl border transition-all duration-200 select-none flex flex-col justify-between p-3.5 bg-card text-card-foreground shadow-sm hover:shadow-md cursor-pointer ${
         selected
-          ? "border-foreground ring-2 ring-foreground/20 shadow-md scale-[1.01] z-20"
-          : "border-border hover:border-foreground/30 hover:shadow-xs"
+          ? "border-primary ring-2 ring-primary/25 shadow-lg scale-[1.01] z-30"
+          : "border-border hover:border-foreground/30"
       }`}
     >
-      {/* Category indicator strip */}
+      {/* 1. Left Vertical Accent Lifeline Strip (Reference 1) */}
       <div
-        className="absolute left-0 inset-y-0 w-1 rounded-l-md"
+        className="absolute left-0 inset-y-0 w-1.5 rounded-l-xl transition-all group-hover:w-2"
         style={{ backgroundColor: meta.color }}
       />
 
-      {/* Target connection handle */}
+      {/* Target connection handle (Input) */}
       <Handle
         type="target"
         position={data.targetPosition === "left" ? Position.Left : Position.Top}
-        className="!h-2.5 !w-2.5 !border-2 !border-background !bg-muted-foreground group-hover:!bg-foreground transition-transform"
+        className="!h-3 !w-3 !border-2 !border-background !bg-muted-foreground group-hover:!bg-primary transition-all !rounded-full shadow-xs"
       />
 
-      {/* Header: Icon, Label, and Type Badge */}
-      <div className="flex items-start justify-between gap-2 pl-1.5">
-        <div className="flex items-center gap-2 min-w-0">
+      {/* 2. Top Header: Category Icon + Tag Badge + "Details ↗" (Reference 2) */}
+      <div className="flex items-center justify-between gap-2 pl-1 mb-2">
+        <div className="flex items-center gap-1.5 min-w-0">
           <div
-            className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded border shadow-2xs"
+            className="flex h-5.5 w-5.5 flex-shrink-0 items-center justify-center rounded-md border shadow-2xs"
             style={{
               backgroundColor: meta.bg,
               borderColor: meta.border,
@@ -42,42 +60,94 @@ function ArchitectureNode({ data, selected }) {
             <Icon className="h-3.5 w-3.5" />
           </div>
 
-          <div className="min-w-0">
-            <h4 className="text-xs font-bold text-foreground tracking-tight truncate leading-tight font-sans">
-              {data.label}
-            </h4>
-          </div>
+          <span
+            className="text-[10px] font-mono font-semibold uppercase tracking-wider truncate"
+            style={{ color: meta.color }}
+          >
+            {meta.label}
+          </span>
         </div>
 
-        <span
-          className={`text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border font-semibold flex-shrink-0 ${meta.badge}`}
-        >
-          {meta.label}
-        </span>
+        <div className="flex items-center gap-1 text-[11px] text-muted-foreground group-hover:text-foreground font-mono transition-colors">
+          <span>Details</span>
+          <ArrowUpRight className="h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+        </div>
       </div>
 
-      {/* Responsibility text */}
-      <p className="text-[11px] text-muted-foreground line-clamp-1 leading-snug pl-1.5 font-normal">
-        {data.responsibility || data.description || "Core application subsystem."}
-      </p>
-
-      {/* Footer: Monospace Path and Action */}
-      <div className="flex items-center justify-between pt-1.5 border-t border-border text-[10px] font-mono text-muted-foreground pl-1.5">
-        <span className="flex items-center gap-1 truncate max-w-[200px]" title={data.path}>
-          <FileText className="h-3 w-3 flex-shrink-0 opacity-60" />
-          <span className="truncate">{data.path || "virtual"}</span>
-        </span>
-
-        <span className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 text-foreground">
-          <ArrowUpRight className="h-3 w-3" />
-        </span>
+      {/* 3. Title & Primary Responsibility */}
+      <div className="pl-1 mb-2.5">
+        <h4 className="text-sm font-bold text-foreground tracking-tight leading-snug truncate font-sans">
+          {data.label}
+        </h4>
+        <p className="text-xs text-muted-foreground line-clamp-1 leading-normal mt-0.5 font-normal">
+          {data.responsibility || data.description || "Core application subsystem component."}
+        </p>
       </div>
 
-      {/* Source connection handle */}
+      {/* 4. Horizontal Status / Health Bar (Reference 2) */}
+      <div className="pl-1 mb-2.5">
+        <div className="flex items-center justify-between text-[10px] font-mono text-muted-foreground mb-1">
+          <span>Coupling / Health</span>
+          <span className="font-semibold text-foreground">{healthPercent}%</span>
+        </div>
+        <div className="w-full bg-secondary h-1.5 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-300"
+            style={{
+              width: `${healthPercent}%`,
+              backgroundColor: isHealthy ? meta.color : "#f43f5e",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* 5. Bottom 3-Column Metrics Row (Reference 2) */}
+      <div className="grid grid-cols-3 pt-2 border-t border-border/70 text-[10px] font-mono pl-1">
+        <div>
+          <span className="text-muted-foreground block text-[9px] uppercase tracking-wider">
+            Inbound
+          </span>
+          <span className="font-bold text-foreground text-xs">{incoming}</span>
+        </div>
+
+        <div>
+          <span className="text-muted-foreground block text-[9px] uppercase tracking-wider">
+            Outbound
+          </span>
+          <span className="font-bold text-foreground text-xs">{outgoing}</span>
+        </div>
+
+        <div>
+          <span className="text-muted-foreground block text-[9px] uppercase tracking-wider">
+            Status
+          </span>
+          <span
+            className={`font-bold inline-flex items-center gap-1 text-[10px] ${
+              isHealthy
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-rose-600 dark:text-rose-400"
+            }`}
+          >
+            {isHealthy ? (
+              <>
+                <CheckCircle2 className="h-3 w-3" />
+                Active
+              </>
+            ) : (
+              <>
+                <AlertCircle className="h-3 w-3" />
+                Issue
+              </>
+            )}
+          </span>
+        </div>
+      </div>
+
+      {/* Source connection handle (Output) */}
       <Handle
         type="source"
         position={data.sourcePosition === "right" ? Position.Right : Position.Bottom}
-        className="!h-2.5 !w-2.5 !border-2 !border-background !bg-muted-foreground group-hover:!bg-foreground transition-transform"
+        className="!h-3 !w-3 !border-2 !border-background !bg-muted-foreground group-hover:!bg-primary transition-all !rounded-full shadow-xs"
       />
     </div>
   );
