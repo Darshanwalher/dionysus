@@ -17,6 +17,7 @@ import PillFlowEdge from "./edges/PillFlowEdge";
 import GraphControls from "./panels/GraphControls";
 import GraphStats from "./panels/GraphStats";
 import NodeDetailPanel from "./panels/NodeDetailPanel";
+import CanvasScrollbar from "./panels/CanvasScrollbar";
 import { layoutDependencyGraph, exportGraphAsJSON } from "@/lib/graphUtils";
 import { getEdgeStyle } from "@/lib/graphStyles";
 import { toast } from "sonner";
@@ -454,6 +455,9 @@ function DependencyGraphFlow({
           onMoveEnd={onMoveEnd}
           minZoom={0.15}
           maxZoom={2.5}
+          zoomOnScroll={true}
+          panOnScroll={false}
+          zoomOnPinch={true}
           defaultViewport={{ x: 0, y: 0, zoom: 0.85 }}
           proOptions={{ hideAttribution: true }}
         >
@@ -479,6 +483,9 @@ function DependencyGraphFlow({
             />
           )}
         </ReactFlow>
+
+        {/* Visible Drag & Click Canvas Vertical Scrollbar */}
+        <CanvasScrollbar nodes={nodes} />
 
         {/* Selected Node Details Drawer */}
         {selectedNode && (

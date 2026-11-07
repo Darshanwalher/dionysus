@@ -116,7 +116,7 @@ export default function FileVisualisation() {
 
   if (isLoading && !currentProject) {
     return (
-      <div className="flex flex-col h-[calc(100vh-3rem)] -my-8 -mx-4 sm:-mx-6 lg:-mx-8">
+      <div className="flex flex-col h-full w-full">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
           <Skeleton className="h-7 w-48 rounded" />
           <Skeleton className="h-8 w-72 rounded" />
@@ -131,9 +131,8 @@ export default function FileVisualisation() {
       className={
         isFullscreen
           ? "fixed inset-0 z-50 bg-background flex flex-col font-sans selection:bg-foreground/15"
-          : "flex flex-col -my-8 -mx-4 sm:-mx-6 lg:-mx-8 font-sans selection:bg-foreground/15"
+          : "w-full h-full flex flex-col font-sans selection:bg-foreground/15 overflow-hidden"
       }
-      style={!isFullscreen ? { height: "calc(100vh - 3rem)" } : undefined}
     >
       {/* ─── Compact Refined Toolbar Header ─── */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card flex-shrink-0 select-none">

@@ -61,6 +61,7 @@ export default function AppShell({ children }) {
   );
 
   const isAnalyzing = isArchitectureLoading || isDependencyLoading;
+  const isVisualisePage = location.pathname.endsWith("/visualise");
 
   const navigation = currentProject
     ? [
@@ -601,7 +602,14 @@ export default function AppShell({ children }) {
         </header>
 
         {/* Main Workspace Viewport */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main
+          className={cn(
+            "flex-1 w-full min-w-0",
+            isVisualisePage
+              ? "p-0 max-w-none h-[calc(100vh-3rem)] overflow-hidden flex flex-col"
+              : "p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto"
+          )}
+        >
           {children}
         </main>
       </div>

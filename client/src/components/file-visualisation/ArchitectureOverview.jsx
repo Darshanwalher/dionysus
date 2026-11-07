@@ -18,6 +18,7 @@ import PillFlowEdge from "./edges/PillFlowEdge";
 import GraphControls from "./panels/GraphControls";
 import GraphStats from "./panels/GraphStats";
 import NodeDetailPanel from "./panels/NodeDetailPanel";
+import CanvasScrollbar from "./panels/CanvasScrollbar";
 import { layoutArchitectureDiagram, exportGraphAsJSON } from "@/lib/graphUtils";
 import { getEdgeStyle } from "@/lib/graphStyles";
 import { toast } from "sonner";
@@ -451,6 +452,9 @@ function ArchitectureOverviewFlow({
           onMoveEnd={onMoveEnd}
           minZoom={0.15}
           maxZoom={2.5}
+          zoomOnScroll={true}
+          panOnScroll={false}
+          zoomOnPinch={true}
           defaultViewport={{ x: 0, y: 0, zoom: 0.85 }}
           proOptions={{ hideAttribution: true }}
         >
@@ -476,6 +480,9 @@ function ArchitectureOverviewFlow({
             />
           )}
         </ReactFlow>
+
+        {/* Visible Drag & Click Canvas Vertical Scrollbar */}
+        <CanvasScrollbar nodes={nodes} />
 
         {/* Selected Node Details Drawer */}
         {selectedNode && (
