@@ -102,6 +102,35 @@ export const generateArchitecture = createAsyncThunk(
   }
 );
 
+
+export const fetchSchema = createAsyncThunk(
+  "project/fetchSchema",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`/projects/${projectId}/schema`);
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch schema intelligence"
+      );
+    }
+  }
+);
+
+export const refreshSchema = createAsyncThunk(
+  "project/refreshSchema",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post(`/projects/${projectId}/schema/refresh`);
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to refresh schema intelligence"
+      );
+    }
+  }
+);
+
 export const generateDependencies = createAsyncThunk(
   "project/generateDependencies",
   async ({ projectId, force = false }, { rejectWithValue }) => {
@@ -289,6 +318,9 @@ const initialState = {
   isDependencyLoading: false,
   architectureError: null,
   dependencyError: null,
+  schemaIntelligence: null,
+  isSchemaLoading: false,
+  schemaError: null,
   isActionLoading: false,
   error: null,
 };
@@ -306,6 +338,39 @@ const projectSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+
+      
+      // Schema Intelligence
+      .addCase(fetchSchema.pending, (state) => {
+        state.isSchemaLoading = true;
+        state.schemaError = null;
+      })
+      .addCase(fetchSchema.fulfilled, (state, action) => {
+        state.isSchemaLoading = false;
+        state.schemaIntelligence = action.payload;
+        if (state.currentProject) {
+          state.currentProject.schemaIntelligence = action.payload;
+        }
+      })
+      .addCase(fetchSchema.rejected, (state, action) => {
+        state.isSchemaLoading = false;
+        state.schemaError = action.payload;
+      })
+      .addCase(refreshSchema.pending, (state) => {
+        state.isSchemaLoading = true;
+        state.schemaError = null;
+      })
+      .addCase(refreshSchema.fulfilled, (state, action) => {
+        state.isSchemaLoading = false;
+        state.schemaIntelligence = action.payload;
+        if (state.currentProject) {
+          state.currentProject.schemaIntelligence = action.payload;
+        }
+      })
+      .addCase(refreshSchema.rejected, (state, action) => {
+        state.isSchemaLoading = false;
+        state.schemaError = action.payload;
+      })
 
       // Generate Architecture
       .addCase(generateArchitecture.pending, (state) => {
@@ -361,6 +426,7 @@ const projectSlice = createSlice({
         state.currentProject = action.payload;
         state.architectureGraph = action.payload.architectureGraph || null;
         state.dependencyGraph = action.payload.dependencyGraph || null;
+        state.schemaIntelligence = action.payload.schemaIntelligence || null;
       })
       .addCase(fetchProject.rejected, (state, action) => {
         state.isLoading = false;

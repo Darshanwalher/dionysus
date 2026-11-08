@@ -5,10 +5,11 @@ import {
   fetchProject,
   generateArchitecture,
   generateDependencies,
+  fetchSchema,
+  refreshSchema,
 } from "@/store/slices/projectSlice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   FolderTree,
   Maximize2,
@@ -19,16 +20,14 @@ import {
   GitBranch,
   ExternalLink,
   GitFork,
-  Sparkles,
-  RefreshCw,
-  HelpCircle,
-  Layers,
+  Database,
 } from "lucide-react";
 import { parseFileTree } from "@/lib/fileTree";
 import FileTreeExplorer from "@/components/file-visualisation/FileTreeExplorer";
 import ArchitectureMap from "@/components/file-visualisation/ArchitectureMap";
 import ArchitectureOverview from "@/components/file-visualisation/ArchitectureOverview";
 import DependencyGraph from "@/components/file-visualisation/DependencyGraph";
+import DatabaseSchemaView from "@/components/file-visualisation/DatabaseSchemaView";
 
 export default function FileVisualisation() {
   const { id } = useParams();
@@ -38,10 +37,13 @@ export default function FileVisualisation() {
     isLoading,
     architectureGraph,
     dependencyGraph,
+    schemaIntelligence,
     isArchitectureLoading,
     isDependencyLoading,
+    isSchemaLoading,
     architectureError,
     dependencyError,
+    schemaError,
   } = useSelector((state) => state.project);
 
   const [viewMode, setViewMode] = useState("architecture");
@@ -79,6 +81,19 @@ export default function FileVisualisation() {
     }
   }, [viewMode, currentProject, dependencyGraph, isDependencyLoading, dispatch, id]);
 
+  // Load schema intelligence when user enters schema tab if not already present
+  useEffect(() => {
+    if (
+      viewMode === "schema" &&
+      currentProject?.githubUrl &&
+      !currentProject?.schemaIntelligence &&
+      !schemaIntelligence &&
+      !isSchemaLoading
+    ) {
+      dispatch(fetchSchema(id));
+    }
+  }, [viewMode, currentProject, schemaIntelligence, isSchemaLoading, dispatch, id]);
+
   const handleRefreshArchitecture = useCallback(
     (force = true) => {
       dispatch(generateArchitecture({ projectId: id, force }));
@@ -93,6 +108,10 @@ export default function FileVisualisation() {
     [dispatch, id]
   );
 
+  const handleRefreshSchema = useCallback(() => {
+    dispatch(refreshSchema(id));
+  }, [dispatch, id]);
+
   const fileTree = useMemo(
     () => parseFileTree(currentProject?.mermaidGraph, currentProject?.name || "Repository"),
     [currentProject]
@@ -100,6 +119,7 @@ export default function FileVisualisation() {
 
   const currentArchitectureData = architectureGraph || currentProject?.architectureGraph;
   const currentDependencyData = dependencyGraph || currentProject?.dependencyGraph;
+  const currentSchemaData = schemaIntelligence || currentProject?.schemaIntelligence;
 
   const repoDisplay = useMemo(() => {
     if (!currentProject?.githubUrl) return null;
@@ -110,6 +130,7 @@ export default function FileVisualisation() {
   const modes = [
     { key: "architecture", label: "Architecture Overview", icon: Boxes, badge: "AI Synthesis" },
     { key: "dependencies", label: "Dependency DAG", icon: GitBranch, badge: "Code Imports" },
+    { key: "schema", label: "Schema ER", icon: Database, badge: "Data Models" },
     { key: "tree", label: "File Tree", icon: ListTree, badge: "Directory" },
     { key: "diagram", label: "Interactive Flow", icon: Network, badge: "Mermaid" },
   ];
@@ -164,6 +185,8 @@ export default function FileVisualisation() {
                 ? "Microservices & Subsystem Boundaries"
                 : viewMode === "dependencies"
                 ? "AST Import/Export Graph"
+                : viewMode === "schema"
+                ? "Mongoose / Prisma Relational Entity Diagram"
                 : "Directory Hierarchy"}
             </span>
           </div>
@@ -225,6 +248,17 @@ export default function FileVisualisation() {
               isLoading={isDependencyLoading}
               error={dependencyError}
               onRefresh={handleRefreshDependencies}
+              isFullscreen={isFullscreen}
+            />
+          )}
+
+          {viewMode === "schema" && (
+            <DatabaseSchemaView
+              schemaData={currentSchemaData}
+              githubUrl={currentProject.githubUrl}
+              isLoading={isSchemaLoading}
+              error={schemaError}
+              onRefresh={handleRefreshSchema}
               isFullscreen={isFullscreen}
             />
           )}

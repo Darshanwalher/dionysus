@@ -281,3 +281,72 @@ export const exportGraphAsJSON = (graphData, fileName = "dionysus-graph.json") =
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 };
+
+
+/**
+ * Dagre layout for Database Schema ER Diagram
+ */
+export const layoutSchemaDiagram = (entities = [], relations = [], direction = "LR") => {
+  if (!entities || entities.length === 0) {
+    return { nodes: [], edges: [], initialNodes: [], initialEdges: [] };
+  }
+
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+
+  const isHorizontal = direction === "LR";
+  dagreGraph.setGraph({
+    rankdir: direction,
+    nodesep: 80,
+    ranksep: 120,
+    marginx: 50,
+    marginy: 50,
+  });
+
+  const nodeWidth = 300;
+
+  entities.forEach((ent) => {
+    // Dynamic height based on field count
+    const fieldsCount = ent.fields?.length || 4;
+    const nodeHeight = Math.min(380, 100 + fieldsCount * 26);
+    dagreGraph.setNode(ent.id, { width: nodeWidth, height: nodeHeight });
+  });
+
+  relations.forEach((rel) => {
+    // Ensure both source and target exist
+    const hasSource = entities.some((e) => e.id === rel.source);
+    const hasTarget = entities.some((e) => e.id === rel.target);
+    if (hasSource && hasTarget) {
+      dagreGraph.setEdge(rel.source, rel.target);
+    }
+  });
+
+  try {
+    dagre.layout(dagreGraph);
+  } catch (err) {
+    console.warn("Dagre schema layout error:", err);
+  }
+
+  const layoutedNodes = entities.map((ent) => {
+    const pos = dagreGraph.node(ent.id);
+    const fieldsCount = ent.fields?.length || 4;
+    const nodeHeight = Math.min(380, 100 + fieldsCount * 26);
+
+    return {
+      id: ent.id,
+      type: "tableEntityNode",
+      data: ent,
+      targetPosition: isHorizontal ? "left" : "top",
+      sourcePosition: isHorizontal ? "right" : "bottom",
+      position: {
+        x: pos ? pos.x - nodeWidth / 2 : 0,
+        y: pos ? pos.y - nodeHeight / 2 : 0,
+      },
+    };
+  });
+
+  return {
+    nodes: layoutedNodes,
+    initialNodes: layoutedNodes,
+  };
+};
