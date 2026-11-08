@@ -10,9 +10,9 @@ const {
 const { analyzeSchema } = require('../services/schema-analyzer.service');
 
 /**
- * Retrieve repository files
+ * Retrieve ONLY schema and model files from repository (fast targeted fetch)
  */
-const getRepositoryFiles = async (githubUrl) => {
+const getRepositorySchemaFiles = async (githubUrl) => {
   const parsed = parseGithubUrl(githubUrl);
   if (!parsed) {
     throw new Error('Invalid GitHub repository URL');
@@ -25,24 +25,43 @@ const getRepositoryFiles = async (githubUrl) => {
     const repoMetadata = await getRepoMetadata(owner, repo);
     const tree = await fetchRepoTree(owner, repo, repoMetadata.defaultBranch);
 
+    // Filter strictly for model, schema, entity, db, prisma candidate files
     const relevantPaths = tree
       .map((item) => item.path)
       .filter((p) => shouldProcessFile(p));
 
-    // Target schema, model, db, or prisma files plus top files
     const modelPaths = relevantPaths.filter((p) =>
-      /(model|schema|entity|prisma|db)/i.test(p)
+      /(model|schema|entities|entity|prisma|db)/i.test(p) &&
+      !/(test|spec|\.d\.ts|\.map)/i.test(p)
     );
 
-    const targetPaths = Array.from(new Set([...modelPaths, ...relevantPaths.slice(0, 150)]));
+    // Target ONLY matched model paths (capped at 25 files max)
+    const targetPaths = modelPaths.slice(0, 25);
 
-    files = await fetchBatchFileContents(owner, repo, targetPaths, repoMetadata.defaultBranch, 5);
+    if (targetPaths.length > 0) {
+      files = await fetchBatchFileContents(owner, repo, targetPaths, repoMetadata.defaultBranch, 5);
+    }
+
     if (files.length === 0) {
-      throw new Error('No readable files via API');
+      // Fallback: fetch package.json + entry files to check for schemas
+      const fallbackPaths = relevantPaths.filter((p) =>
+        /(package\.json|index\.[jt]sx?|server\.[jt]sx?|app\.[jt]sx?)/i.test(p)
+      ).slice(0, 5);
+      if (fallbackPaths.length > 0) {
+        files = await fetchBatchFileContents(owner, repo, fallbackPaths, repoMetadata.defaultBranch, 5);
+      }
     }
   } catch (err) {
-    console.warn(`⚠️ GitHub API schema scan fallback to clone: ${err.message}`);
-    files = await cloneAndReadRepo(githubUrl);
+    console.warn(`⚠️ GitHub API schema scan fallback: ${err.message}`);
+    // If API fails or is rate limited, read only top candidate files if cloned
+    try {
+      const allFiles = await cloneAndReadRepo(githubUrl);
+      files = allFiles.filter((f) =>
+        /(model|schema|entities|entity|prisma|db)/i.test(f.source)
+      ).slice(0, 25);
+    } catch (cloneErr) {
+      console.warn(`⚠️ Git clone fallback failed: ${cloneErr.message}`);
+    }
   }
 
   return files;
@@ -52,7 +71,11 @@ const getRepositoryFiles = async (githubUrl) => {
 // @route   GET /api/projects/:id/schema
 const getSchemaIntelligence = async (req, res, next) => {
   try {
-    const project = await Project.findById(req.params.id);
+    // 1. Fast check if already cached
+    const project = await Project.findById(req.params.id)
+      .select('githubUrl schemaIntelligence')
+      .lean();
+
     if (!project) {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
@@ -71,12 +94,14 @@ const getSchemaIntelligence = async (req, res, next) => {
       });
     }
 
-    // Auto-generate if not cached
-    const files = await getRepositoryFiles(project.githubUrl);
+    // 2. Fetch only model files (fast targeted fetch)
+    const files = await getRepositorySchemaFiles(project.githubUrl);
     const schemaData = await analyzeSchema(files);
 
-    project.schemaIntelligence = schemaData;
-    await project.save();
+    // 3. Cache result in background
+    await Project.findByIdAndUpdate(req.params.id, {
+      schemaIntelligence: schemaData,
+    });
 
     return res.status(200).json({
       success: true,
@@ -91,7 +116,7 @@ const getSchemaIntelligence = async (req, res, next) => {
 // @route   POST /api/projects/:id/schema/refresh
 const refreshSchemaIntelligence = async (req, res, next) => {
   try {
-    const project = await Project.findById(req.params.id);
+    const project = await Project.findById(req.params.id).select('githubUrl').lean();
     if (!project) {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
@@ -103,11 +128,12 @@ const refreshSchemaIntelligence = async (req, res, next) => {
       });
     }
 
-    const files = await getRepositoryFiles(project.githubUrl);
+    const files = await getRepositorySchemaFiles(project.githubUrl);
     const schemaData = await analyzeSchema(files);
 
-    project.schemaIntelligence = schemaData;
-    await project.save();
+    await Project.findByIdAndUpdate(req.params.id, {
+      schemaIntelligence: schemaData,
+    });
 
     return res.status(200).json({
       success: true,
@@ -122,4 +148,3 @@ module.exports = {
   getSchemaIntelligence,
   refreshSchemaIntelligence,
 };
-

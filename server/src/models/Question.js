@@ -14,6 +14,7 @@ const questionSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Project',
       required: true,
+      index: true,
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,

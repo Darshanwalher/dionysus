@@ -26,6 +26,7 @@ const issueSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Meeting',
       required: true,
+      index: true,
     },
   },
   {

@@ -11,6 +11,7 @@ const projectSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+      index: true,
     },
     members: [
       {
@@ -42,6 +43,10 @@ const projectSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: null,
     },
+    healthScore: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -49,6 +54,10 @@ const projectSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+// Multikey index for member queries
+projectSchema.index({ members: 1 });
+projectSchema.index({ updatedAt: -1 });
 
 // Virtual populate for commits
 projectSchema.virtual('commits', {

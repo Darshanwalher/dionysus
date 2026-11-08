@@ -40,7 +40,10 @@ const getMyProjects = async (req, res, next) => {
   try {
     const projects = await Project.find({
       members: req.user._id,
-    }).sort({ updatedAt: -1 });
+    })
+      .select('name githubUrl owner members createdAt updatedAt')
+      .sort({ updatedAt: -1 })
+      .lean();
 
     res.json({
       success: true,
@@ -56,10 +59,11 @@ const getMyProjects = async (req, res, next) => {
 const getProject = async (req, res, next) => {
   try {
     const project = await Project.findById(req.params.id)
-      .populate('commits')
-      .populate({ path: 'meetings', populate: { path: 'issues' } })
-      .populate('questions')
-      .populate('members', 'name email avatar');
+      .populate({ path: 'commits', options: { lean: true, limit: 30 } })
+      .populate({ path: 'meetings', populate: { path: 'issues', options: { lean: true } }, options: { lean: true } })
+      .populate({ path: 'questions', options: { lean: true } })
+      .populate({ path: 'members', select: 'name email avatar', options: { lean: true } })
+      .lean();
 
     if (!project) {
       return res.status(404).json({
