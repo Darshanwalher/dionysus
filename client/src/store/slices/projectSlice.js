@@ -160,6 +160,49 @@ export const refreshHealth = createAsyncThunk(
   }
 );
 
+
+export const fetchWikiPages = createAsyncThunk(
+  "project/fetchWikiPages",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`/projects/${projectId}/wiki`);
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch DeepWiki chapters"
+      );
+    }
+  }
+);
+
+export const refreshDeepWiki = createAsyncThunk(
+  "project/refreshDeepWiki",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post(`/projects/${projectId}/wiki/refresh`);
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to refresh DeepWiki"
+      );
+    }
+  }
+);
+
+export const refreshWikiChapter = createAsyncThunk(
+  "project/refreshWikiChapter",
+  async ({ projectId, slug }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post(`/projects/${projectId}/wiki/${slug}/refresh`);
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to refresh chapter"
+      );
+    }
+  }
+);
+
 export const generateDependencies = createAsyncThunk(
   "project/generateDependencies",
   async ({ projectId, force = false }, { rejectWithValue }) => {
@@ -353,6 +396,10 @@ const initialState = {
   healthScore: null,
   isHealthLoading: false,
   healthError: null,
+  wikiPages: [],
+  currentWikiPage: null,
+  isWikiLoading: false,
+  wikiError: null,
   isActionLoading: false,
   error: null,
 };
@@ -361,6 +408,9 @@ const projectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
+    setCurrentWikiPage: (state, action) => {
+      state.currentWikiPage = action.payload;
+    },
     setCurrentProject: (state, action) => {
       state.currentProject = action.payload;
     },
@@ -373,6 +423,46 @@ const projectSlice = createSlice({
 
       
       
+      
+      // DeepWiki
+      .addCase(fetchWikiPages.pending, (state) => {
+        state.isWikiLoading = true;
+        state.wikiError = null;
+      })
+      .addCase(fetchWikiPages.fulfilled, (state, action) => {
+        state.isWikiLoading = false;
+        state.wikiPages = action.payload;
+        if (action.payload.length > 0 && !state.currentWikiPage) {
+          state.currentWikiPage = action.payload[0];
+        }
+      })
+      .addCase(fetchWikiPages.rejected, (state, action) => {
+        state.isWikiLoading = false;
+        state.wikiError = action.payload;
+      })
+      .addCase(refreshDeepWiki.pending, (state) => {
+        state.isWikiLoading = true;
+        state.wikiError = null;
+      })
+      .addCase(refreshDeepWiki.fulfilled, (state, action) => {
+        state.isWikiLoading = false;
+        state.wikiPages = action.payload;
+        state.currentWikiPage = action.payload[0] || null;
+      })
+      .addCase(refreshDeepWiki.rejected, (state, action) => {
+        state.isWikiLoading = false;
+        state.wikiError = action.payload;
+      })
+      .addCase(refreshWikiChapter.fulfilled, (state, action) => {
+        const updated = action.payload;
+        state.wikiPages = state.wikiPages.map((p) =>
+          p.slug === updated.slug ? updated : p
+        );
+        if (state.currentWikiPage?.slug === updated.slug) {
+          state.currentWikiPage = updated;
+        }
+      })
+
       // Health Score
       .addCase(fetchHealth.pending, (state) => {
         state.isHealthLoading = true;
@@ -641,5 +731,5 @@ const projectSlice = createSlice({
   },
 });
 
-export const { setCurrentProject, clearError } = projectSlice.actions;
+export const { setCurrentProject, setCurrentWikiPage, clearError } = projectSlice.actions;
 export default projectSlice.reducer;

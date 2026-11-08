@@ -18,6 +18,7 @@ import Meetings from "./pages/Meetings";
 import MeetingDetail from "./pages/MeetingDetail";
 import FileVisualisation from "./pages/FileVisualisation";
 import ProjectHealth from "./pages/ProjectHealth";
+import DeepWiki from "./pages/DeepWiki";
 
 function ProtectedRoute({ children }) {
   const { token } = useSelector((state) => state.auth);
@@ -115,6 +116,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Documentation />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/projects/:id/wiki"
+        element={
+          <ProtectedRoute>
+            <DeepWiki />
           </ProtectedRoute>
         }
       />

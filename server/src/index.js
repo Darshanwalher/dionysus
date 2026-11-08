@@ -18,6 +18,7 @@ const aiRoutes = require('./routes/ai.routes');
 const meetingRoutes = require('./routes/meeting.routes');
 const schemaRoutes = require('./routes/schema.routes');
 const healthRoutes = require('./routes/health.routes');
+const wikiRoutes = require('./routes/wiki.routes');
 
 // Validate environment variables
 validateEnv();
@@ -61,6 +62,7 @@ app.use('/api', aiRoutes);
 app.use('/api', meetingRoutes);
 app.use('/api', schemaRoutes);
 app.use('/api', healthRoutes);
+app.use('/api', wikiRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);

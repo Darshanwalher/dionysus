@@ -11,6 +11,7 @@ import { logout } from "@/store/slices/authSlice";
 import { createProject } from "@/store/slices/projectSlice";
 import {
   BookText,
+  BookOpen,
   Activity,
   FileQuestion,
   FolderTree,
@@ -71,6 +72,7 @@ export default function AppShell({ children }) {
         { name: "Architecture & Graph", href: `/projects/${currentProject._id}/visualise`, icon: FolderTree },
         { name: "Meetings", href: `/projects/${currentProject._id}/meetings`, icon: Presentation },
         { name: "Documentation", href: `/projects/${currentProject._id}/documentation`, icon: BookText },
+        { name: "Repo DeepWiki", href: `/projects/${currentProject._id}/wiki`, icon: BookOpen },
         { name: "Codebase Q & A", href: `/projects/${currentProject._id}/qna`, icon: FileQuestion },
       ]
     : [];
