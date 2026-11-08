@@ -17,6 +17,7 @@ import QnA from "./pages/QnA";
 import Meetings from "./pages/Meetings";
 import MeetingDetail from "./pages/MeetingDetail";
 import FileVisualisation from "./pages/FileVisualisation";
+import ProjectHealth from "./pages/ProjectHealth";
 
 function ProtectedRoute({ children }) {
   const { token } = useSelector((state) => state.auth);
@@ -138,6 +139,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <MeetingDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/projects/:id/health"
+        element={
+          <ProtectedRoute>
+            <ProjectHealth />
           </ProtectedRoute>
         }
       />

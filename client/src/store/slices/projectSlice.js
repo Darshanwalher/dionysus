@@ -131,6 +131,35 @@ export const refreshSchema = createAsyncThunk(
   }
 );
 
+
+export const fetchHealth = createAsyncThunk(
+  "project/fetchHealth",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`/projects/${projectId}/health`);
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch health score"
+      );
+    }
+  }
+);
+
+export const refreshHealth = createAsyncThunk(
+  "project/refreshHealth",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post(`/projects/${projectId}/health/refresh`);
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to refresh health score"
+      );
+    }
+  }
+);
+
 export const generateDependencies = createAsyncThunk(
   "project/generateDependencies",
   async ({ projectId, force = false }, { rejectWithValue }) => {
@@ -321,6 +350,9 @@ const initialState = {
   schemaIntelligence: null,
   isSchemaLoading: false,
   schemaError: null,
+  healthScore: null,
+  isHealthLoading: false,
+  healthError: null,
   isActionLoading: false,
   error: null,
 };
@@ -340,6 +372,39 @@ const projectSlice = createSlice({
     builder
 
       
+      
+      // Health Score
+      .addCase(fetchHealth.pending, (state) => {
+        state.isHealthLoading = true;
+        state.healthError = null;
+      })
+      .addCase(fetchHealth.fulfilled, (state, action) => {
+        state.isHealthLoading = false;
+        state.healthScore = action.payload;
+        if (state.currentProject) {
+          state.currentProject.healthScore = action.payload;
+        }
+      })
+      .addCase(fetchHealth.rejected, (state, action) => {
+        state.isHealthLoading = false;
+        state.healthError = action.payload;
+      })
+      .addCase(refreshHealth.pending, (state) => {
+        state.isHealthLoading = true;
+        state.healthError = null;
+      })
+      .addCase(refreshHealth.fulfilled, (state, action) => {
+        state.isHealthLoading = false;
+        state.healthScore = action.payload;
+        if (state.currentProject) {
+          state.currentProject.healthScore = action.payload;
+        }
+      })
+      .addCase(refreshHealth.rejected, (state, action) => {
+        state.isHealthLoading = false;
+        state.healthError = action.payload;
+      })
+
       // Schema Intelligence
       .addCase(fetchSchema.pending, (state) => {
         state.isSchemaLoading = true;
@@ -427,6 +492,7 @@ const projectSlice = createSlice({
         state.architectureGraph = action.payload.architectureGraph || null;
         state.dependencyGraph = action.payload.dependencyGraph || null;
         state.schemaIntelligence = action.payload.schemaIntelligence || null;
+        state.healthScore = action.payload.healthScore || null;
       })
       .addCase(fetchProject.rejected, (state, action) => {
         state.isLoading = false;

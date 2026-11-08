@@ -17,6 +17,7 @@ const githubRoutes = require('./routes/github.routes');
 const aiRoutes = require('./routes/ai.routes');
 const meetingRoutes = require('./routes/meeting.routes');
 const schemaRoutes = require('./routes/schema.routes');
+const healthRoutes = require('./routes/health.routes');
 
 // Validate environment variables
 validateEnv();
@@ -59,6 +60,7 @@ app.use('/api/github', githubRoutes);
 app.use('/api', aiRoutes);
 app.use('/api', meetingRoutes);
 app.use('/api', schemaRoutes);
+app.use('/api', healthRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);

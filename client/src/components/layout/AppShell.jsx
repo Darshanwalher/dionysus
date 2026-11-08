@@ -11,6 +11,7 @@ import { logout } from "@/store/slices/authSlice";
 import { createProject } from "@/store/slices/projectSlice";
 import {
   BookText,
+  Activity,
   FileQuestion,
   FolderTree,
   Home,
@@ -66,6 +67,7 @@ export default function AppShell({ children }) {
   const navigation = currentProject
     ? [
         { name: "Overview", href: `/projects/${currentProject._id}`, icon: Home },
+        { name: "Repository Health", href: `/projects/${currentProject._id}/health`, icon: Activity },
         { name: "Architecture & Graph", href: `/projects/${currentProject._id}/visualise`, icon: FolderTree },
         { name: "Meetings", href: `/projects/${currentProject._id}/meetings`, icon: Presentation },
         { name: "Documentation", href: `/projects/${currentProject._id}/documentation`, icon: BookText },
