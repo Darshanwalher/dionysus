@@ -10,9 +10,7 @@ import {
 } from "@/store/slices/projectSlice";
 import WikiChapterTree from "@/components/wiki/WikiChapterTree";
 import WikiMarkdownViewer from "@/components/wiki/WikiMarkdownViewer";
-import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -23,24 +21,26 @@ import {
   BookOpen,
   Copy,
   Check,
+  FileText,
+  Clock,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function DeepWiki() {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const {
-    currentProject,
-    wikiPages,
-    currentWikiPage,
-    isWikiLoading,
-  } = useSelector((state) => state.project);
+  const { currentProject, wikiPages, currentWikiPage, isWikiLoading } =
+    useSelector((state) => state.project);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!currentProject || (currentProject._id !== id && currentProject.id !== id)) {
+    if (
+      !currentProject ||
+      (currentProject._id !== id && currentProject.id !== id)
+    ) {
       dispatch(fetchProject(id));
     }
   }, [dispatch, id, currentProject]);
@@ -51,24 +51,25 @@ export default function DeepWiki() {
     }
   }, [dispatch, id, wikiPages, isWikiLoading]);
 
-  const handleSelectChapter = (chapter) => {
-    dispatch(setCurrentWikiPage(chapter));
-  };
+  const handleSelectChapter = (chapter) => dispatch(setCurrentWikiPage(chapter));
 
   const handleRefreshAll = () => {
     dispatch(refreshDeepWiki(id));
+    toast.info("Regenerating all DeepWiki chapters… this may take a minute.");
   };
 
   const handleRefreshChapter = () => {
     if (currentWikiPage?.slug) {
       dispatch(refreshWikiChapter({ projectId: id, slug: currentWikiPage.slug }));
-      toast.success(`Synthesizing fresh content for ${currentWikiPage.title}...`);
+      toast.success(`Re-synthesizing "${currentWikiPage.title}"…`);
     }
   };
 
   const handleExportMarkdown = () => {
     if (!currentWikiPage) return;
-    const blob = new Blob([currentWikiPage.markdownContent], { type: "text/markdown" });
+    const blob = new Blob([currentWikiPage.markdownContent], {
+      type: "text/markdown",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -89,65 +90,102 @@ export default function DeepWiki() {
   };
 
   const filteredChapters = useMemo(() => {
+    if (!wikiPages) return [];
     if (!searchTerm.trim()) return wikiPages;
     const term = searchTerm.toLowerCase();
     return wikiPages.filter(
       (p) =>
         p.title.toLowerCase().includes(term) ||
         p.category.toLowerCase().includes(term) ||
-        p.markdownContent.toLowerCase().includes(term)
+        (p.markdownContent || "").toLowerCase().includes(term)
     );
   }, [wikiPages, searchTerm]);
 
-  return (
-    <div className="space-y-4 animate-fade-up">
-      {/* Top Header */}
-      <PageHeader
-        title="Repo DeepWiki"
-        description="Multi-chapter AI-synthesized technical wiki with interactive diagrams, data dictionaries, and architectural contracts."
-        badge="DeepWiki Engine"
-        action={
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleRefreshAll}
-              disabled={isWikiLoading}
-              className="gap-1.5 text-xs font-semibold cursor-pointer"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${isWikiLoading ? "animate-spin text-primary" : ""}`} />
-              <span>{isWikiLoading ? "Generating Wiki..." : "Regenerate All Chapters"}</span>
-            </Button>
-          </div>
-        }
-      />
+  const wordCount = useMemo(() => {
+    if (!currentWikiPage?.markdownContent) return 0;
+    return currentWikiPage.markdownContent
+      .replace(/```[\s\S]*?```/g, "")
+      .split(/\s+/)
+      .filter(Boolean).length;
+  }, [currentWikiPage]);
 
-      {/* Main 2-Column Reader Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-5 min-h-[750px]">
-        {/* Left Column: Chapters Navigation Sidebar */}
+  const readTime = Math.max(1, Math.round(wordCount / 200));
+
+  return (
+    <div className="flex flex-col h-full animate-fade-up">
+      {/* ── Top Header Bar ─────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between mb-5 gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
+            <BookOpen className="h-4.5 w-4.5 text-primary" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base font-bold text-foreground leading-tight">
+                Repo DeepWiki
+              </h1>
+              <Badge
+                variant="outline"
+                className="font-mono text-[9px] uppercase tracking-wider text-primary border-primary/30 bg-primary/5"
+              >
+                AI Engine
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              AI-synthesized technical documentation for{" "}
+              <span className="font-semibold text-foreground">
+                {currentProject?.name || "this repository"}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleRefreshAll}
+          disabled={isWikiLoading}
+          className="gap-1.5 text-xs font-semibold cursor-pointer shrink-0"
+        >
+          <RefreshCw
+            className={`h-3.5 w-3.5 ${
+              isWikiLoading ? "animate-spin text-primary" : ""
+            }`}
+          />
+          {isWikiLoading ? "Generating…" : "Regenerate All"}
+        </Button>
+      </div>
+
+      {/* ── 2-Column Layout ────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 min-h-[700px]">
+        {/* Left — Chapter Sidebar */}
         <div className="md:col-span-4 lg:col-span-3 flex flex-col gap-3">
-          {/* Search Chapters */}
+          {/* Search */}
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search wiki chapters..."
-              className="w-full h-8 pl-8 pr-2 text-xs rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+              placeholder="Search chapters…"
+              className="w-full h-9 pl-9 pr-3 text-xs rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 shadow-sm transition"
             />
           </div>
 
-          <Card className="p-2 bg-card border-border shadow-xs flex-1">
+          {/* Chapter List */}
+          <div className="rounded-xl border border-border bg-card shadow-sm flex-1 p-1.5 overflow-auto">
             {isWikiLoading && (!wikiPages || wikiPages.length === 0) ? (
-              <div className="space-y-2 p-2">
+              <div className="space-y-1.5 p-2">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Skeleton key={i} className="h-9 w-full rounded-md" />
+                  <Skeleton key={i} className="h-14 w-full rounded-lg" />
                 ))}
               </div>
             ) : filteredChapters.length === 0 ? (
-              <div className="p-4 text-center text-xs text-muted-foreground">
-                No matching chapters found.
+              <div className="p-6 text-center text-xs text-muted-foreground">
+                <BookOpen className="h-6 w-6 mx-auto mb-2 opacity-30" />
+                {wikiPages?.length === 0
+                  ? "No chapters yet. Click Regenerate All."
+                  : "No matching chapters."}
               </div>
             ) : (
               <WikiChapterTree
@@ -156,96 +194,158 @@ export default function DeepWiki() {
                 onSelectChapter={handleSelectChapter}
               />
             )}
-          </Card>
+          </div>
+
+          {/* Chapter count badge */}
+          {wikiPages?.length > 0 && (
+            <p className="text-[10px] text-muted-foreground text-center font-mono">
+              {wikiPages.length} chapter{wikiPages.length !== 1 ? "s" : ""} •{" "}
+              AI-synthesized
+            </p>
+          )}
         </div>
 
-        {/* Right Column: Markdown Reader & Visualizer Viewport */}
-        <Card className="md:col-span-8 lg:col-span-9 p-6 bg-card border-border shadow-xs flex flex-col">
+        {/* Right — Reader Pane */}
+        <div className="md:col-span-8 lg:col-span-9 flex flex-col rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+          {/* Loading skeleton */}
           {isWikiLoading && !currentWikiPage ? (
-            <div className="space-y-4 py-8">
-              <Skeleton className="h-8 w-64 rounded" />
-              <Skeleton className="h-4 w-full rounded" />
-              <Skeleton className="h-4 w-4/5 rounded" />
-              <Skeleton className="h-48 w-full rounded-xl" />
+            <div className="p-6 space-y-4">
+              <Skeleton className="h-6 w-56 rounded-lg" />
+              <Skeleton className="h-3 w-full rounded" />
+              <Skeleton className="h-3 w-4/5 rounded" />
+              <Skeleton className="h-3 w-3/5 rounded" />
+              <Skeleton className="h-40 w-full rounded-xl mt-4" />
+              <Skeleton className="h-3 w-full rounded" />
+              <Skeleton className="h-3 w-5/6 rounded" />
             </div>
           ) : !currentWikiPage ? (
-            <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-              <BookOpen className="h-10 w-10 text-muted-foreground mb-3 opacity-60" />
-              <h3 className="text-sm font-bold text-foreground">Select or Generate a Chapter</h3>
-              <p className="text-xs text-muted-foreground max-w-sm mt-1">
-                DeepWiki automatically indexes codebase architectures, routes, and data models into comprehensive onboarding documentation.
+            /* Empty state */
+            <div className="flex-1 flex flex-col items-center justify-center p-14 text-center">
+              <div className="relative mb-5">
+                <div className="h-16 w-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
+                  <BookOpen className="h-7 w-7 text-primary/60" />
+                </div>
+                <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-amber-400/80 border-2 border-card flex items-center justify-center">
+                  <Zap className="h-2.5 w-2.5 text-white" />
+                </div>
+              </div>
+              <h3 className="text-sm font-bold text-foreground mb-1.5">
+                Select or Generate a Chapter
+              </h3>
+              <p className="text-xs text-muted-foreground max-w-xs leading-relaxed mb-5">
+                DeepWiki uses Gemini AI to index your codebase and produce
+                comprehensive technical documentation — architecture diagrams,
+                API references, entity dictionaries, and more.
               </p>
-              <Button size="sm" onClick={handleRefreshAll} className="mt-4 gap-1.5 text-xs font-semibold cursor-pointer">
-                <Sparkles className="h-3.5 w-3.5" /> Synthesize DeepWiki
+              <Button
+                size="sm"
+                onClick={handleRefreshAll}
+                disabled={isWikiLoading}
+                className="gap-1.5 text-xs font-semibold cursor-pointer"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                Synthesize DeepWiki
               </Button>
             </div>
           ) : (
-            <div className="flex flex-col flex-1">
-              {/* Chapter Action Bar */}
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-border select-none">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="font-mono text-[10px] uppercase">
+            /* Chapter reader */
+            <div className="flex flex-col flex-1 min-h-0">
+              {/* ── Chapter toolbar ── */}
+              <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-muted/20 select-none shrink-0 flex-wrap gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge
+                    variant="secondary"
+                    className="font-mono text-[9px] uppercase tracking-widest"
+                  >
                     {currentWikiPage.category}
                   </Badge>
                   {currentWikiPage.lastGeneratedAt && (
-                    <span className="text-[10px] font-mono text-muted-foreground">
-                      Updated {new Date(currentWikiPage.lastGeneratedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <span className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {new Date(currentWikiPage.lastGeneratedAt).toLocaleString(
+                        [],
+                        {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )}
                     </span>
                   )}
+                  <span className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground">
+                    <FileText className="h-3 w-3" />
+                    ~{readTime} min read
+                  </span>
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <button
-                    onClick={handleCopy}
-                    className="flex items-center gap-1 h-7 px-2 rounded-md border border-border bg-secondary hover:bg-surface-hover text-[11px] text-muted-foreground hover:text-foreground font-mono transition-colors cursor-pointer"
-                    title="Copy Markdown"
-                  >
-                    {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
-                    <span className="hidden sm:inline">{copied ? "Copied" : "Copy"}</span>
-                  </button>
-
-                  <button
-                    onClick={handleExportMarkdown}
-                    className="flex items-center gap-1 h-7 px-2 rounded-md border border-border bg-secondary hover:bg-surface-hover text-[11px] text-muted-foreground hover:text-foreground font-mono transition-colors cursor-pointer"
-                    title="Export .md file"
-                  >
-                    <Download className="h-3 w-3" />
-                    <span className="hidden sm:inline">Export</span>
-                  </button>
-
-                  <button
-                    onClick={handleRefreshChapter}
-                    className="flex items-center gap-1 h-7 px-2 rounded-md border border-border bg-card hover:bg-secondary text-[11px] text-muted-foreground hover:text-foreground font-mono transition-colors cursor-pointer"
-                    title="Re-synthesize this chapter"
-                  >
-                    <RefreshCw className="h-3 w-3" />
-                    <span className="hidden sm:inline">Re-synthesize</span>
-                  </button>
+                <div className="flex items-center gap-1">
+                  {[
+                    {
+                      onClick: handleCopy,
+                      icon: copied ? (
+                        <Check className="h-3 w-3 text-emerald-500" />
+                      ) : (
+                        <Copy className="h-3 w-3" />
+                      ),
+                      label: copied ? "Copied" : "Copy",
+                      title: "Copy Markdown",
+                    },
+                    {
+                      onClick: handleExportMarkdown,
+                      icon: <Download className="h-3 w-3" />,
+                      label: "Export",
+                      title: "Export .md",
+                    },
+                    {
+                      onClick: handleRefreshChapter,
+                      icon: <RefreshCw className="h-3 w-3" />,
+                      label: "Re-synthesize",
+                      title: "Re-synthesize this chapter",
+                    },
+                  ].map((btn, i) => (
+                    <button
+                      key={i}
+                      onClick={btn.onClick}
+                      title={btn.title}
+                      className="flex items-center gap-1 h-7 px-2.5 rounded-lg border border-border bg-card hover:bg-secondary text-[11px] text-muted-foreground hover:text-foreground font-mono transition-all cursor-pointer"
+                    >
+                      {btn.icon}
+                      <span className="hidden sm:inline">{btn.label}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Referenced Source Files Pill Strip */}
+              {/* ── Analyzed files strip ── */}
               {currentWikiPage.referencedFiles?.length > 0 && (
-                <div className="mb-5 p-2.5 rounded-lg border border-border/80 bg-secondary/30 flex items-center gap-2 overflow-x-auto text-[11px] font-mono scrollbar-none">
-                  <span className="text-muted-foreground shrink-0 font-semibold">Analyzed Files:</span>
-                  {currentWikiPage.referencedFiles.map((f, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2 py-0.5 rounded bg-card border border-border/60 text-foreground/80 shrink-0 hover:text-primary transition-colors cursor-default"
-                    >
-                      {f}
-                    </span>
-                  ))}
+                <div className="px-5 py-2.5 border-b border-border/60 bg-muted/10 flex items-center gap-2 overflow-x-auto scrollbar-none shrink-0">
+                  <span className="text-[10px] font-mono font-semibold text-muted-foreground shrink-0 uppercase tracking-wider">
+                    Analyzed:
+                  </span>
+                  <div className="flex items-center gap-1.5 flex-nowrap">
+                    {currentWikiPage.referencedFiles.map((f, i) => (
+                      <span
+                        key={i}
+                        className="px-2 py-0.5 rounded-md bg-card border border-border/60 text-[10px] font-mono text-foreground/70 shrink-0 hover:text-primary hover:border-primary/30 transition-colors cursor-default"
+                      >
+                        {f.split("/").pop()}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
 
-              {/* Markdown Content Viewer with Mermaid */}
-              <div className="flex-1">
-                <WikiMarkdownViewer content={currentWikiPage.markdownContent} />
+              {/* ── Markdown content ── */}
+              {/* NOTE: No hardcoded h1 here — the AI markdown starts with # Title already */}
+              <div className="flex-1 overflow-y-auto px-6 py-6">
+                <WikiMarkdownViewer
+                  content={currentWikiPage.markdownContent}
+                />
               </div>
             </div>
           )}
-        </Card>
+        </div>
       </div>
     </div>
   );

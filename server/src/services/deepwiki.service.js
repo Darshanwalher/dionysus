@@ -142,7 +142,7 @@ const generateDeepWiki = async ({ projectId, projectName, files = [], schemaData
         isGenerated: true,
         lastGeneratedAt: new Date(),
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     generatedPages.push(page);

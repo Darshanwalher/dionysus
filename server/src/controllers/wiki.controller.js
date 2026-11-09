@@ -163,7 +163,7 @@ const refreshWikiChapter = async (req, res, next) => {
         referencedFiles,
         lastGeneratedAt: new Date(),
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     return res.status(200).json({

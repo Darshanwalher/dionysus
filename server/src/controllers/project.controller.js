@@ -145,7 +145,7 @@ const saveNote = async (req, res, next) => {
     const project = await Project.findByIdAndUpdate(
       req.params.id,
       { documentation: text },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!project) {
