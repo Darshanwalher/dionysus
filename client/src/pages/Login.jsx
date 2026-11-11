@@ -3,10 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser, clearError } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import PasswordField from "@/components/ui/password-field";
-import AuthLayout from "@/components/layout/AuthLayout";
+import AuthLayout, { AuthError, AuthField, Magnetic } from "@/components/layout/AuthLayout";
 import { Mail, ArrowRight } from "lucide-react";
 
 export default function Login() {
@@ -26,65 +24,61 @@ export default function Login() {
 
   return (
     <AuthLayout
-      title="Sign in to your account"
-      description="Enter your credentials to access your engineering workspaces."
+      title="Welcome back"
+      description="Sign in to pick up where your team left off."
       footer={
-        <p className="text-xs text-muted-foreground">
+        <p>
           Don&apos;t have an account?{" "}
-          <Link to="/register" className="font-semibold text-foreground underline underline-offset-4 hover:opacity-80">
+          <Link
+            to="/register"
+            className="font-semibold text-[#17645F] underline underline-offset-4 decoration-[#FF6845] hover:text-[#10211F]"
+          >
             Create an account
           </Link>
         </p>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-3.5">
-        {error && (
-          <div className="rounded border border-destructive/30 bg-destructive/10 p-2.5 text-xs text-destructive">
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <AuthError message={error} />
 
-        <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-xs font-medium text-foreground">
-            Email
-          </Label>
-          <div className="relative">
-            <Mail className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                dispatch(clearError());
-              }}
-              className="h-9 pl-9 text-xs sm:text-sm"
-              required
-              autoComplete="email"
-            />
-          </div>
-        </div>
-
-        <PasswordField
-          id="password"
-          label="Password"
-          value={password}
+        <AuthField
+          id="email"
+          label="Email"
+          icon={Mail}
+          type="email"
+          placeholder="you@example.com"
+          value={email}
           onChange={(e) => {
-            setPassword(e.target.value);
+            setEmail(e.target.value);
             dispatch(clearError());
           }}
           required
+          autoComplete="email"
         />
 
-        <Button
-          type="submit"
-          className="w-full h-9 text-xs font-semibold mt-1"
-          isLoading={isLoading}
-        >
-          Sign In
-          <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-        </Button>
+        <div data-auth-item>
+          <PasswordField
+            id="password"
+            label="Password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              dispatch(clearError());
+            }}
+            required
+          />
+        </div>
+
+        <Magnetic className="pt-1">
+          <Button
+            type="submit"
+            isLoading={isLoading}
+            className="group h-12 w-full rounded-full bg-[#FF6845] text-sm font-bold text-[#10211F] shadow-[0_10px_30px_-10px_rgba(255,104,69,0.7)] transition-colors hover:bg-[#17645F] hover:text-[#FAF7F2]"
+          >
+            Sign in
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </Button>
+        </Magnetic>
       </form>
     </AuthLayout>
   );

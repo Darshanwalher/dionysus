@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -24,6 +25,9 @@
   --color-accent-emerald: var(--accent-emerald);
   --color-accent-amber: var(--accent-amber);
   --color-accent-indigo: var(--accent-indigo);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-highlight: var(--highlight);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -34,90 +38,127 @@
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-border: var(--sidebar-border);
-  --radius-xs: 0.1875rem;
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
-  --font-sans: "Inter", "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", "Geist Mono", "Fira Code", monospace;
-  --font-display: "Inter", "Geist", -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --font-sans: "Bricolage Grotesque", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "JetBrains Mono", "Fira Code", monospace;
+  --font-display: "Bricolage Grotesque", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ─── Light Mode: Pure Refined Slate (Vercel / Linear / Stripe style) ── */
+/* ─── Light Mode: Ivory / Teal / Coral (same palette as the landing page) ──
+   Ivory   #F3EEE8  page      Ivory-2 #FAF7F2  cards
+   Teal    #17645F  brand     Coral   #FF6845  highlight
+   Ink     #10211F  text
+   Note: accent-indigo maps to a deepened coral so AI/highlight UI stays on-brand
+   and keeps readable contrast on ivory. accent-cyan maps to teal.            */
 :root {
   color-scheme: light;
-  --background:             #F8FAFC;
-  --foreground:             #0F172A;
-  --card:                   #FFFFFF;
-  --card-foreground:        #0F172A;
-  --surface-elevated:       #FFFFFF;
-  --surface-hover:          #F1F5F9;
-  --popover:                #FFFFFF;
-  --popover-foreground:     #0F172A;
-  --primary:                #0F172A;
-  --primary-foreground:     #FFFFFF;
-  --secondary:              #F1F5F9;
-  --secondary-foreground:   #0F172A;
-  --muted:                  #F1F5F9;
-  --muted-foreground:       #64748B;
-  --text-muted:             #94A3B8;
-  --accent:                 #F8FAFC;
-  --accent-foreground:      #0F172A;
-  --accent-cyan:            #0284C7;
-  --accent-emerald:         #059669;
-  --accent-amber:           #D97706;
-  --accent-indigo:          #4F46E5;
-  --destructive:            #E11D48;
+  --background:             #F3EEE8;
+  --foreground:             #10211F;
+  --card:                   #FAF7F2;
+  --card-foreground:        #10211F;
+  --surface-elevated:       #FFFDFA;
+  --surface-hover:          #EBE4DA;
+  --popover:                #FAF7F2;
+  --popover-foreground:     #10211F;
+  --primary:                #17645F;
+  --primary-foreground:     #FAF7F2;
+  --secondary:              #EBE4DA;
+  --secondary-foreground:   #10211F;
+  --muted:                  #EBE4DA;
+  --muted-foreground:       #5B6B68;
+  --text-muted:             #7F8C89;
+  --accent:                 #E6DFD3;
+  --accent-foreground:      #10211F;
+  --accent-cyan:            #17645F;
+  --accent-emerald:         #1F8A5B;
+  --accent-amber:           #B7791F;
+  --accent-indigo:          #D9461F;
+  --brand:                  #17645F;
+  --brand-foreground:       #FAF7F2;
+  --highlight:              #FF6845;
+  --destructive:            #C62A3B;
   --destructive-foreground: #FFFFFF;
-  --border:                 #E2E8F0;
-  --border-subtle:          rgba(15, 23, 42, 0.06);
-  --input:                  #E2E8F0;
-  --ring:                   #0F172A;
-  --sidebar:                #FFFFFF;
-  --sidebar-foreground:     #64748B;
-  --sidebar-accent:         #F1F5F9;
-  --sidebar-border:         #E2E8F0;
-  --success:                #059669;
-  --warning:                #D97706;
+  --border:                 #DDD5C9;
+  --border-subtle:          rgba(16, 33, 31, 0.07);
+  --input:                  #DDD5C9;
+  --ring:                   #17645F;
+  --sidebar:                #F7F3EC;
+  --sidebar-foreground:     #5B6B68;
+  --sidebar-accent:         #E6DFD3;
+  --sidebar-border:         #DDD5C9;
+  --success:                #1F8A5B;
+  --warning:                #B7791F;
 }
 
-/* ─── Dark Mode: Obsidian Carbon (Linear / Raycast / GitHub Pro style) ── */
+/* ─── Dark Mode: Midnight Black base · Pure White text · Powder Blue primary · Orange accent ──
+   Midnight Black  #080908  backgrounds and surfaces
+   Pure White      #FFFFFF  text
+   Powder Blue     #A8C9C8  primary actions, links, focus ring, brand
+   Racing Orange   #F45B0B  special-purpose accent: highlight, AI / "special mode" UI, warnings
+                            use it with text-highlight, bg-highlight or text-accent-indigo
+   Status colours (success green, destructive red) are kept so meaning stays clear. */
 .dark {
   color-scheme: dark;
-  --background:             #0A0A0C;
-  --foreground:             #F8FAFC;
-  --card:                   #111116;
-  --card-foreground:        #F8FAFC;
-  --surface-elevated:       #16161E;
-  --surface-hover:          #1A1A24;
-  --popover:                #14141B;
-  --popover-foreground:     #F8FAFC;
-  --primary:                #F8FAFC;
-  --primary-foreground:     #0A0A0C;
-  --secondary:              #16161E;
-  --secondary-foreground:   #F8FAFC;
-  --muted:                  #14141B;
-  --muted-foreground:       #94A3B8;
-  --text-muted:             #64748B;
-  --accent:                 #1A1A24;
-  --accent-foreground:      #F8FAFC;
-  --accent-cyan:            #38BDF8;
-  --accent-emerald:         #10B981;
-  --accent-amber:           #F59E0B;
-  --accent-indigo:          #818CF8;
-  --destructive:            #FB7185;
-  --destructive-foreground: #0A0A0C;
-  --border:                 #22222D;
-  --border-subtle:          rgba(255, 255, 255, 0.07);
-  --input:                  #22222D;
-  --ring:                   #F8FAFC;
-  --sidebar:                #0D0D11;
-  --sidebar-foreground:     #94A3B8;
-  --sidebar-accent:         #16161E;
-  --sidebar-border:         #1F1F2A;
-  --success:                #10B981;
-  --warning:                #F59E0B;
+  --background:             #080908;
+  --foreground:             #FFFFFF;
+  --card:                   #0E100F;
+  --card-foreground:        #FFFFFF;
+  --surface-elevated:       #141716;
+  --surface-hover:          #1A1E1D;
+  --popover:                #111413;
+  --popover-foreground:     #FFFFFF;
+  --primary:                #A8C9C8;
+  --primary-foreground:     #080908;
+  --secondary:              #141716;
+  --secondary-foreground:   #FFFFFF;
+  --muted:                  #111413;
+  --muted-foreground:       #A9B3B2;
+  --text-muted:             #7C8685;
+  --accent:                 #1A1E1D;
+  --accent-foreground:      #FFFFFF;
+  --accent-cyan:            #A8C9C8;
+  --accent-emerald:         #3DDC97;
+  --accent-amber:           #FF9A4D;
+  --accent-indigo:          #F45B0B;
+  --brand:                  #A8C9C8;
+  --brand-foreground:       #080908;
+  --highlight:              #F45B0B;
+  --destructive:            #FF5C7A;
+  --destructive-foreground: #080908;
+  --border:                 #1F2423;
+  --border-subtle:          rgba(255, 255, 255, 0.08);
+  --input:                  #1F2423;
+  --ring:                   #A8C9C8;
+  --sidebar:                #0B0D0C;
+  --sidebar-foreground:     #A9B3B2;
+  --sidebar-accent:         #151918;
+  --sidebar-border:         #1A1E1D;
+  --success:                #3DDC97;
+  --warning:                #FF9A4D;
+
+  /* Studio-style shading: black fading into a lifted charcoal "floor", with a faint
+     Powder Blue glow low on the right (like the light behind the car in the reference). */
+  --page-shade:
+    radial-gradient(60% 45% at 72% 80%, rgba(168, 201, 200, 0.14) 0%, rgba(168, 201, 200, 0) 70%),
+    radial-gradient(95% 55% at 50% 105%, rgba(70, 77, 75, 0.6) 0%, rgba(70, 77, 75, 0) 75%),
+    linear-gradient(180deg, #0B0C0B 0%, #090A09 45%, #131514 100%);
+}
+
+/* Apply the shading wherever the page background is used (dark mode only).
+   Fixed attachment keeps the gradient seamless across nested wrappers. */
+.dark body,
+body.dark,
+.dark .bg-background,
+.dark .bg-shade {
+  background-color: var(--background);
+  background-image: var(--page-shade);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
 }
 
 /* ─── Base Typography & Focus ─────────────────────────────── */
@@ -135,7 +176,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
-    letter-spacing: -0.011em;
+    letter-spacing: -0.01em;
   }
 
   code, kbd, samp, pre {
@@ -144,8 +185,8 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    letter-spacing: -0.028em;
-    font-weight: 600;
+    letter-spacing: -0.03em;
+    font-weight: 700;
   }
 
   *:focus-visible {
@@ -154,7 +195,7 @@
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--primary) 18%, transparent);
+    background: color-mix(in srgb, var(--primary) 22%, transparent);
     color: var(--foreground);
   }
 }
@@ -184,7 +225,11 @@
   background: color-mix(in srgb, var(--card) 92%, transparent);
   backdrop-filter: blur(16px);
   border: 1px solid var(--border);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 12px 32px -12px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 1px 2px 0 rgba(16, 33, 31, 0.06), 0 12px 32px -12px rgba(16, 33, 31, 0.28);
+}
+
+.dark .glass-premium {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.7);
 }
 
 .surface-elevated {
@@ -203,8 +248,11 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
   pointer-events: none;
+}
+.dark .card-sheen::before {
+  background: linear-gradient(90deg, transparent, rgba(245, 243, 239, 0.12), transparent);
 }
 
 /* ─── Keyboard Shortcut Badge ────────────────────────────── */
@@ -221,7 +269,11 @@ kbd {
   font-weight: 500;
   padding: 0.125rem 0.375rem;
   line-height: 1;
-  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 0 0 rgba(16, 33, 31, 0.12);
+}
+
+.dark kbd {
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.5);
 }
 
 /* ─── Micro Dot Grid Patterns ────────────────────────────── */
@@ -273,6 +325,14 @@ kbd {
 .stagger-3 { animation-delay: 0.12s; }
 .stagger-4 { animation-delay: 0.16s; }
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-scale-in,
+  .animate-pulse-dot {
+    animation: none;
+  }
+}
+
 /* ─── TipTap & Prose Typography ───────────────────────────── */
 .tiptap,
 .prose {
@@ -284,8 +344,8 @@ kbd {
 .tiptap h1,
 .prose h1 {
   font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+  font-weight: 800;
+  letter-spacing: -0.035em;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
   color: var(--foreground);
@@ -296,8 +356,8 @@ kbd {
 .tiptap h2,
 .prose h2 {
   font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
   color: var(--foreground);
@@ -306,7 +366,7 @@ kbd {
 .tiptap h3,
 .prose h3 {
   font-size: 1.0625rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-top: 1.25rem;
   margin-bottom: 0.375rem;
   color: var(--foreground);
@@ -362,7 +422,7 @@ kbd {
 .prose pre {
   background: var(--secondary);
   border: 1px solid var(--border);
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   padding: 0.875rem;
   overflow-x: auto;
   margin-top: 0.75rem;

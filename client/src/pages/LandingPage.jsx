@@ -162,10 +162,14 @@ function Cursor() {
   );
 }
 
-/* ── Wordmark that always spans the full width of its container ───────── */
+/* ── Full-width wordmark with a lagging cursor spotlight ───────────────── */
 function FitText({ text, color }) {
+  const calm = useReducedMotion();
   const box = useRef(null);
   const inner = useRef(null);
+  const glow = useRef(null);
+
+  // Size the wordmark so it spans the whole width
   useLayoutEffect(() => {
     let last = 0;
     const fit = () => {
@@ -173,7 +177,10 @@ function FitText({ text, color }) {
       if (!b || !i) return;
       i.style.fontSize = "100px";
       const w = i.scrollWidth;
-      if (w) i.style.fontSize = `${(b.clientWidth / w) * 100 * 0.985}px`;
+      if (!w) return;
+      const size = `${(b.clientWidth / w) * 100 * 0.985}px`;
+      i.style.fontSize = size;
+      if (glow.current) glow.current.style.fontSize = size;
     };
     fit();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
@@ -185,13 +192,65 @@ function FitText({ text, color }) {
     return () => ro.disconnect();
   }, [text]);
 
+  // Spotlight: follows the mouse with a deliberate lag, fades in and out slowly
+  useEffect(() => {
+    if (calm) return;
+    const b = box.current, g = glow.current;
+    if (!b || !g) return;
+    const zone = b.closest(".ft") || b;
+    let raf = 0, active = false;
+    let tx = 0, ty = 0, cx = 0, cy = 0;
+
+    const tick = () => {
+      cx += (tx - cx) * 0.07;
+      cy += (ty - cy) * 0.07;
+      g.style.setProperty("--x", `${cx}px`);
+      g.style.setProperty("--y", `${cy}px`);
+      raf = active || Math.abs(tx - cx) > 0.5 || Math.abs(ty - cy) > 0.5 ? requestAnimationFrame(tick) : 0;
+    };
+    const move = (e) => {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      const r = b.getBoundingClientRect();
+      tx = e.clientX - r.left;
+      ty = e.clientY - r.top;
+      if (!active) { active = true; cx = tx; cy = ty; g.style.opacity = "1"; }
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+    const leave = () => { active = false; g.style.opacity = "0"; };
+
+    zone.addEventListener("pointermove", move);
+    zone.addEventListener("pointerleave", leave);
+    return () => {
+      zone.removeEventListener("pointermove", move);
+      zone.removeEventListener("pointerleave", leave);
+      cancelAnimationFrame(raf);
+    };
+  }, [calm]);
+
+  const cls = "dn-d font-extrabold leading-[0.85] whitespace-nowrap select-none pb-[0.3em]";
+  const letters = (extra = "") => text.split("").map((c, i) => <span key={i} className={`inline-block ${extra}`}>{c}</span>);
+
   return (
-    <div ref={box} className="w-full overflow-hidden" aria-hidden="true">
-      <div ref={inner} className="dn-d font-extrabold leading-[0.85] whitespace-nowrap select-none pb-[0.3em] inline-block" style={{ color }}>
-        {text.split("").map((c, i) => (
-          <span key={i} className="ft-letter inline-block cursor-default transition-colors duration-300 hover:text-[#FF6845]">{c}</span>
-        ))}
+    <div ref={box} className="relative w-full overflow-hidden" aria-hidden="true">
+      <div ref={inner} className={`${cls} inline-block`} style={{ color }}>
+        {text.split("").map((c, i) => <span key={i} className="ft-letter inline-block">{c}</span>)}
       </div>
+      {!calm && (
+        <div
+          ref={glow}
+          className={`${cls} absolute left-0 top-0 pointer-events-none`}
+          style={{
+            opacity: 0,
+            transition: "opacity 0.9s ease 0.12s",
+            color: "transparent",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            backgroundImage: `radial-gradient(circle 260px at var(--x, 50%) var(--y, 50%), ${CORAL} 0%, ${IV} 38%, transparent 72%)`,
+          }}
+        >
+          {letters()}
+        </div>
+      )}
     </div>
   );
 }
