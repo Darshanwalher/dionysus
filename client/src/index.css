@@ -439,3 +439,43 @@ kbd {
   font-size: 0.825rem;
   line-height: 1.6;
 }
+
+/* ─── Theme switch transition ─────────────────────────────────
+   Browsers with View Transitions: ThemeProvider reveals the new theme as a circle
+   growing from the toggle button. We turn off the default cross-fade so only that
+   clip-path animation plays.                                                         */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 9999; }
+
+/* Fallback for browsers without View Transitions: smooth cross-fade of every colour */
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition:
+    background-color 0.9s cubic-bezier(0.45, 0, 0.15, 1) 0.12s,
+    border-color 0.9s cubic-bezier(0.45, 0, 0.15, 1) 0.12s,
+    color 0.9s cubic-bezier(0.45, 0, 0.15, 1) 0.12s,
+    fill 0.9s cubic-bezier(0.45, 0, 0.15, 1) 0.12s,
+    stroke 0.9s cubic-bezier(0.45, 0, 0.15, 1) 0.12s,
+    box-shadow 0.9s cubic-bezier(0.45, 0, 0.15, 1) 0.12s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition: none !important;
+  }
+}
