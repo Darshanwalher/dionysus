@@ -33,6 +33,7 @@ const DEFAULT_LERP = 0.075;
 const ROUTE_LERP = [
   { match: (path) => path.endsWith("/health"), lerp: 0.12 }, // repository health: lighter
   { match: (path) => /^\/projects\/[^/]+\/?$/.test(path), lerp: 0.12 }, // project home: lighter
+  { match: (path) => path.endsWith("/qna"), lerp: 0.16 }, // Q&A: long answers + code, keep it close to native
 ];
 const lerpFor = (path) => ROUTE_LERP.find((r) => r.match(path))?.lerp ?? DEFAULT_LERP;
 

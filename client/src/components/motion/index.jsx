@@ -86,15 +86,16 @@ export function Sparkline({ data = [], className }) {
 /* ───────────── Entrances ───────────── */
 
 /** Fades content in when it mounts (tab switches). */
-export function FadeIn({ children, className }) {
+export function FadeIn({ children, className, delay = 0 }) {
   const ref = useRef(null);
   useLayoutEffect(() => {
     if (!ref.current || prefersReduced()) return;
-    gsap.fromTo(
+    const t = gsap.fromTo(
       ref.current,
       { opacity: 0, y: 8 },
-      { opacity: 1, y: 0, duration: 0.3, ease: "power2.out", clearProps: "opacity,transform" }
+      { opacity: 1, y: 0, duration: 0.3, delay, ease: "power2.out", clearProps: "opacity,transform" }
     );
+    return () => t.kill();
   }, []);
   return (
     <div ref={ref} className={className}>
@@ -368,6 +369,22 @@ export function GrowBar({ value = 0, className, trackClassName, delay = 0 }) {
   return (
     <div className={cn("h-1.5 w-full overflow-hidden rounded-full bg-secondary", trackClassName)}>
       <div ref={ref} className={cn("h-full rounded-full", className)} style={{ width: reduced ? `${v}%` : 0 }} />
+    </div>
+  );
+}
+
+/** Thin coral line that sweeps across the top of a positioned parent while `active`. */
+export function SweepBar({ active, className }) {
+  const ref = useRef(null);
+  useLayoutEffect(() => {
+    if (!active || !ref.current || prefersReduced()) return;
+    const t = gsap.fromTo(ref.current, { xPercent: -100 }, { xPercent: 300, duration: 1.4, repeat: -1, ease: "power1.inOut" });
+    return () => t.kill();
+  }, [active]);
+  if (!active) return null;
+  return (
+    <div className={cn("pointer-events-none absolute inset-x-0 top-0 h-[2px] overflow-hidden", className)}>
+      <div ref={ref} className="h-full w-1/3 bg-highlight" />
     </div>
   );
 }
