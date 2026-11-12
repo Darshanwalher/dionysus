@@ -11,6 +11,9 @@ const prefersReduced = () =>
  * Motion: icon tile pops, the title rises out of a mask, the description and
  * actions fade in, and a coral tick draws along the bottom rule.
  * When `title` changes later (e.g. a project is renamed) only the title re-enters.
+ *
+ * All entrance tweens use fromTo() with explicit end values and clearProps, so
+ * nothing can get stuck at opacity: 0 (e.g. under React Strict Mode double-effects).
  */
 export default function PageHeader({ icon: Icon, title, description, actions, className }) {
   const root = useRef(null);
@@ -23,12 +26,42 @@ export default function PageHeader({ icon: Icon, title, description, actions, cl
     // gsap.context + revert keeps this safe under React Strict Mode (effects run twice in dev)
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-      tl.from("[data-icon]", { scale: 0.6, rotate: -12, opacity: 0, duration: 0.6, ease: "back.out(2.4)" }, 0)
-        .from("[data-title]", { yPercent: 110, duration: 0.7 }, 0.05)
-        .from("[data-desc]", { opacity: 0, y: 6, duration: 0.5 }, 0.25)
-        .from("[data-actions] > *", { opacity: 0, x: 12, duration: 0.5, stagger: 0.06 }, 0.2)
-        .fromTo("[data-rule]", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, 0.1)
-        .fromTo("[data-tick]", { scaleX: 0 }, { scaleX: 1, duration: 0.6 }, 0.35);
+      tl.fromTo(
+        "[data-icon]",
+        { scale: 0.6, rotate: -12, opacity: 0 },
+        { scale: 1, rotate: 0, opacity: 1, duration: 0.6, ease: "back.out(2.4)", clearProps: "all" },
+        0
+      )
+        .fromTo(
+          "[data-title]",
+          { yPercent: 110 },
+          { yPercent: 0, duration: 0.7, clearProps: "transform" },
+          0.05
+        )
+        .fromTo(
+          "[data-desc]",
+          { opacity: 0, y: 6 },
+          { opacity: 1, y: 0, duration: 0.5, clearProps: "opacity,transform" },
+          0.25
+        )
+        .fromTo(
+          "[data-actions] > *",
+          { opacity: 0, x: 12 },
+          { opacity: 1, x: 0, duration: 0.5, stagger: 0.06, clearProps: "opacity,transform" },
+          0.2
+        )
+        .fromTo(
+          "[data-rule]",
+          { scaleX: 0 },
+          { scaleX: 1, duration: 0.8, ease: "power3.inOut", clearProps: "transform" },
+          0.1
+        )
+        .fromTo(
+          "[data-tick]",
+          { scaleX: 0 },
+          { scaleX: 1, duration: 0.6, clearProps: "transform" },
+          0.35
+        );
     }, el);
     return () => ctx.revert();
   }, []);
@@ -39,7 +72,11 @@ export default function PageHeader({ icon: Icon, title, description, actions, cl
       return;
     }
     if (!titleRef.current || prefersReduced()) return;
-    gsap.fromTo(titleRef.current, { yPercent: 110 }, { yPercent: 0, duration: 0.5, ease: "power3.out" });
+    gsap.fromTo(
+      titleRef.current,
+      { yPercent: 110 },
+      { yPercent: 0, duration: 0.5, ease: "power3.out", clearProps: "transform" }
+    );
   }, [title]);
 
   return (
