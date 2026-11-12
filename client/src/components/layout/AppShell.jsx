@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import CommandPalette from "@/components/layout/CommandPalette";
+import SmoothScroll from "@/components/motion/SmoothScroll";
 import { logout } from "@/store/slices/authSlice";
 import { createProject } from "@/store/slices/projectSlice";
 import {
@@ -417,6 +418,7 @@ export default function AppShell({ children }) {
 
     return (
       <div
+        data-lenis-prevent
         className={cn(
           "flex h-full grow select-none flex-col border-r border-sidebar-border bg-sidebar",
           collapsed ? "overflow-visible px-2 py-3" : "overflow-y-auto px-3 py-3"
@@ -571,7 +573,7 @@ export default function AppShell({ children }) {
                   <span className="text-[11px] text-text-muted">{projects?.length || 0}</span>
                 </div>
 
-                <ul className="max-h-40 space-y-0.5 overflow-y-auto">
+                <ul data-lenis-prevent className="max-h-40 space-y-0.5 overflow-y-auto">
                   {isLoading &&
                     [1, 2].map((i) => <Skeleton key={i} className="my-1 h-8 rounded-lg bg-sidebar-accent/60" />)}
                   {projects?.map((project) => {
@@ -684,6 +686,7 @@ export default function AppShell({ children }) {
 
   return (
     <div className="flex min-h-screen bg-background text-foreground selection:bg-highlight/25">
+      <SmoothScroll />
       {/* Mobile drawer */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">

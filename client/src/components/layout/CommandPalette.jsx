@@ -293,7 +293,7 @@ export default function CommandPalette({ isOpen, onClose, onOpenCreateProject, o
         </div>
 
         {/* Results */}
-        <div ref={listRef} className="relative max-h-80 overflow-y-auto p-2">
+        <div ref={listRef} data-lenis-prevent className="relative max-h-80 overflow-y-auto p-2">
           <span
             ref={indRef}
             aria-hidden="true"
