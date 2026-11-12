@@ -30,6 +30,8 @@
   --color-highlight: var(--highlight);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-border: var(--border);
   --color-border-subtle: var(--border-subtle);
   --color-input: var(--input);
@@ -46,6 +48,12 @@
   --font-sans: "Bricolage Grotesque", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "JetBrains Mono", "Fira Code", monospace;
   --font-display: "Bricolage Grotesque", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Elevation scale: use as shadow-soft / shadow-lifted / shadow-float / shadow-glow */
+  --shadow-soft: var(--elev-1);
+  --shadow-lifted: var(--elev-2);
+  --shadow-float: var(--elev-3);
+  --shadow-glow: var(--elev-glow);
 }
 
 /* ─── Light Mode: Ivory / Teal / Coral (same palette as the landing page) ──
@@ -92,60 +100,89 @@
   --sidebar-border:         #DDD5C9;
   --success:                #1F8A5B;
   --warning:                #B7791F;
+
+  /* Elevation: warm, tinted shadows (never pure black on ivory) */
+  --elev-1: 0 1px 2px rgba(16, 33, 31, 0.05), 0 1px 1px rgba(16, 33, 31, 0.03);
+  --elev-2: 0 1px 2px rgba(16, 33, 31, 0.06), 0 8px 20px -8px rgba(16, 33, 31, 0.18);
+  --elev-3: 0 2px 4px rgba(16, 33, 31, 0.06), 0 24px 56px -20px rgba(16, 33, 31, 0.34);
+  --elev-glow: 0 0 0 1px rgba(23, 100, 95, 0.25), 0 8px 28px -8px rgba(23, 100, 95, 0.35);
+
+  --grain-opacity: 0.035;
+  --grain-blend: multiply;
+  --edge-highlight: rgba(255, 255, 255, 0.7);
 }
 
-/* ─── Dark Mode: Midnight Black base · Pure White text · Powder Blue primary · Orange accent ──
-   Midnight Black  #080908  backgrounds and surfaces
-   Pure White      #FFFFFF  text
+/* ─── Dark Mode: Midnight Black base · Pure White text · Powder Blue primary · Racing Orange accent ──
+   Midnight Black  #070908  page, deepest layer
+   Surfaces step up in small, even lifts so depth reads without heavy borders:
+       card #0D100F → elevated #141817 → hover #1A1F1E
+   Pure White      #FFFFFF  text (muted text sits at ~68% / ~48% white-green)
    Powder Blue     #A8C9C8  primary actions, links, focus ring, brand
    Racing Orange   #F45B0B  special-purpose accent: highlight, AI / "special mode" UI, warnings
                             use it with text-highlight, bg-highlight or text-accent-indigo
    Status colours (success green, destructive red) are kept so meaning stays clear. */
 .dark {
   color-scheme: dark;
-  --background:             #080908;
-  --foreground:             #FFFFFF;
-  --card:                   #0E100F;
-  --card-foreground:        #FFFFFF;
-  --surface-elevated:       #141716;
-  --surface-hover:          #1A1E1D;
-  --popover:                #111413;
-  --popover-foreground:     #FFFFFF;
+  --background:             #070908;
+  --foreground:             #F7FAF9;
+  --card:                   #0D100F;
+  --card-foreground:        #F7FAF9;
+  --surface-elevated:       #141817;
+  --surface-hover:          #1A1F1E;
+  --popover:                #111514;
+  --popover-foreground:     #F7FAF9;
   --primary:                #A8C9C8;
-  --primary-foreground:     #080908;
-  --secondary:              #141716;
-  --secondary-foreground:   #FFFFFF;
-  --muted:                  #111413;
-  --muted-foreground:       #A9B3B2;
-  --text-muted:             #7C8685;
-  --accent:                 #1A1E1D;
-  --accent-foreground:      #FFFFFF;
+  --primary-foreground:     #070908;
+  --secondary:              #141817;
+  --secondary-foreground:   #F7FAF9;
+  --muted:                  #101312;
+  --muted-foreground:       #A4AFAE;
+  --text-muted:             #75807F;
+  --accent:                 #1A1F1E;
+  --accent-foreground:      #F7FAF9;
   --accent-cyan:            #A8C9C8;
   --accent-emerald:         #3DDC97;
   --accent-amber:           #FF9A4D;
   --accent-indigo:          #F45B0B;
   --brand:                  #A8C9C8;
-  --brand-foreground:       #080908;
+  --brand-foreground:       #070908;
   --highlight:              #F45B0B;
   --destructive:            #FF5C7A;
-  --destructive-foreground: #080908;
-  --border:                 #1F2423;
-  --border-subtle:          rgba(255, 255, 255, 0.08);
-  --input:                  #1F2423;
+  --destructive-foreground: #070908;
+  --border:                 #1E2423;
+  --border-subtle:          rgba(255, 255, 255, 0.07);
+  --input:                  #222928;
   --ring:                   #A8C9C8;
-  --sidebar:                #0B0D0C;
-  --sidebar-foreground:     #A9B3B2;
+  --sidebar:                #0A0C0B;
+  --sidebar-foreground:     #A4AFAE;
   --sidebar-accent:         #151918;
-  --sidebar-border:         #1A1E1D;
+  --sidebar-border:         #181D1C;
   --success:                #3DDC97;
   --warning:                #FF9A4D;
 
-  /* Studio-style shading: black fading into a lifted charcoal "floor", with a faint
-     Powder Blue glow low on the right (like the light behind the car in the reference). */
+  /* Elevation: deep black shadows plus a 1px inner top highlight, so surfaces
+     catch light from above like machined glass. */
+  --elev-1: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 1px 2px rgba(0, 0, 0, 0.5);
+  --elev-2: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 10px 28px -10px rgba(0, 0, 0, 0.75);
+  --elev-3: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 32px 80px -24px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --elev-glow: 0 0 0 1px rgba(168, 201, 200, 0.35), 0 0 32px -6px rgba(168, 201, 200, 0.35);
+
+  --grain-opacity: 0.05;
+  --grain-blend: overlay;
+  --edge-highlight: rgba(255, 255, 255, 0.09);
+
+  /* Studio-style shading, built from four layers:
+     1. a Powder Blue glow low on the right, like light behind a car in a showroom
+     2. a faint Powder Blue haze high on the left, to lift the top-left corner
+     3. one whisper of Racing Orange in the top-right (kept under 6% so it stays a hint)
+     4. a lifted charcoal floor under a deep black ceiling, plus a soft vignette */
   --page-shade:
-    radial-gradient(60% 45% at 72% 80%, rgba(168, 201, 200, 0.14) 0%, rgba(168, 201, 200, 0) 70%),
-    radial-gradient(95% 55% at 50% 105%, rgba(70, 77, 75, 0.6) 0%, rgba(70, 77, 75, 0) 75%),
-    linear-gradient(180deg, #0B0C0B 0%, #090A09 45%, #131514 100%);
+    radial-gradient(60% 45% at 72% 86%, rgba(168, 201, 200, 0.15) 0%, rgba(168, 201, 200, 0) 70%),
+    radial-gradient(50% 38% at 8% -4%, rgba(168, 201, 200, 0.08) 0%, rgba(168, 201, 200, 0) 72%),
+    radial-gradient(34% 26% at 100% 0%, rgba(244, 91, 11, 0.055) 0%, rgba(244, 91, 11, 0) 75%),
+    radial-gradient(95% 55% at 50% 108%, rgba(70, 77, 75, 0.55) 0%, rgba(70, 77, 75, 0) 75%),
+    radial-gradient(140% 100% at 50% 50%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.45) 100%),
+    linear-gradient(180deg, #080A09 0%, #070908 45%, #101312 100%);
 }
 
 /* Apply the shading wherever the page background is used (dark mode only).
@@ -171,12 +208,14 @@ body.dark,
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
   }
 
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
     letter-spacing: -0.01em;
+    font-feature-settings: "kern", "liga", "calt";
   }
 
   code, kbd, samp, pre {
@@ -187,57 +226,110 @@ body.dark,
     font-family: var(--font-display);
     letter-spacing: -0.03em;
     font-weight: 700;
+    text-wrap: balance;
   }
 
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Focus: a crisp ring, plus a soft halo in dark mode so it feels lit rather than drawn */
   *:focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
+  }
+  .dark *:focus-visible {
+    box-shadow: 0 0 0 4px rgba(168, 201, 200, 0.14);
   }
 
   ::selection {
     background: color-mix(in srgb, var(--primary) 22%, transparent);
     color: var(--foreground);
   }
+  .dark ::selection {
+    background: color-mix(in srgb, var(--primary) 30%, transparent);
+  }
+
+  /* Dark autofill: stop the browser painting a bright yellow/white box */
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--foreground);
+    caret-color: var(--foreground);
+    -webkit-box-shadow: 0 0 0 1000px var(--secondary) inset;
+    transition: background-color 9999s ease-out 0s;
+  }
+}
+
+/* ─── Film grain ──────────────────────────────────────────────
+   A barely-there noise layer over the whole app. It breaks up gradient banding
+   and gives flat dark surfaces a tactile, photographic finish.                 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 180px 180px;
 }
 
 /* ─── Scrollbars (Subtle & Sleek) ────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted-foreground);
+  background-clip: padding-box;
 }
+.dark * { scrollbar-color: #2A3231 transparent; }
+.dark ::-webkit-scrollbar-thumb { background: #2A3231; background-clip: padding-box; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #4A5655; background-clip: padding-box; }
 
 .scrollbar-none { scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
 /* ─── Premium Craft Surfaces & Borders ────────────────────── */
 .glass {
-  background: color-mix(in srgb, var(--card) 90%, transparent);
-  backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
   border: 1px solid var(--border);
 }
 
 .glass-premium {
-  background: color-mix(in srgb, var(--card) 92%, transparent);
-  backdrop-filter: blur(16px);
+  background: color-mix(in srgb, var(--card) 90%, transparent);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid var(--border);
-  box-shadow: 0 1px 2px 0 rgba(16, 33, 31, 0.06), 0 12px 32px -12px rgba(16, 33, 31, 0.28);
+  box-shadow: var(--elev-2);
 }
 
+.dark .glass,
 .dark .glass-premium {
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.7);
+  /* a touch more transparency in the dark so the page glow bleeds through */
+  background: color-mix(in srgb, var(--card) 72%, transparent);
+  border-color: var(--border-subtle);
 }
 
 .surface-elevated {
   background: var(--surface-elevated);
   border: 1px solid var(--border);
+  box-shadow: var(--elev-1);
 }
 
-/* Hairline borders with subtle top light sheen */
+/* Top-edge light sheen: the catch-light on a glass or metal edge */
 .card-sheen {
   position: relative;
 }
@@ -248,11 +340,65 @@ body.dark,
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  background: linear-gradient(90deg, transparent, var(--edge-highlight), transparent);
   pointer-events: none;
 }
 .dark .card-sheen::before {
-  background: linear-gradient(90deg, transparent, rgba(245, 243, 239, 0.12), transparent);
+  background: linear-gradient(90deg, transparent, rgba(220, 238, 237, 0.2), transparent);
+}
+
+/* Gradient hairline border: light at the top-left, fading to nothing.
+   Add to any rounded element: className="border-gradient rounded-xl" */
+.border-gradient {
+  position: relative;
+}
+.border-gradient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(145deg, rgba(168, 201, 200, 0.45), rgba(168, 201, 200, 0.04) 45%, rgba(244, 91, 11, 0.18));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.border-gradient:hover::after { opacity: 1; }
+:root:not(.dark) .border-gradient::after {
+  background: linear-gradient(145deg, rgba(23, 100, 95, 0.4), rgba(23, 100, 95, 0.03) 45%, rgba(255, 104, 69, 0.25));
+}
+
+/* Soft colored glows for key actions and highlights */
+.glow-primary { box-shadow: var(--elev-glow); }
+.glow-accent {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--highlight) 35%, transparent),
+              0 8px 28px -8px color-mix(in srgb, var(--highlight) 45%, transparent);
+}
+
+/* Gradient text for hero numbers and headlines */
+.text-gradient {
+  background: linear-gradient(180deg, var(--foreground) 0%, color-mix(in srgb, var(--foreground) 62%, transparent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.text-gradient-brand {
+  background: linear-gradient(120deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 55%, var(--highlight)) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* A rule that fades out at both ends, nicer than a full-width line */
+.divider-fade {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
 }
 
 /* ─── Keyboard Shortcut Badge ────────────────────────────── */
@@ -260,7 +406,7 @@ kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.25rem;
+  border-radius: 0.3125rem;
   border: 1px solid var(--border);
   background: var(--secondary);
   color: var(--muted-foreground);
@@ -273,7 +419,8 @@ kbd {
 }
 
 .dark kbd {
-  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, #181D1C, #121615);
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.05) inset;
 }
 
 /* ─── Micro Dot Grid Patterns ────────────────────────────── */
@@ -287,10 +434,23 @@ kbd {
   background-image: radial-gradient(circle, var(--border) 0.75px, transparent 0.75px);
 }
 
+/* Dot grid that fades out toward the edges, good behind heroes and canvases */
+.bg-dot-fade {
+  background-size: 20px 20px;
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--foreground) 16%, transparent) 1px, transparent 1px);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 100%);
+}
+
 /* ─── Snappy Performance Animations ──────────────────────── */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes scale-in {
@@ -308,8 +468,18 @@ kbd {
   100% { transform: translateX(100%); }
 }
 
+/* A slow light sweep across a surface, for loading states and premium highlights */
+@keyframes sheen-sweep {
+  0%   { transform: translateX(-120%) skewX(-18deg); }
+  100% { transform: translateX(220%) skewX(-18deg); }
+}
+
 .animate-fade-up {
   animation: fade-up 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out both;
 }
 
 .animate-scale-in {
@@ -325,19 +495,36 @@ kbd {
 .stagger-3 { animation-delay: 0.12s; }
 .stagger-4 { animation-delay: 0.16s; }
 
+/* Skeletons: a slow, soft sweep instead of a harsh pulse */
+.skeleton-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.skeleton-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--foreground) 7%, transparent), transparent);
+  animation: sheen-sweep 1.8s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-up,
+  .animate-fade-in,
   .animate-scale-in,
-  .animate-pulse-dot {
+  .animate-pulse-dot,
+  .skeleton-sheen::after {
     animation: none;
   }
+  html { scroll-behavior: auto; }
 }
 
 /* ─── TipTap & Prose Typography ───────────────────────────── */
 .tiptap,
 .prose {
   color: var(--foreground);
-  line-height: 1.65;
+  line-height: 1.7;
   font-size: 0.9375rem;
 }
 
@@ -400,11 +587,31 @@ kbd {
   color: var(--foreground);
 }
 
+.tiptap li::marker,
+.prose li::marker {
+  color: var(--primary);
+}
+
 .tiptap a,
 .prose a {
   color: var(--primary);
   text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--primary) 40%, transparent);
   text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s ease;
+}
+.tiptap a:hover,
+.prose a:hover {
+  text-decoration-color: var(--primary);
+}
+
+.tiptap blockquote,
+.prose blockquote {
+  border-left: 2px solid var(--primary);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--muted-foreground);
+  font-style: normal;
 }
 
 .tiptap code,
@@ -422,11 +629,18 @@ kbd {
 .prose pre {
   background: var(--secondary);
   border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  padding: 0.875rem;
+  border-radius: 0.625rem;
+  padding: 0.875rem 1rem;
   overflow-x: auto;
   margin-top: 0.75rem;
   margin-bottom: 1rem;
+  box-shadow: var(--elev-1);
+}
+
+.dark .tiptap pre,
+.dark .prose pre {
+  background: #0A0D0C;
+  border-color: var(--border-subtle);
 }
 
 .tiptap pre code,
