@@ -6,6 +6,13 @@ export const MONACO_LIGHT = "dionysus-light";
 export const MONACO_DARK = "dionysus-dark";
 
 export function defineDionysusThemes(monaco) {
+  // Read-only snippets don't need type-checking. Turning diagnostics off stops the
+  // JS/TS/JSON language workers from doing heavy work for every block on the page.
+  const off = { noSemanticValidation: true, noSyntaxValidation: true, noSuggestionDiagnostics: true };
+  monaco.languages.typescript?.javascriptDefaults.setDiagnosticsOptions(off);
+  monaco.languages.typescript?.typescriptDefaults.setDiagnosticsOptions(off);
+  monaco.languages.json?.jsonDefaults.setDiagnosticsOptions({ validate: false });
+
   monaco.editor.defineTheme(MONACO_LIGHT, {
     base: "vs",
     inherit: true,

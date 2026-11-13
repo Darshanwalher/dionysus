@@ -34,6 +34,7 @@ const ROUTE_LERP = [
   { match: (path) => path.endsWith("/health"), lerp: 0.12 }, // repository health: lighter
   { match: (path) => /^\/projects\/[^/]+\/?$/.test(path), lerp: 0.12 }, // project home: lighter
   { match: (path) => path.endsWith("/qna"), lerp: 0.16 }, // Q&A: long answers + code, keep it close to native
+  { match: (path) => path.endsWith("/documentation"), lerp: 0.16 }, // docs: long reading + editing
 ];
 const lerpFor = (path) => ROUTE_LERP.find((r) => r.match(path))?.lerp ?? DEFAULT_LERP;
 
@@ -95,4 +96,21 @@ export default function SmoothScroll() {
       style={{ transform: "scaleX(0)" }}
     />
   );
+}
+
+/**
+ * Glide to an element (or a y position). Uses Lenis when it is running and falls back to
+ * native smooth scrolling otherwise (reduced motion, auth pages).
+ *   import { scrollToTarget } from "@/components/motion/SmoothScroll";
+ */
+export function scrollToTarget(target, offset = -88) {
+  if (instance) {
+    instance.scrollTo(target, { offset, duration: 1 });
+    return;
+  }
+  const y =
+    typeof target === "number"
+      ? target
+      : target.getBoundingClientRect().top + window.scrollY + offset;
+  window.scrollTo({ top: y, behavior: prefersReduced() ? "auto" : "smooth" });
 }

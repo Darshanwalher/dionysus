@@ -6,7 +6,7 @@
  * Security: the HTML is rendered as-is, like before. If answers can contain untrusted HTML,
  * sanitize it first (for example with DOMPurify) before passing it in.
  */
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { memo, useLayoutEffect, useMemo, useRef } from "react";
 import gsap from "gsap";
 import { prefersReduced } from "@/components/motion";
 import CodeBlock from "./CodeBlock";
@@ -38,7 +38,7 @@ function splitAnswer(html) {
     });
 }
 
-export default function RichAnswer({ html = "", animate = false, className }) {
+function RichAnswer({ html = "", animate = false, className }) {
   const ref = useRef(null);
   const parts = useMemo(() => splitAnswer(html || ""), [html]);
 
@@ -74,3 +74,5 @@ export default function RichAnswer({ html = "", animate = false, className }) {
     </div>
   );
 }
+
+export default memo(RichAnswer);

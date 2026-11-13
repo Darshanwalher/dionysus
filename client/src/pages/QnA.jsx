@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import gsap from "gsap";
@@ -64,7 +64,7 @@ function Thinking() {
 }
 
 /** One question + answer. Fresh answers get a soft highlight and a staggered reveal. */
-function AnswerCard({ q, fresh, copied, onCopy, onDelete, index }) {
+const AnswerCard = memo(function AnswerCard({ q, fresh, copied, onCopy, onDelete, index }) {
   const ref = useRef(null);
 
   useLayoutEffect(() => {
@@ -79,7 +79,7 @@ function AnswerCard({ q, fresh, copied, onCopy, onDelete, index }) {
 
   const remove = () => {
     if (!ref.current || prefersReduced()) {
-      onDelete();
+      onDelete(q._id);
       return;
     }
     const el = ref.current;
@@ -92,13 +92,17 @@ function AnswerCard({ q, fresh, copied, onCopy, onDelete, index }) {
       borderWidth: 0,
       duration: 0.35,
       ease: "power2.inOut",
-      onComplete: onDelete,
+      onComplete: () => onDelete(q._id),
     });
   };
 
   return (
     <FadeIn delay={fresh ? 0 : Math.min(index, 6) * 0.04}>
-      <article ref={ref} className={cn("overflow-hidden rounded-2xl border bg-card", fresh ? "border-primary/50" : "border-border")}>
+      <article
+        ref={ref}
+        style={fresh ? undefined : { contentVisibility: "auto", containIntrinsicSize: "auto 320px" }}
+        className={cn("overflow-hidden rounded-2xl border bg-card", fresh ? "border-primary/50" : "border-border")}
+      >
         {/* Question */}
         <header className="flex items-start justify-between gap-3 p-5 pb-4">
           <div className="flex min-w-0 items-start gap-3">
@@ -116,7 +120,7 @@ function AnswerCard({ q, fresh, copied, onCopy, onDelete, index }) {
           <div className="flex shrink-0 items-center gap-1">
             <button
               type="button"
-              onClick={onCopy}
+              onClick={() => onCopy(q)}
               className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg px-2 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               title="Copy question and answer"
             >
@@ -149,7 +153,7 @@ function AnswerCard({ q, fresh, copied, onCopy, onDelete, index }) {
       </article>
     </FadeIn>
   );
-}
+});
 
 export default function QnA() {
   const { id } = useParams();
@@ -238,16 +242,19 @@ export default function QnA() {
   };
   useEffect(() => () => typer.current?.kill(), []);
 
-  const handleDelete = async (questionId) => {
-    const res = await dispatch(deleteQuestion(questionId));
-    if (res.meta.requestStatus === "fulfilled") {
-      toast.success("Query deleted");
-    } else {
-      toast.error("Failed to delete query");
-    }
-  };
+  const handleDelete = useCallback(
+    async (questionId) => {
+      const res = await dispatch(deleteQuestion(questionId));
+      if (res.meta.requestStatus === "fulfilled") {
+        toast.success("Query deleted");
+      } else {
+        toast.error("Failed to delete query");
+      }
+    },
+    [dispatch]
+  );
 
-  const handleCopyAnswer = (q) => {
+  const handleCopyAnswer = useCallback((q) => {
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = q.answer || "";
     const cleanText = tempDiv.textContent || tempDiv.innerText || "";
@@ -255,7 +262,7 @@ export default function QnA() {
     setCopiedId(q._id);
     toast.success("Analysis copied to clipboard!");
     setTimeout(() => setCopiedId(null), 2000);
-  };
+  }, []);
 
   const filteredQuestions = useMemo(() => {
     if (!searchFilter.trim()) return questions;
@@ -423,8 +430,8 @@ export default function QnA() {
               index={i}
               fresh={freshIds.has(q._id)}
               copied={copiedId === q._id}
-              onCopy={() => handleCopyAnswer(q)}
-              onDelete={() => handleDelete(q._id)}
+              onCopy={handleCopyAnswer}
+              onDelete={handleDelete}
             />
           ))}
           {!newestFirst && pendingCard}

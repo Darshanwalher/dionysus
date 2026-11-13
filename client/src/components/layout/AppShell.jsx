@@ -723,7 +723,7 @@ export default function AppShell({ children }) {
       {/* Workspace */}
       <div className="flex min-w-0 flex-1 flex-col">
         <header className={cn(
-            "sticky top-0 z-20 flex h-12 shrink-0 items-center justify-between border-b border-border bg-background/90 px-4 backdrop-blur-md transition-shadow duration-300 sm:px-6",
+            "sticky top-0 z-20 flex h-12 shrink-0 items-center justify-between border-b border-border bg-background/95 px-4 transition-shadow duration-300 sm:px-6",
             scrolled && "shadow-[0_8px_24px_-14px_rgba(16,33,31,0.3)]"
           )}>
           <div className="flex min-w-0 items-center gap-2.5">
