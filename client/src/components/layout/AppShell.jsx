@@ -290,6 +290,7 @@ export default function AppShell({ children }) {
 
   const isAnalyzing = isArchitectureLoading || isDependencyLoading;
   const isVisualisePage = location.pathname.endsWith("/visualise");
+  const isWidePage = location.pathname.endsWith("/wiki"); // the DeepWiki reader uses the full width
 
   const navigation = currentProject
     ? [
@@ -800,7 +801,9 @@ export default function AppShell({ children }) {
             "w-full min-w-0 flex-1",
             isVisualisePage
               ? "flex h-[calc(100vh-3rem)] max-w-none flex-col overflow-hidden p-0"
-              : "mx-auto max-w-7xl p-4 sm:p-6 lg:p-8"
+              : isWidePage
+                ? "mx-auto max-w-[1840px] p-4 sm:p-6 lg:px-8 lg:py-8"
+                : "mx-auto max-w-7xl p-4 sm:p-6 lg:p-8"
           )}
         >
           {children}

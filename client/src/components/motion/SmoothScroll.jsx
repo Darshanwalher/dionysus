@@ -35,6 +35,7 @@ const ROUTE_LERP = [
   { match: (path) => /^\/projects\/[^/]+\/?$/.test(path), lerp: 0.12 }, // project home: lighter
   { match: (path) => path.endsWith("/qna"), lerp: 0.16 }, // Q&A: long answers + code, keep it close to native
   { match: (path) => path.endsWith("/documentation"), lerp: 0.16 }, // docs: long reading + editing
+  { match: (path) => path.endsWith("/wiki"), lerp: 0.16 }, // DeepWiki: long reading
 ];
 const lerpFor = (path) => ROUTE_LERP.find((r) => r.match(path))?.lerp ?? DEFAULT_LERP;
 

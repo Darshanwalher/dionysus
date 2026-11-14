@@ -1,97 +1,113 @@
-import React from "react";
-import {
-  BookOpen,
-  Layers,
-  Network,
-  Database,
-  Settings,
-  Shield,
-  ChevronRight,
-} from "lucide-react";
+/**
+ * Chapter navigation grouped by category, with one highlight that glides to the active chapter.
+ * Place at: src/components/wiki/WikiChapterTree.jsx
+ * Props are unchanged (chapters, activeSlug, onSelectChapter). Optional: allChapters keeps the
+ * chapter numbers stable while you search.
+ */
+import { memo, useLayoutEffect, useMemo, useRef } from "react";
+import gsap from "gsap";
+import { BookOpen, Layers, Network, Database, Settings, Shield } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { prefersReduced } from "@/components/motion";
 
-const CHAPTER_META = {
-  Architecture: { icon: Layers, color: "text-blue-500", bg: "bg-blue-500/10" },
-  "API & Interfaces": { icon: Network, color: "text-violet-500", bg: "bg-violet-500/10" },
-  Persistence: { icon: Database, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  Operations: { icon: Settings, color: "text-amber-500", bg: "bg-amber-500/10" },
-  Security: { icon: Shield, color: "text-rose-500", bg: "bg-rose-500/10" },
+const CATEGORY_ICON = {
+  Architecture: Layers,
+  "API & Interfaces": Network,
+  Persistence: Database,
+  Operations: Settings,
+  Security: Shield,
 };
 
-export default function WikiChapterTree({ chapters = [], activeSlug, onSelectChapter }) {
+function WikiChapterTree({ chapters = [], activeSlug, onSelectChapter, allChapters }) {
+  const wrap = useRef(null);
+  const ind = useRef(null);
+  const placed = useRef(false);
+
+  // Group by category, in order of first appearance
+  const groups = useMemo(() => {
+    const map = new Map();
+    chapters.forEach((c) => {
+      const key = c.category || "Chapters";
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(c);
+    });
+    return [...map.entries()];
+  }, [chapters]);
+
+  const numberOf = (slug) => ((allChapters || chapters).findIndex((c) => c.slug === slug) + 1) || 0;
+
+  // Highlight glides to the active chapter; the list scrolls to keep it visible
+  useLayoutEffect(() => {
+    const w = wrap.current;
+    const i = ind.current;
+    if (!w || !i) return;
+    const el = w.querySelector('[data-chap-active="true"]');
+    if (!el) {
+      gsap.set(i, { opacity: 0 });
+      placed.current = false;
+      return;
+    }
+    const vars = { y: el.offsetTop, height: el.offsetHeight, opacity: 1 };
+    gsap.killTweensOf(i);
+    if (!placed.current || prefersReduced()) gsap.set(i, vars);
+    else gsap.to(i, { ...vars, duration: 0.35, ease: "power3.out" });
+    placed.current = true;
+
+    const box = w.closest("[data-chapter-scroll]");
+    if (box) {
+      if (el.offsetTop < box.scrollTop + 8) box.scrollTop = Math.max(0, el.offsetTop - 40);
+      else if (el.offsetTop + el.offsetHeight > box.scrollTop + box.clientHeight - 8)
+        box.scrollTop = el.offsetTop + el.offsetHeight - box.clientHeight + 16;
+    }
+  }, [activeSlug, chapters]);
+
   return (
-    <div className="flex flex-col space-y-0.5">
-      <div className="px-2 py-2 mb-0.5">
-        <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-muted-foreground">
-          DeepWiki Chapters
-        </span>
-      </div>
+    <div ref={wrap} className="relative">
+      <span
+        ref={ind}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 rounded-lg bg-secondary"
+        style={{ opacity: 0 }}
+      >
+        <span className="absolute bottom-2 left-0 top-2 w-[3px] rounded-r-full bg-highlight" />
+      </span>
 
-      {chapters.map((chap, idx) => {
-        const meta = CHAPTER_META[chap.category] || {
-          icon: BookOpen,
-          color: "text-muted-foreground",
-          bg: "bg-muted/50",
-        };
-        const Icon = meta.icon;
-        const isActive = chap.slug === activeSlug;
-
+      {groups.map(([category, items]) => {
+        const Icon = CATEGORY_ICON[category] || BookOpen;
         return (
-          <button
-            key={chap.slug}
-            type="button"
-            onClick={() => onSelectChapter(chap)}
-            className={`group w-full flex items-center gap-3 text-left px-2.5 py-2.5 rounded-lg text-xs transition-all cursor-pointer ${
-              isActive
-                ? "bg-primary/10 border border-primary/20 shadow-sm"
-                : "border border-transparent hover:bg-muted/60 hover:border-border/40"
-            }`}
-          >
-            {/* Icon badge */}
-            <div
-              className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${
-                isActive ? "bg-primary/15" : meta.bg
-              }`}
-            >
-              <Icon
-                className={`h-3.5 w-3.5 ${
-                  isActive ? "text-primary" : meta.color
-                }`}
-              />
+          <div key={category} className="mb-3 last:mb-0">
+            <div className="flex items-center gap-2 px-3 pb-1.5 pt-2 text-[11px] font-semibold text-text-muted">
+              <Icon className="h-3.5 w-3.5" />
+              {category}
+              <span className="ml-auto font-normal">{items.length}</span>
             </div>
 
-            {/* Text */}
-            <div className="flex-1 min-w-0">
-              <span
-                className={`block text-xs font-medium leading-tight truncate ${
-                  isActive
-                    ? "text-primary"
-                    : "text-foreground group-hover:text-foreground"
-                }`}
-              >
-                {chap.title}
-              </span>
-              <span
-                className={`text-[9px] font-mono uppercase tracking-wider mt-0.5 block ${
-                  isActive ? "text-primary/60" : "text-muted-foreground"
-                }`}
-              >
-                {chap.category}
-              </span>
-            </div>
-
-            {/* Number pill */}
-            <span
-              className={`text-[9px] font-mono shrink-0 h-4 w-4 rounded-full flex items-center justify-center ${
-                isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground group-hover:bg-border"
-              }`}
-            >
-              {idx + 1}
-            </span>
-          </button>
+            {items.map((chap) => {
+              const active = chap.slug === activeSlug;
+              return (
+                <button
+                  key={chap.slug}
+                  type="button"
+                  data-chap-active={active}
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => onSelectChapter(chap)}
+                  className={cn(
+                    "relative z-10 flex w-full cursor-pointer items-start gap-3 rounded-lg px-3 py-2 text-left transition-colors",
+                    active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <span className={cn("mt-0.5 w-5 shrink-0 text-[11px] tabular-nums", active ? "font-bold text-primary" : "text-text-muted")}>
+                    {String(numberOf(chap.slug)).padStart(2, "0")}
+                  </span>
+                  <span className={cn("text-[13px] leading-snug", active && "font-semibold")}>{chap.title}</span>
+                </button>
+              );
+            })}
+          </div>
         );
       })}
     </div>
   );
 }
+
+export default memo(WikiChapterTree);
