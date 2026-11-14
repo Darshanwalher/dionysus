@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setReplyingTo } from "../../store/slices/chatSlice";
 import { Sparkles, Send, X, FileCode, CornerDownRight, Hash } from "lucide-react";
 import { cn } from "../../lib/utils";
+import FileBrowser from "./FileBrowser";
 
 const ChatInput = forwardRef(function ChatInput({ onSendMessage, onTyping }, ref) {
   const dispatch = useDispatch();
@@ -13,11 +14,10 @@ const ChatInput = forwardRef(function ChatInput({ onSendMessage, onTyping }, ref
   const [taggedFiles, setTaggedFiles] = useState([]);
   const [fileFilter, setFileFilter] = useState("");
   const [showFileSuggestions, setShowFileSuggestions] = useState(false);
-  const [suggestionIdx, setSuggestionIdx] = useState(0);
   const [sentTick, setSentTick] = useState(0);
 
   const textareaRef = useRef(null);
-  const itemRefs = useRef([]);
+  const browserRef = useRef(null);
 
   // lets the page prefill the box (e.g. clicking a file in the side panel)
   useImperativeHandle(ref, () => ({
@@ -46,14 +46,6 @@ const ChatInput = forwardRef(function ChatInput({ onSendMessage, onTyping }, ref
     if (replyingTo) textareaRef.current?.focus();
   }, [replyingTo]);
 
-  const filteredFiles = chatFiles
-    .filter((f) => f.toLowerCase().includes(fileFilter.toLowerCase()))
-    .slice(0, 8);
-
-  useEffect(() => {
-    itemRefs.current[suggestionIdx]?.scrollIntoView({ block: "nearest" });
-  }, [suggestionIdx]);
-
   const handleTextChange = (e) => {
     const val = e.target.value;
     setText(val);
@@ -64,7 +56,6 @@ const ChatInput = forwardRef(function ChatInput({ onSendMessage, onTyping }, ref
     if (hashMatch) {
       setFileFilter(hashMatch[1] || "");
       setShowFileSuggestions(true);
-      setSuggestionIdx(0);
     } else {
       setShowFileSuggestions(false);
     }
@@ -86,30 +77,19 @@ const ChatInput = forwardRef(function ChatInput({ onSendMessage, onTyping }, ref
     }, 0);
   };
 
+  const pickerOpen = showFileSuggestions && chatFiles.length > 0;
+
   const handleKeyDown = (e) => {
     if (e.nativeEvent?.isComposing) return;
 
-    if (showFileSuggestions && filteredFiles.length > 0) {
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSuggestionIdx((p) => (p + 1) % filteredFiles.length);
-        return;
-      }
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSuggestionIdx((p) => (p - 1 + filteredFiles.length) % filteredFiles.length);
-        return;
-      }
-      if (e.key === "Enter" || e.key === "Tab") {
-        e.preventDefault();
-        insertFileTag(filteredFiles[suggestionIdx]);
-        return;
-      }
+    if (pickerOpen) {
       if (e.key === "Escape") {
         e.preventDefault();
         setShowFileSuggestions(false);
         return;
       }
+      // arrows / → / ← / Enter / Tab are handled by the folder browser
+      if (browserRef.current?.onKeyDown(e)) return;
     }
 
     if (e.key === "Enter" && !e.shiftKey) {
@@ -150,7 +130,6 @@ const ChatInput = forwardRef(function ChatInput({ onSendMessage, onTyping }, ref
   const startFileTag = () => {
     setText((t) => (t && !/\s$/.test(t) ? `${t} #` : `${t}#`));
     setFileFilter("");
-    setSuggestionIdx(0);
     setShowFileSuggestions(true);
     textareaRef.current?.focus();
   };
@@ -160,30 +139,25 @@ const ChatInput = forwardRef(function ChatInput({ onSendMessage, onTyping }, ref
   return (
     <div className="relative shrink-0 px-4 pb-4 pt-2">
       <div className="relative mx-auto w-full max-w-3xl">
-        {/* file suggestions */}
-        {showFileSuggestions && filteredFiles.length > 0 && (
-          <div className="chat-rise absolute bottom-full left-0 z-50 mb-2 max-h-56 w-full max-w-sm overflow-y-auto rounded-xl border border-border bg-popover p-1.5 shadow-xl">
-            <div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-muted-foreground">
-              <span>Repository files</span>
-              <span className="font-mono text-[10px]">↑↓ · Enter</span>
+        {/* folder-wise file picker */}
+        {pickerOpen && (
+          <div className="chat-rise absolute bottom-full left-0 z-50 mb-2 w-full max-w-md overflow-hidden rounded-xl border border-border bg-popover shadow-xl">
+            <div className="flex items-center justify-between border-b border-border/70 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
+              <span>Tag a repository file</span>
+              <span className="font-mono text-[10px] font-normal">type to search all folders</span>
             </div>
-            <div className="space-y-0.5">
-              {filteredFiles.map((file, i) => (
-                <button
-                  key={file}
-                  ref={(el) => (itemRefs.current[i] = el)}
-                  type="button"
-                  onClick={() => insertFileTag(file)}
-                  onMouseEnter={() => setSuggestionIdx(i)}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left font-mono text-xs transition-colors",
-                    i === suggestionIdx ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-secondary"
-                  )}
-                >
-                  <FileCode className="h-3.5 w-3.5 shrink-0 opacity-70" />
-                  <span className="truncate">{file}</span>
-                </button>
-              ))}
+            <FileBrowser
+              ref={browserRef}
+              files={chatFiles}
+              search={fileFilter}
+              onPick={insertFileTag}
+              bordered={false}
+              keepFocus
+              listClassName="max-h-64 overflow-y-auto"
+            />
+            <div className="flex items-center justify-between border-t border-border/70 px-3 py-1.5 font-mono text-[10px] text-muted-foreground">
+              <span>↑↓ move · → open folder · ← back</span>
+              <span>Enter select · Esc close</span>
             </div>
           </div>
         )}
@@ -259,7 +233,12 @@ const ChatInput = forwardRef(function ChatInput({ onSendMessage, onTyping }, ref
               <button
                 type="button"
                 onClick={startFileTag}
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border bg-secondary/60 px-2.5 text-xs font-medium text-muted-foreground transition-[color,transform] hover:text-foreground active:scale-95"
+                className={cn(
+                  "inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-[color,background-color,border-color,transform] active:scale-95",
+                  pickerOpen
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-border bg-secondary/60 text-muted-foreground hover:text-foreground"
+                )}
                 title="Tag a repository file"
               >
                 <Hash className="h-3.5 w-3.5" />

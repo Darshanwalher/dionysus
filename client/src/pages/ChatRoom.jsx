@@ -2,11 +2,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProject } from "../store/slices/projectSlice";
-import { fetchOlderMessages, fetchChatFiles, clearChat } from "../store/slices/chatSlice";
+import { fetchOlderMessages, clearChat } from "../store/slices/chatSlice";
 import { useProjectChat } from "../hooks/useProjectChat";
 
 import ChatMessageItem from "../components/chat/ChatMessageItem";
 import ChatInput from "../components/chat/ChatInput";
+import FileBrowser from "../components/chat/FileBrowser";
 import { ChatStyles } from "../components/chat/ChatStyles";
 import {
   MessagesSquare,
@@ -14,7 +15,6 @@ import {
   Users,
   FolderGit2,
   Search,
-  FileCode,
   ArrowDown,
   Loader2,
   PanelRight,
@@ -106,11 +106,8 @@ export default function ChatRoom() {
   const { sendMessage, handleUserTyping, toggleReaction } = useProjectChat(projectId);
 
   useEffect(() => {
-    if (projectId) {
-      if (!currentProject || currentProject._id !== projectId) {
-        dispatch(fetchProject(projectId));
-      }
-      dispatch(fetchChatFiles(projectId));
+    if (projectId && (!currentProject || currentProject._id !== projectId)) {
+      dispatch(fetchProject(projectId));
     }
     return () => {
       dispatch(clearChat());
@@ -205,11 +202,6 @@ export default function ChatRoom() {
     });
     return result;
   }, [messages]);
-
-  const filteredFiles = useMemo(
-    () => (chatFiles || []).filter((f) => f.toLowerCase().includes(fileSearch.toLowerCase())).slice(0, 60),
-    [chatFiles, fileSearch]
-  );
 
   const aiTyping = typingUsers.find((u) => u.userId === "ai_copilot");
   const humanTyping = typingUsers.filter((u) => u.userId !== "ai_copilot");
@@ -555,7 +547,7 @@ export default function ChatRoom() {
               ))}
             </div>
           ) : (
-            <div key="files" className="chat-rise space-y-2">
+            <div key="files" className="chat-rise space-y-3">
               {chatFiles.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center">
                   <FolderGit2 className="mx-auto mb-2 h-5 w-5 text-muted-foreground" />
@@ -573,31 +565,14 @@ export default function ChatRoom() {
                       type="text"
                       value={fileSearch}
                       onChange={(e) => setFileSearch(e.target.value)}
-                      placeholder="Filter files…"
+                      placeholder="Search all folders…"
                       className="w-full rounded-lg border border-border bg-secondary/50 py-1.5 pl-8 pr-3 text-xs text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none"
                     />
                   </div>
-                  <div className="space-y-0.5">
-                    {filteredFiles.length === 0 ? (
-                      <p className="p-3 text-center text-xs italic text-muted-foreground">
-                        No files match “{fileSearch}”
-                      </p>
-                    ) : (
-                      filteredFiles.map((file) => (
-                        <button
-                          key={file}
-                          type="button"
-                          onClick={() => askAbout(file)}
-                          title="Ask @dionysus about this file"
-                          className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left font-mono text-[11px] text-muted-foreground transition-[color,background-color,transform] hover:bg-secondary hover:text-foreground active:scale-[0.99]"
-                        >
-                          <FileCode className="h-3 w-3 shrink-0 text-accent-cyan opacity-70 group-hover:opacity-100" />
-                          <span className="flex-1 truncate">{file}</span>
-                          <Sparkles className="h-3 w-3 shrink-0 text-primary opacity-0 transition-opacity group-hover:opacity-100" />
-                        </button>
-                      ))
-                    )}
-                  </div>
+                  <FileBrowser files={chatFiles} search={fileSearch} onPick={askAbout} />
+                  <p className="px-1 text-[11px] text-muted-foreground">
+                    Open a folder, then click a file to ask @dionysus about it.
+                  </p>
                 </>
               )}
             </div>
