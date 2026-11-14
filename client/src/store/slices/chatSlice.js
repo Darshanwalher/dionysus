@@ -41,7 +41,9 @@ export const fetchChatFiles = createAsyncThunk(
   async (projectId, { rejectWithValue }) => {
     try {
       const { data } = await api.get(`/projects/${projectId}/chat/files`);
-      return data.data.files || [];
+      const payload = data.data;
+      if (Array.isArray(payload)) return payload;
+      return payload?.files || [];
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to load files"

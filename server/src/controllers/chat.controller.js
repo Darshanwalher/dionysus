@@ -184,33 +184,69 @@ const toggleReaction = async (req, res, next) => {
 const getProjectFilesForChat = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const project = await Project.findById(id).select('githubUrl').lean();
+    const project = await Project.findById(id).select('githubUrl architectureGraph dependencyGraph').lean();
 
-    if (!project || !project.githubUrl) {
-      return res.status(200).json({ success: true, data: [] });
+    if (!project) {
+      return res.status(200).json({ success: true, data: { files: [] } });
     }
 
-    const parsed = parseGithubUrl(project.githubUrl);
-    if (!parsed) {
-      return res.status(200).json({ success: true, data: [] });
+    let files = [];
+
+    // 1. Fetch live repository tree from GitHub
+    if (project.githubUrl) {
+      try {
+        const parsed = parseGithubUrl(project.githubUrl);
+        if (parsed) {
+          const repoMetadata = await getRepoMetadata(parsed.owner, parsed.repo);
+          const tree = await fetchRepoTree(parsed.owner, parsed.repo, repoMetadata.defaultBranch);
+          files = tree
+            .map((item) => item.path)
+            .filter((p) => shouldProcessFile(p));
+        }
+      } catch (ghErr) {
+        console.warn(`[Chat Files GitHub Tree Warning] ${ghErr.message}`);
+      }
     }
 
-    const repoMetadata = await getRepoMetadata(parsed.owner, parsed.repo);
-    const tree = await fetchRepoTree(parsed.owner, parsed.repo, repoMetadata.defaultBranch);
+    // 2. Fallback to Architecture Graph nodes if GitHub tree was rate-limited or empty
+    if (files.length === 0 && project.architectureGraph?.nodes) {
+      files = project.architectureGraph.nodes
+        .map((n) => n.id || n.data?.label || n.label)
+        .filter(Boolean);
+    }
 
-    const files = tree
-      .map((item) => item.path)
-      .filter((p) => shouldProcessFile(p))
-      .slice(0, 150);
+    // 3. Fallback to Dependency Graph nodes
+    if (files.length === 0 && project.dependencyGraph?.nodes) {
+      files = project.dependencyGraph.nodes
+        .map((n) => n.id || n.data?.label || n.label)
+        .filter(Boolean);
+    }
+
+    // 4. Fallback to DeepWiki referenced files
+    if (files.length === 0) {
+      try {
+        const WikiPage = require('../models/WikiPage');
+        const wikiPages = await WikiPage.find({ project: id }).select('referencedFiles').lean();
+        const set = new Set();
+        wikiPages.forEach((w) => {
+          (w.referencedFiles || []).forEach((f) => set.add(f));
+        });
+        files = Array.from(set);
+      } catch (_) {}
+    }
+
+    const deduplicated = Array.from(new Set(files)).slice(0, 300);
 
     return res.status(200).json({
       success: true,
-      data: files,
+      data: {
+        files: deduplicated,
+      },
     });
   } catch (error) {
     console.warn(`[Chat Files Fetch Warning] ${error.message}`);
     // Non-blocking fallback
-    return res.status(200).json({ success: true, data: [] });
+    return res.status(200).json({ success: true, data: { files: [] } });
   }
 };
 

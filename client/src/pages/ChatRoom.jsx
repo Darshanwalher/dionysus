@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProject } from "../store/slices/projectSlice";
-import { fetchOlderMessages, clearChat } from "../store/slices/chatSlice";
+import { fetchOlderMessages, fetchChatFiles, clearChat } from "../store/slices/chatSlice";
 import { useProjectChat } from "../hooks/useProjectChat";
 
 import ChatMessageItem from "../components/chat/ChatMessageItem";
@@ -106,8 +106,11 @@ export default function ChatRoom() {
   const { sendMessage, handleUserTyping, toggleReaction } = useProjectChat(projectId);
 
   useEffect(() => {
-    if (projectId && (!currentProject || currentProject._id !== projectId)) {
-      dispatch(fetchProject(projectId));
+    if (projectId) {
+      if (!currentProject || currentProject._id !== projectId) {
+        dispatch(fetchProject(projectId));
+      }
+      dispatch(fetchChatFiles(projectId));
     }
     return () => {
       dispatch(clearChat());

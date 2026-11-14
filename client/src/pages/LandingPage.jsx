@@ -712,74 +712,79 @@ export default function LandingPage() {
         <div className="mt-14 grid md:grid-cols-6 gap-5">
           <Tilt className="bento md:col-span-4 rounded-3xl p-8 flex flex-col justify-between min-h-[320px] shadow-sm" style={{ background: IV2, border: `1px solid ${INK}1a` }}>
             <div className="flex items-center gap-2 font-semibold text-lg">
-              <GitPullRequest className="h-5 w-5" style={{ color: CORAL }} /> Automated PR Risk Scoring
+              <Activity className="h-5 w-5" style={{ color: CORAL }} /> 0–100 Repository Health Scorecard
             </div>
-            <div className="my-auto pt-6">
+            <div className="my-auto pt-4">
               <p className="dn-d font-extrabold text-8xl sm:text-9xl leading-none">
-                <Counter to={78} />
+                <Counter to={86} />
                 <span className="text-3xl font-medium" style={{ color: `${INK}80` }}>/100</span>
               </p>
               <div className="mt-6 h-3 rounded-full overflow-hidden p-0.5" style={{ background: `${INK}14` }}>
                 <motion.div
                   className="h-full rounded-full origin-left transform-gpu"
-                  style={{ background: CORAL, width: "78%" }}
+                  style={{ background: CORAL, width: "86%" }}
                   initial={{ scaleX: 0 }}
                   whileInView={{ scaleX: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 1.6, ease }}
                 />
               </div>
-              <p className="dn-m text-xs mt-4 opacity-75">PR #1429 jwt.ts reaches 4 downstream callers and 8 routes.</p>
+              <div className="mt-4 flex flex-wrap gap-2 text-xs dn-m">
+                <span className="rounded-md border border-border bg-card px-2 py-1">Modularity: 92%</span>
+                <span className="rounded-md border border-border bg-card px-2 py-1">Maintainability: 84%</span>
+                <span className="rounded-md border border-border bg-card px-2 py-1">Documentation: 88%</span>
+                <span className="rounded-md border border-border bg-card px-2 py-1">Code Smells: 0 Critical</span>
+              </div>
             </div>
           </Tilt>
 
           <Tilt className="bento md:col-span-2 rounded-3xl p-8 min-h-[320px] shadow-sm flex flex-col justify-between" style={{ background: TEAL, color: IV }}>
             <div className="flex items-center gap-2 font-semibold">
-              <ShieldCheck className="h-5 w-5" style={{ color: CORAL }} /> Zero Storage Architecture
+              <Database className="h-5 w-5" style={{ color: CORAL }} /> Schema Intelligence
             </div>
             <div>
-              <p className="dn-d text-3xl font-extrabold mt-6 leading-tight">Parsed, mapped, then destroyed.</p>
-              <p className="mt-3 text-sm opacity-80 leading-relaxed">Raw source code is evaluated strictly inside RAM sandboxes and is never retained or trained on.</p>
+              <p className="dn-d text-3xl font-extrabold mt-6 leading-tight">Interactive ER Diagrams.</p>
+              <p className="mt-3 text-sm opacity-80 leading-relaxed">
+                AST parsers analyze Mongoose models and Prisma schemas to map collections, PK/FK links, cardinalities, and flag unindexed foreign keys.
+              </p>
             </div>
           </Tilt>
 
           <Tilt className="bento md:col-span-3 rounded-3xl p-8 min-h-[280px] shadow-sm flex flex-col justify-between" style={{ background: IV2, border: `1px solid ${INK}1a` }}>
             <div className="flex items-center gap-2 font-semibold">
-              <MessageSquare className="h-5 w-5" style={{ color: CORAL }} /> Natural Language Querying
+              <MessagesSquare className="h-5 w-5" style={{ color: CORAL }} /> Real-Time Chat & @dionysus AI
             </div>
             <div className="space-y-3">
               <p className="rounded-2xl px-4 py-3 text-sm w-fit ml-auto shadow-sm" style={{ background: `${INK}0d` }}>
-                Where do we refresh expired sessions?
+                @dionysus How does session verification work?
               </p>
               <p className="dn-m rounded-2xl px-4 py-3 text-xs leading-relaxed border" style={{ background: `${TEAL}14`, borderColor: `${TEAL}20` }}>
-                <Typed text="In auth-vault at src/session/refresh.rs:42. It is called from api-gateway/middleware/guard.ts:18." />
+                <Typed text="In auth.middleware.js: verifies Bearer JWT token, loads req.user from MongoDB, and blocks expired sessions." />
               </p>
             </div>
           </Tilt>
 
           <Tilt className="bento md:col-span-3 rounded-3xl p-8 min-h-[280px] shadow-sm flex flex-col justify-between" style={{ background: CORAL }}>
             <div className="flex items-center gap-2 font-semibold" style={{ color: INK }}>
-              <Mic className="h-5 w-5" /> Architecture Decisions in Context
+              <BookOpen className="h-5 w-5" /> Automated Repo DeepWiki
             </div>
-            <div className="space-y-3 mt-4">
+            <div className="space-y-2 mt-3">
               {[
-                ["Decision", "Keep getTenant() for billing metering", "services/billing.ts"],
-                ["Action", "Update JWT refresh integration tests", "auth/jwt.test.ts"],
-              ].map(([k, v, f], i) => (
+                ["Chapter 1", "Overview & Architecture (Mermaid flowchart)"],
+                ["Chapter 2", "Core Workflows & Request Lifecycles"],
+                ["Chapter 3", "Data Layer & Entity Dictionary"],
+              ].map(([k, v], i) => (
                 <motion.div
                   key={k}
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: 0.2 + i * 0.2, duration: 0.5, ease }}
-                  className="rounded-2xl px-4 py-3 shadow-sm transform-gpu"
+                  transition={{ delay: 0.2 + i * 0.15, duration: 0.5, ease }}
+                  className="rounded-2xl px-4 py-2.5 shadow-sm transform-gpu"
                   style={{ background: IV2, color: INK }}
                 >
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold uppercase tracking-wider opacity-60">{k}</p>
-                    <span className="dn-m text-[10px] font-semibold" style={{ color: TEAL }}>{f}</span>
-                  </div>
-                  <p className="text-sm font-medium mt-0.5">{v}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">{k}</p>
+                  <p className="text-xs font-semibold mt-0.5 truncate">{v}</p>
                 </motion.div>
               ))}
             </div>
@@ -854,39 +859,42 @@ export default function LandingPage() {
       </section>
 
       {/* 05 · Knowledge */}
-      <section id="knowledge" className="max-w-6xl mx-auto px-5 pb-28 scroll-mt-20">
-        <Head n="05" eyebrow="Knowledge" l1="Make project knowledge" l2="easier to find." />
+      <section id="deepwiki" className="max-w-6xl mx-auto px-5 pb-28 scroll-mt-20">
+        <Head n="05" eyebrow="Repo DeepWiki" l1="Verified Technical Wiki." l2="Zero hallucinations." />
         <div className="mt-12 grid lg:grid-cols-2 gap-12 items-center">
           <Bullets items={[
-            "Centralize technical documentation for a project",
-            "Explore project documentation and wiki-style pages",
-            "Help developers find knowledge during onboarding and daily work",
+            "Auto-synthesizes 5 structured chapters directly from verified repository files",
+            "Generates clean Mermaid flowcharts, architecture diagrams, and data dictionaries",
+            "Enforces strict evidence citations (Evidence: filepath) ensuring zero hallucinated code",
+            "1-click Markdown export and real-time chapter re-synthesis",
           ]} />
           <div className="kn-wrap">
             <Panel>
               <div className="flex items-center justify-between gap-3">
                 <BookOpen className="kn-icon h-6 w-6" style={{ color: CORAL }} aria-hidden="true" />
-                <Planned className="kn-badge" />
+                <LiveBadge className="kn-badge" />
               </div>
-              <h3 className="dn-d font-extrabold text-2xl mt-5">A more advanced DeepWiki experience</h3>
-              <p className="mt-2 opacity-75 leading-relaxed">Planned: AI-generated wiki chapters, Mermaid diagrams, and exports.</p>
+              <h3 className="dn-d font-extrabold text-2xl mt-5">Multi-Chapter Technical DeepWiki</h3>
+              <p className="mt-2 opacity-75 leading-relaxed">
+                Automated technical documentation covering High-Level Architecture, Request Lifecycles, Data Layers, Setup, and Security Lifecycles with verified file evidence.
+              </p>
             </Panel>
           </div>
         </div>
       </section>
 
-      {/* 06 · Coming next */}
-      <section id="roadmap" className="max-w-6xl mx-auto px-5 pb-28 scroll-mt-20">
+      {/* 06 · Unified Intelligence */}
+      <section id="features" className="max-w-6xl mx-auto px-5 pb-28 scroll-mt-20">
         <Head
-          n="06" eyebrow="Coming next"
-          l1="See what" l2="could be better."
-          lead="These features are on the roadmap. They are not available yet."
+          n="06" eyebrow="Unified Suite"
+          l1="Schema, Health, &" l2="Real-Time Team Rooms."
+          lead="Every dimension of your repository analyzed, diagnosed, and interactive on day one."
         />
         <div className="rm-wrap mt-12 grid md:grid-cols-3 gap-5">
           {[
-            [HeartPulse, "Repository health", "A health score and technical indicators, with findings on architecture, complexity, dead code, onboarding, and dependencies."],
-            [Database, "Schema intelligence", "Database schema analysis and interactive ER diagrams, with diagnostics such as missing indexes."],
-            [Users, "Keep the team in the same context", "Repository chat rooms with an embedded @dionysus assistant, file mentions, and threaded discussions."],
+            [HeartPulse, "Repository Health Score", "A comprehensive 0–100 architectural grade auditing modularity, documentation density, cyclomatic complexity, God files, and circular dependencies."],
+            [Database, "Schema Intelligence & ERD", "Interactive Entity-Relationship diagrams parsing Mongoose models and Prisma schemas with primary/foreign keys, cardinalities, and missing index warnings."],
+            [Users, "Repository Chat & @dionysus AI", "Real-time WebSocket team rooms scoped to each repository, featuring an embedded RAG co-pilot, #file autocomplete, threaded replies, and emoji reactions."],
           ].map(([Icon, t, d], i) => (
             <div key={t} className="rm-card relative">
               {!calm && (
@@ -897,7 +905,7 @@ export default function LandingPage() {
               <Panel>
                 <div className="flex items-center justify-between gap-3">
                   <Icon className="h-6 w-6" style={{ color: CORAL }} aria-hidden="true" />
-                  <Planned />
+                  <LiveBadge />
                 </div>
                 <h3 className="dn-d font-extrabold text-2xl mt-5">{t}</h3>
                 <p className="mt-2 text-sm opacity-75 leading-relaxed">{d}</p>
