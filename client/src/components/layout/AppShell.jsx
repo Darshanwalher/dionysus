@@ -33,6 +33,7 @@ import {
   PanelLeftClose,
   PanelLeft,
   FolderGit2,
+  MessagesSquare,
 } from "lucide-react";
 import ProjectSettingsModal from "@/components/project/ProjectSettingsModal";
 
@@ -290,13 +291,14 @@ export default function AppShell({ children }) {
 
   const isAnalyzing = isArchitectureLoading || isDependencyLoading;
   const isVisualisePage = location.pathname.endsWith("/visualise");
-  const isWidePage = location.pathname.endsWith("/wiki"); // the DeepWiki reader uses the full width
+  const isWidePage = location.pathname.endsWith("/wiki") || location.pathname.endsWith("/chat"); // DeepWiki & Chat room use full width
 
   const navigation = currentProject
     ? [
         { name: "Overview", href: `/projects/${currentProject._id}`, icon: Home },
         { name: "Repository Health", href: `/projects/${currentProject._id}/health`, icon: Activity },
         { name: "Architecture & Graph", href: `/projects/${currentProject._id}/visualise`, icon: FolderTree },
+        { name: "Team Chat & AI", href: `/projects/${currentProject._id}/chat`, icon: MessagesSquare },
         { name: "Meetings", href: `/projects/${currentProject._id}/meetings`, icon: Presentation },
         { name: "Documentation", href: `/projects/${currentProject._id}/documentation`, icon: BookText },
         { name: "Repo DeepWiki", href: `/projects/${currentProject._id}/wiki`, icon: BookOpen },

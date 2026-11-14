@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const http = require('http');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -9,6 +10,7 @@ const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/db');
 const validateEnv = require('./config/env');
 const errorHandler = require('./middleware/errorHandler');
+const { initChatWebSocketServer } = require('./websocket/chat.gateway');
 
 // Route imports
 const authRoutes = require('./routes/auth.routes');
@@ -19,6 +21,7 @@ const meetingRoutes = require('./routes/meeting.routes');
 const schemaRoutes = require('./routes/schema.routes');
 const healthRoutes = require('./routes/health.routes');
 const wikiRoutes = require('./routes/wiki.routes');
+const chatRoutes = require('./routes/chat.routes');
 
 // Validate environment variables
 validateEnv();
@@ -57,6 +60,7 @@ app.get('/api/health', (req, res) => {
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/projects/:id/chat', chatRoutes);
 app.use('/api/github', githubRoutes);
 app.use('/api', aiRoutes);
 app.use('/api', meetingRoutes);
@@ -71,7 +75,10 @@ const PORT = process.env.PORT || 5000;
 
 const start = async () => {
   await connectDB();
-  const server = app.listen(PORT, () => {
+  const server = http.createServer(app);
+  initChatWebSocketServer(server);
+
+  server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
   });
   server.timeout = 15 * 60 * 1000;

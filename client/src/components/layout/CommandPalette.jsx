@@ -17,6 +17,7 @@ import {
   FolderGit2,
   Plus,
   CornerDownLeft,
+  MessagesSquare,
 } from "lucide-react";
 
 /* ────────────────────────────────────────────────────────────
@@ -133,6 +134,7 @@ export default function CommandPalette({ isOpen, onClose, onOpenCreateProject, o
     if (projectId) {
       list.push(
         { id: "nav-overview", group: "Navigation", title: "Overview", icon: Home, action: go(`/projects/${projectId}`) },
+        { id: "nav-chat", group: "Navigation", title: "Team Chat & AI Co-pilot", icon: MessagesSquare, action: go(`/projects/${projectId}/chat`) },
         { id: "nav-arch", group: "Navigation", title: "Architecture & Dependencies", icon: FolderTree, action: go(`/projects/${projectId}/visualise`) },
         { id: "nav-meetings", group: "Navigation", title: "Meetings & Audio", icon: Presentation, action: go(`/projects/${projectId}/meetings`) },
         { id: "nav-docs", group: "Navigation", title: "Documentation", icon: BookText, action: go(`/projects/${projectId}/documentation`) },

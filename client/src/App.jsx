@@ -19,6 +19,7 @@ import MeetingDetail from "./pages/MeetingDetail";
 import FileVisualisation from "./pages/FileVisualisation";
 import ProjectHealth from "./pages/ProjectHealth";
 import DeepWiki from "./pages/DeepWiki";
+import ChatRoom from "./pages/ChatRoom";
 
 function ProtectedRoute({ children }) {
   const { token } = useSelector((state) => state.auth);
@@ -156,6 +157,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <ProjectHealth />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/projects/:id/chat"
+        element={
+          <ProtectedRoute>
+            <ChatRoom />
           </ProtectedRoute>
         }
       />
