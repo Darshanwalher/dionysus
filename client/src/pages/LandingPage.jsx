@@ -8,7 +8,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   ArrowUpRight, Copy, Check, Plus, GitPullRequest, Mic,
-  ShieldCheck, MessageSquare, Activity, Zap,
+  ShieldCheck, MessageSquare, MessagesSquare, Activity, Zap,
   Layers, EyeOff, Compass, Clock, BookOpen, HeartPulse,
   Database, Users, GitBranch, Lock, Sun,
 } from "lucide-react";
@@ -18,8 +18,7 @@ import useSmoothScroll from "./useSmoothScroll";
 gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.config({ ignoreMobileResize: true });
 
-/* TODO: replace with the real repository URL before launch */
-const GITHUB_URL = "https://github.com/your-org/dionysus";
+const GITHUB_URL = "https://github.com/nakulsali/devin"; // or your organization repo URL
 
 /* Palette Tokens */
 const IV = "#F3EEE8";
@@ -47,18 +46,19 @@ html.lenis, html.lenis body { height: auto; }
 @media (prefers-reduced-motion: reduce) { .dn .lnk:hover { transform: none; } }
 `;
 
+/* ── Architecture topology (interactive graph) ─────────────────────────── */
 const NODES = {
-  gateway: { x: 300, y: 44, label: "api-gateway", note: "Every request enters here. Validates tokens, rate-limits, and routes to downstream microservices." },
-  auth: { x: 110, y: 160, label: "auth-vault", note: "Manages session tokens, OAuth providers, key rotation, and granular RBAC checks." },
-  billing: { x: 300, y: 160, label: "billing", note: "Processes subscription tier changes, automated invoices, and telemetry usage metering." },
-  rag: { x: 490, y: 160, label: "rag-engine", note: "AST syntax-tree parser that indexes functions and builds real-time context maps." },
-  db: { x: 200, y: 276, label: "postgres", note: "Primary relational storage for tenant workspaces, repository symbols, and audit trails." },
-  vec: { x: 400, y: 276, label: "qdrant", note: "High-dimensional vector search across every symbol, class definition, and method." },
+  gateway: { x: 300, y: 44, label: "api-gateway", note: "Express backend & HTTP/WebSocket gateway managing authentication, room multiplexing, and route dispatching." },
+  client: { x: 110, y: 160, label: "react-vite", note: "Interactive canvas featuring real-time chat, Monaco code preview, interactive ER diagrams, and graph visualizers." },
+  copilot: { x: 490, y: 160, label: "dionysus-copilot", note: "RAG engine pairing Google Gemini & Pinecone vector search for contextual codebase explanations." },
+  db: { x: 200, y: 276, label: "mongodb", note: "Persistent document storage for projects, indexed files, commit history, and chat messages." },
+  vec: { x: 400, y: 276, label: "pinecone", note: "High-dimensional vector index providing semantic code retrieval with file and line citations." },
+  ws: { x: 300, y: 160, label: "websocket-hub", note: "Low-latency WebSocket gateway powering real-time chat rooms, live typing broadcasts, and instant replies." },
 };
 
 const EDGES = [
-  ["gateway", "auth"], ["gateway", "billing"], ["gateway", "rag"],
-  ["auth", "db"], ["billing", "db"], ["rag", "db"], ["rag", "vec"],
+  ["client", "gateway"], ["gateway", "ws"], ["gateway", "copilot"],
+  ["gateway", "db"], ["copilot", "vec"], ["copilot", "db"],
 ];
 
 const reach = (id) => {
@@ -72,19 +72,19 @@ const reach = (id) => {
 const LANGS = ["TypeScript", "Python", "Rust", "Go", "Java", "C++", "Kotlin", "Ruby", "Swift", "C#"];
 
 const STEPS = [
-  ["Clone", "A short-lived worker pulls your repo through the GitHub App. Zero persistent storage on disk."],
-  ["Parse", "Every file is decomposed into abstract syntax trees (AST) of functions, classes, and imports."],
-  ["Link", "Method calls and module dependencies merge into an enterprise-wide static call graph."],
-  ["Explain", "AI models map service interactions and highlight structural tangles with exact file citations."],
-  ["Watch", "Every PR recalculates the graph in real time and flags architecturally risky drift."],
+  ["Connect", "Link any public or private GitHub repository with a single click. Dionysus clones and indexes file structures."],
+  ["Index", "Abstract syntax trees (AST) and code chunks are vectorized into Pinecone for semantic grounding."],
+  ["Synthesize", "Generates a 5-chapter Technical DeepWiki with verified file citations and interactive Mermaid diagrams."],
+  ["Diagnose", "Audits MongoDB/Prisma schemas for missing indexes and computes a 0–100 repository health scorecard."],
+  ["Collaborate", "Join repository-scoped real-time chat rooms with teammates and query the embedded @dionysus AI co-pilot."],
 ];
 
 const FAQS = [
-  ["Is my source code stored?", "No. Files are parsed into ephemeral syntax trees and dependency graphs inside isolated sandboxed workers. Raw source code is purged immediately and never used to train machine learning models."],
-  ["Does it work with monorepos?", "Yes. Dionysus automatically detects Turborepo, Nx, Cargo workspaces, Go modules, pnpm workspaces, and Bazel setups."],
-  ["How does PR impact scoring work?", "When a pull request opens, changed symbols are projected onto the call graph to calculate reachable callers, downstream APIs, and compute a 0–100 risk assessment."],
-  ["What happens to meeting recordings?", "Audio is transcribed in-memory and immediately deleted. Only structured transcript summaries, engineering decisions, and linked code references are stored."],
-  ["Can I run it in my own cloud?", "Yes. We supply battle-tested Docker images and Helm charts for AWS, GCP, Azure VPCs, and air-gapped environments with Ollama or vLLM backends."],
+  ["How does Dionysus understand my codebase?", "Dionysus fetches your repository tree via GitHub, parses functions and dependencies, and embeds code snippets into Pinecone. When you ask questions or trigger DeepWiki, Gemini retrieves verified file context to prevent hallucinations."],
+  ["What is the Repository Chat Room?", "Each repository gets a dedicated real-time chat room powered by WebSockets. Teammates can chat, reply in threads, react with emojis, tag files using #autocomplete, and call @dionysus for instant code explanations."],
+  ["How does Schema Intelligence work?", "Dionysus analyzes your Mongoose and Prisma models to generate an interactive Entity-Relationship (ER) diagram, displaying fields, types, relationships, and auditing missing foreign-key indexes."],
+  ["How does Meeting Intelligence work?", "Upload meeting recordings or engineering huddles. Dionysus transcribes the audio using AssemblyAI with speaker diarization and automatically extracts engineering action items."],
+  ["Is my code used to train public models?", "No. File chunks and code vectors are strictly scoped to your private project namespace in Pinecone and MongoDB, and are never used for model training."],
 ];
 
 /* ── Story content ─────────────────────────────────────────────────────── */
@@ -106,9 +106,9 @@ const HOW = [
 const IN_PLACE = [[GitBranch, "GitHub integration"], [Lock, "Authentication and project workspaces"], [Sun, "Light and dark themes"]];
 
 const FOOTER_COLS = [
-  ["The story", [["The challenge", "#challenge"], ["The map", "#map"], ["Ask the codebase", "#ask"], ["Meetings", "#meetings"], ["Knowledge", "#knowledge"]]],
-  ["On the roadmap", [["Repository health", "#roadmap"], ["Schema intelligence", "#roadmap"], ["Repository chat rooms", "#roadmap"]]],
-  ["Get started", [["Sign in", "/login"], ["Connect a repo", "/register"], ["GitHub", GITHUB_URL]]],
+  ["Platform", [["Architecture Map", "#map"], ["DeepWiki", "#deepwiki"], ["Ask Codebase", "#ask"], ["Meetings", "#meetings"]]],
+  ["Capabilities", [["Real-Time Chat Rooms", "#features"], ["Schema Intelligence", "#features"], ["Repository Health", "#features"]]],
+  ["Get Started", [["Sign in", "/login"], ["Connect a repo", "/register"], ["GitHub", GITHUB_URL]]],
 ];
 
 /* ── Counter ───────────────────────────────────────────────────────────── */
@@ -293,6 +293,12 @@ const Planned = ({ className = "" }) => (
   </span>
 );
 
+const LiveBadge = ({ className = "" }) => (
+  <span className={`dn-m inline-block text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border whitespace-nowrap ${className}`} style={{ borderColor: `${TEAL}66`, color: TEAL }}>
+    Live
+  </span>
+);
+
 const Bullets = ({ items }) => (
   <ul className="space-y-3">
     {items.map((t, i) => (
@@ -321,7 +327,7 @@ const Panel = ({ children, className = "", pad = "p-7" }) => (
 
 /* ── Interactive Topology Graph ────────────────────────────────────────── */
 function Graph() {
-  const [sel, setSel] = useState("auth");
+  const [sel, setSel] = useState("client");
   const calm = useReducedMotion();
   const hit = useMemo(() => reach(sel), [sel]);
   const n = NODES[sel];
@@ -333,7 +339,8 @@ function Graph() {
           {EDGES.map(([a, b], i) => {
             const A = NODES[a];
             const B = NODES[b];
-            const d = `M${A.x} ${A.y + 18} C${A.x} ${(A.y + B.y) / 2 + 10}, ${B.x} ${(A.y + B.y) / 2 - 10}, ${B.x} ${B.y - 18}`;
+            const dir = B.y >= A.y ? 1 : -1; // upward edges leave from the top of the node
+            const d = `M${A.x} ${A.y + 18 * dir} C${A.x} ${(A.y + B.y) / 2 + 10 * dir}, ${B.x} ${(A.y + B.y) / 2 - 10 * dir}, ${B.x} ${B.y - 18 * dir}`;
             const live = (a === sel || hit.has(a)) && hit.has(b);
             return (
               <g key={i}>

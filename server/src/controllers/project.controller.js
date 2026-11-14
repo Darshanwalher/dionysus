@@ -127,6 +127,7 @@ const inviteUser = async (req, res, next) => {
 
     project.members.push(user._id);
     await project.save();
+    await project.populate({ path: 'members', select: 'name email avatar' });
 
     res.json({
       success: true,
