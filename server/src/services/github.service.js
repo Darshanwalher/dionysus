@@ -17,23 +17,111 @@ const getOctokit = () => {
   return octokitClient;
 };
 
-const IGNORE_FILES = [
+const IGNORE_PATTERNS = [
+
+  // Package locks & manifests cache
   'package-lock.json',
   'yarn.lock',
   'pnpm-lock.yaml',
+  'poetry.lock',
+  'Pipfile.lock',
+  'Cargo.lock',
+  'composer.lock',
+
+  // Dependencies & Virtual Environments
   'node_modules',
+  '.venv',
+  'venv',
+  'env',
+  'site-packages',
+  '__pycache__',
+  '.pytest_cache',
+  '.mypy_cache',
+  'vendor',
+
+  // Git & IDEs
   '.git',
+  '.github',
+  '.idea',
+  '.vscode',
+  '.DS_Store',
+
+  // Builds & Output
   '.next',
+  '.nuxt',
   'dist',
   'build',
+  'out',
+  'target',
+  'coverage',
+  '.turbo',
+
+  // Secrets & Environment files
   '.env',
+];
+
+const IGNORE_FILES = IGNORE_PATTERNS;
+
+const IGNORE_EXTENSIONS = [
+  '.pyc',
+  '.pyo',
+  '.pyd',
+  '.so',
+  '.dll',
+  '.dylib',
+  '.exe',
+  '.bin',
+  '.zip',
+  '.tar',
+  '.gz',
+  '.7z',
+  '.rar',
+  '.min.js',
+  '.min.css',
+  '.map',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.svg',
+  '.ico',
+  '.woff',
+  '.woff2',
+  '.ttf',
+  '.eot',
 ];
 
 /**
  * Check if a file should be processed
  */
 const shouldProcessFile = (filePath) => {
-  return !IGNORE_FILES.some((ignore) => filePath.includes(ignore));
+  const normalized = filePath.replace(/\\/g, '/');
+  const pathParts = normalized.toLowerCase().split('/');
+
+  // Check path segments against ignored directories/patterns
+  const hasIgnoredPart = pathParts.some((part) =>
+    IGNORE_PATTERNS.some((pattern) => part === pattern.toLowerCase() || part.startsWith(`${pattern.toLowerCase()}/`))
+  );
+  if (hasIgnoredPart) return false;
+
+  // Direct substring check for virtualenv or site-packages anywhere in path
+  if (
+    normalized.includes('/site-packages/') ||
+    normalized.includes('/.venv/') ||
+    normalized.includes('/venv/') ||
+    normalized.includes('/node_modules/') ||
+    normalized.includes('/__pycache__/')
+  ) {
+    return false;
+  }
+
+  // Extension check
+  const ext = path.extname(normalized).toLowerCase();
+  if (IGNORE_EXTENSIONS.includes(ext)) {
+    return false;
+  }
+
+  return true;
 };
 
 /**

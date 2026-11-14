@@ -28,9 +28,30 @@ const getWikiFiles = async (githubUrl) => {
       .map((item) => item.path)
       .filter((p) => shouldProcessFile(p));
 
-    const priorityPaths = relevantPaths.filter((p) =>
-      /(readme|package\.json|router?|route|controller|model|schema|middleware|env|docker|app\.|index\.|server\.)/i.test(p)
-    ).slice(0, 50);
+    // Multi-tier multi-language prioritization
+    // Tier 1: Manifests, root configs, readmes
+    const tier1 = relevantPaths.filter((p) =>
+      /(readme|package\.json|requirements\.txt|pyproject\.toml|setup\.py|pipfile|cargo\.toml|go\.mod|pom\.xml|build\.gradle|gemfile|dockerfile|docker-compose|\.env\.example)/i.test(p)
+    );
+
+    // Tier 2: Entry points & server setups
+    const tier2 = relevantPaths.filter((p) =>
+      /^(src\/|app\/|server\/|api\/)?(main|app|index|server|run|manage|train|predict|pipeline|cli)\.(py|js|ts|jsx|tsx|go|rs|java|rb|php)$/i.test(p)
+    );
+
+    // Tier 3: Routers, controllers, models, schemas, datasets, middleware, configs
+    const tier3 = relevantPaths.filter((p) =>
+      /(router?|route|controller|model|schema|entity|middleware|service|dataset|preprocess|feature|algorithm|recommender|config|settings)/i.test(p)
+    );
+
+    // Tier 4: Other source code files in repository root or src/
+    const tier4 = relevantPaths.filter((p) =>
+      /\.(py|js|ts|jsx|tsx|go|rs|java|ipynb|sql)$/i.test(p)
+    );
+
+    // Deduplicate maintaining order
+    const prioritySet = new Set([...tier1, ...tier2, ...tier3, ...tier4]);
+    const priorityPaths = Array.from(prioritySet).slice(0, 50);
 
     files = await fetchBatchFileContents(owner, repo, priorityPaths, repoMetadata.defaultBranch, 5);
   } catch (err) {
