@@ -18,7 +18,7 @@ import useSmoothScroll from "./useSmoothScroll";
 gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.config({ ignoreMobileResize: true });
 
-const GITHUB_URL = "https://github.com/nakulsali/devin"; // or your organization repo URL
+const GITHUB_URL = "https://github.com/Darshanwalher/dionysus"; // or your organization repo URL
 
 /* Palette Tokens */
 const IV = "#F3EEE8";
