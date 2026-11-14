@@ -261,10 +261,18 @@ Generate a concise, beautifully structured GitHub-Flavored Markdown chapter stri
 
 IMPORTANT MERMAID RULES:
 - Use at most 1 Mermaid diagram.
-- Use ONLY: flowchart LR, flowchart TD, sequenceDiagram, stateDiagram-v2, or classDiagram.
+- PREFERRED DIAGRAM TYPE: flowchart TD or flowchart LR.
+- For architectures, data pipelines, and database entity relationships, ALWAYS use flowchart TD or flowchart LR with clean, quoted node labels:
+  Example:
+  \`\`\`mermaid
+  flowchart TD
+      User["User Model\\n(email, role, contact)"] -->|has cart| Cart["Cart Model\\n(items, price)"]
+      Cart -->|references| Product["Product Model\\n(title, seller, price)"]
+  \`\`\`
+- Do NOT use classDiagram (it is fragile and prone to syntax errors with underscores and property types).
+- Use ONLY: flowchart LR, flowchart TD, sequenceDiagram, or stateDiagram-v2.
 - First line inside \`\`\`mermaid must be the diagram type.
-- Do NOT repeat the word "mermaid" inside the block.
-- Keep node labels simple and quoted: A["Dataset Loader"].
+- Keep node labels simple, clean, and in double quotes: NodeId["Clean Label"].
 - Never include unverified components in diagrams.
 
 Do NOT wrap the response in \`\`\`markdown code blocks - return raw markdown directly.`;
