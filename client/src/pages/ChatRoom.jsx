@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProject } from "../store/slices/projectSlice";
 import { fetchOlderMessages, clearChat } from "../store/slices/chatSlice";
@@ -7,6 +7,7 @@ import { useProjectChat } from "../hooks/useProjectChat";
 
 import ChatMessageItem from "../components/chat/ChatMessageItem";
 import ChatInput from "../components/chat/ChatInput";
+import { ChatStyles } from "../components/chat/ChatStyles";
 import {
   MessagesSquare,
   Sparkles,
@@ -15,22 +16,21 @@ import {
   Search,
   FileCode,
   ArrowDown,
-  Info,
-  ChevronRight,
   Loader2,
-  CheckCircle2,
+  PanelRight,
+  X,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
+/* Height of the chat card. Tune this one value to match your app shell
+   (top bar + page padding). */
+const CHAT_HEIGHT = "h-[calc(100dvh-7.5rem)]";
+
 function isDifferentDay(d1, d2) {
   if (!d1 || !d2) return false;
-  const date1 = new Date(d1);
-  const date2 = new Date(d2);
-  return (
-    date1.getFullYear() !== date2.getFullYear() ||
-    date1.getMonth() !== date2.getMonth() ||
-    date1.getDate() !== date2.getDate()
-  );
+  const a = new Date(d1);
+  const b = new Date(d2);
+  return a.getFullYear() !== b.getFullYear() || a.getMonth() !== b.getMonth() || a.getDate() !== b.getDate();
 }
 
 function formatDateDivider(dateStr) {
@@ -39,7 +39,6 @@ function formatDateDivider(dateStr) {
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
-
   if (d.toDateString() === today.toDateString()) return "Today";
   if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
   return d.toLocaleDateString(undefined, {
@@ -50,11 +49,34 @@ function formatDateDivider(dateStr) {
   });
 }
 
+const senderKey = (m) => m?.sender?.id || m?.sender?.user || m?.sender?.name || "unknown";
+const GROUP_GAP_MS = 5 * 60 * 1000;
+
+function initials(name = "U") {
+  return name.slice(0, 2).toUpperCase();
+}
+
+function TypingDots() {
+  return (
+    <span className="flex items-center gap-0.5">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="chat-dot h-1.5 w-1.5 rounded-full bg-primary"
+          style={{ animationDelay: `${i * 0.16}s` }}
+        />
+      ))}
+    </span>
+  );
+}
+
 export default function ChatRoom() {
   const { id: projectId } = useParams();
   const dispatch = useDispatch();
 
   const currentProject = useSelector((state) => state.project?.currentProject);
+  const currentUser = useSelector((state) => state.auth?.user);
+  const currentUserId = currentUser?._id ? String(currentUser._id) : null;
   const {
     messages,
     hasMore,
@@ -66,22 +88,23 @@ export default function ChatRoom() {
     chatFiles,
   } = useSelector((state) => state.chat);
 
-  const [showRightDrawer, setShowRightDrawer] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [tab, setTab] = useState("members");
   const [fileSearch, setFileSearch] = useState("");
   const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [unread, setUnread] = useState(0);
 
-  const messagesEndRef = useRef(null);
-  const scrollContainerRef = useRef(null);
+  const cardRef = useRef(null);
+  const endRef = useRef(null);
+  const scrollRef = useRef(null);
+  const composerRef = useRef(null);
+  const nearBottomRef = useRef(true);
+  const lastIdRef = useRef(null);
+  const knownIds = useRef(new Set());
+  const animReady = useRef(false);
 
-  // Initialize WebSocket chat connection & handlers
-  const {
-    isConnected,
-    sendMessage,
-    handleUserTyping,
-    toggleReaction,
-  } = useProjectChat(projectId);
+  const { sendMessage, handleUserTyping, toggleReaction } = useProjectChat(projectId);
 
-  // Load project details if not already in state
   useEffect(() => {
     if (projectId && (!currentProject || currentProject._id !== projectId)) {
       dispatch(fetchProject(projectId));
@@ -91,135 +114,198 @@ export default function ChatRoom() {
     };
   }, [projectId, dispatch]);
 
-  // Auto-scroll to bottom on first load or when sending
-  const scrollToBottom = (behavior = "smooth") => {
-    messagesEndRef.current?.scrollIntoView({ behavior });
-  };
+  const scrollToBottom = useCallback((behavior = "smooth") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+  }, []);
 
+  // Keep wheel/touch scrolling inside the chat card. If the app uses a global
+  // smooth-scroll (SmoothScroll.jsx) listening on window/document, this stops it
+  // from hijacking the wheel while the pointer is over the chat.
   useEffect(() => {
-    if (!isLoadingMessages && messages.length > 0) {
-      scrollToBottom("auto");
-    }
+    const el = cardRef.current;
+    if (!el) return;
+    const stop = (e) => e.stopPropagation();
+    el.addEventListener("wheel", stop, { passive: true });
+    el.addEventListener("touchmove", stop, { passive: true });
+    return () => {
+      el.removeEventListener("wheel", stop);
+      el.removeEventListener("touchmove", stop);
+    };
+  }, []);
+
+  // first load → jump to the latest message
+  useEffect(() => {
+    if (!isLoadingMessages && messages.length > 0) scrollToBottom("auto");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingMessages]);
 
+  // new message at the tail → follow it, or count it as unread
   useEffect(() => {
-    // If user is near bottom, keep pinned to bottom on incoming messages
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    const isNearBottom =
-      container.scrollHeight - container.scrollTop - container.clientHeight < 150;
-    if (isNearBottom) {
-      scrollToBottom("smooth");
-    }
-  }, [messages.length]);
+    const last = messages[messages.length - 1];
+    const lastId = last?._id ?? null;
+    const prevId = lastIdRef.current;
+    lastIdRef.current = lastId;
+    if (!lastId || prevId === null || lastId === prevId) return;
 
-  // Scroll detection for "Jump to bottom" button & infinite scroll up
+    const mine =
+      currentUserId && (String(last.sender?.user) === currentUserId || String(last.sender?.id) === currentUserId);
+    if (mine || nearBottomRef.current) scrollToBottom("smooth");
+    else setUnread((u) => u + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
+
+  // keep the typing indicator in view when you're at the bottom
+  useEffect(() => {
+    if (nearBottomRef.current) scrollToBottom("smooth");
+  }, [typingUsers.length, scrollToBottom]);
+
+  // remember which messages have been rendered so only fresh ones animate
+  useEffect(() => {
+    messages.forEach((m) => m._id && knownIds.current.add(m._id));
+    animReady.current = !isLoadingMessages;
+  });
+
   const handleScroll = () => {
-    const el = scrollContainerRef.current;
+    const el = scrollRef.current;
     if (!el) return;
+    const dist = el.scrollHeight - el.scrollTop - el.clientHeight;
+    nearBottomRef.current = dist < 150;
+    setShowScrollBottom(dist > 300);
+    if (dist < 150) setUnread((u) => (u ? 0 : u));
 
-    // Show jump-to-bottom button if scrolled up > 300px
-    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    setShowScrollBottom(distanceFromBottom > 300);
-
-    // If scrolled to top and hasMore, load earlier
-    if (el.scrollTop === 0 && hasMore && !isLoadingMore && nextCursor) {
+    if (el.scrollTop < 40 && hasMore && !isLoadingMore && nextCursor) {
       const prevHeight = el.scrollHeight;
       dispatch(fetchOlderMessages({ projectId, before: nextCursor })).then(() => {
-        // Maintain scroll position after prepending
         requestAnimationFrame(() => {
-          if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTop =
-              scrollContainerRef.current.scrollHeight - prevHeight;
-          }
+          if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight - prevHeight;
         });
       });
     }
   };
 
-  const filteredDrawerFiles = (chatFiles || [])
-    .filter((f) => f.toLowerCase().includes(fileSearch.toLowerCase()))
-    .slice(0, 50);
+  // reply targets resolved from the loaded list (avoids "Message: Original message" placeholders)
+  const replyTargets = useMemo(() => {
+    const byId = new Map(messages.map((m) => [String(m._id), m]));
+    const result = new Map();
+    messages.forEach((m) => {
+      if (!m.replyTo) return;
+      const ref = typeof m.replyTo === "object" ? m.replyTo : null;
+      const refId = String(ref?._id ?? m.replyTo);
+      const found = byId.get(refId);
+      const name = ref?.senderName || found?.sender?.name;
+      const preview = ref?.contentPreview || found?.content;
+      if (name || preview) {
+        result.set(m._id, { name: name ? `${name}:` : "", preview: (preview || "").replace(/\s+/g, " ").slice(0, 120) });
+      }
+    });
+    return result;
+  }, [messages]);
+
+  const filteredFiles = useMemo(
+    () => (chatFiles || []).filter((f) => f.toLowerCase().includes(fileSearch.toLowerCase())).slice(0, 60),
+    [chatFiles, fileSearch]
+  );
 
   const aiTyping = typingUsers.find((u) => u.userId === "ai_copilot");
   const humanTyping = typingUsers.filter((u) => u.userId !== "ai_copilot");
+  const onlineCount = activeUsers.length || 1;
+
+  const askAbout = (file) => {
+    setDrawerOpen(false);
+    composerRef.current?.insert(`@dionysus Explain the purpose, key exports and dependencies of #${file} `);
+  };
+
+  const suggestions = [
+    { title: "Tech stack overview", text: "Summarize the architecture and primary tech stack.", prompt: "@dionysus What does this project do and what is its primary tech stack?" },
+    { title: "Database models", text: "Walk through the collections, fields and relations.", prompt: "@dionysus Explain the verified database schema models in this project." },
+  ];
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col bg-background">
-      {/* Top Chat Header */}
-      <div className="flex h-14 items-center justify-between border-b border-border bg-card/60 px-5 backdrop-blur-md">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary">
+    <div
+      ref={cardRef}
+      className={cn(
+        "chat-fade relative flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-border bg-background",
+        CHAT_HEIGHT
+      )}
+    >
+      <ChatStyles />
+
+      {/* ───────── Header ───────── */}
+      <header className="chat-rise relative z-10 flex h-14 shrink-0 items-center justify-between border-b border-border bg-card/70 px-4 backdrop-blur-md">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
             <MessagesSquare className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h1 className="truncate text-sm font-semibold text-foreground">
-                {currentProject?.name || "Project"} Chat Room
-              </h1>
-              <span className="flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
-                <Sparkles className="h-3 w-3" />
-                @dionysus co-pilot active
-              </span>
-            </div>
-            <p className="text-[11px] text-muted-foreground truncate">
-              Real-time workspace collaboration & AI repository assistant
+            <h1 className="truncate text-sm font-semibold leading-tight text-foreground">
+              {currentProject?.name || "Project"} <span className="font-normal text-muted-foreground">· Team chat</span>
+            </h1>
+            <p className="flex items-center gap-1 truncate text-[11px] text-muted-foreground">
+              <Sparkles className="h-3 w-3 text-primary" />
+              Mention <span className="font-mono text-primary">@dionysus</span> for repo-aware answers
             </p>
           </div>
         </div>
 
-        {/* Right Header Controls */}
         <div className="flex items-center gap-3">
-          {/* Active members pill */}
-          <div className="hidden sm:flex items-center gap-1.5 rounded-lg border border-border bg-secondary/60 px-2.5 py-1 text-xs text-muted-foreground">
-            <Users className="h-3.5 w-3.5 text-accent-cyan" />
-            <span className="font-medium text-foreground">{activeUsers.length || 1}</span>
-            <span>online</span>
+          {/* online avatars */}
+          <div className="hidden items-center sm:flex" title={`${onlineCount} online`}>
+            <div className="flex -space-x-2">
+              {activeUsers.slice(0, 3).map((u) => (
+                <div
+                  key={u.id}
+                  title={u.name}
+                  className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border-2 border-card bg-secondary text-[10px] font-semibold text-muted-foreground transition-transform hover:z-10 hover:-translate-y-0.5"
+                >
+                  {u.avatar ? <img src={u.avatar} alt={u.name} className="h-full w-full object-cover" /> : initials(u.name)}
+                </div>
+              ))}
+              {activeUsers.length > 3 && (
+                <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-card bg-secondary text-[10px] font-semibold text-muted-foreground">
+                  +{activeUsers.length - 3}
+                </div>
+              )}
+            </div>
+            <span className="ml-2 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground">{onlineCount}</span> online
+            </span>
           </div>
 
-          {/* Toggle sidebar drawer */}
           <button
             type="button"
-            onClick={() => setShowRightDrawer((prev) => !prev)}
+            onClick={() => setDrawerOpen((p) => !p)}
             className={cn(
-              "flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors",
-              showRightDrawer
+              "flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-[color,background-color,border-color,transform] active:scale-95",
+              drawerOpen
                 ? "border-primary/40 bg-primary/10 text-primary"
                 : "border-border bg-secondary text-muted-foreground hover:text-foreground"
             )}
-            title="Toggle repository panel"
+            title="Room context"
           >
-            <FolderGit2 className="h-3.5 w-3.5" />
-            <span className="hidden md:inline">Repository Details</span>
+            <PanelRight className="h-3.5 w-3.5" />
+            <span className="hidden md:inline">Context</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Main 2-Column Body */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left: Message Stream + Input */}
-        <div className="flex flex-1 flex-col overflow-hidden relative">
-          {/* Message List */}
-          <div
-            ref={scrollContainerRef}
-            onScroll={handleScroll}
-            className="flex-1 overflow-y-auto divide-y divide-border/20 py-4"
-          >
-            {/* Load earlier button / spinner */}
+      {/* ───────── Conversation ───────── */}
+      <div className="relative min-h-0 flex-1">
+        <div ref={scrollRef} onScroll={handleScroll} className="absolute inset-0 overflow-y-auto overscroll-contain">
+          <div className="mx-auto w-full max-w-3xl px-4 pb-6 pt-4">
             {hasMore && (
-              <div className="pb-3 text-center">
+              <div className="pb-2 text-center">
                 <button
                   type="button"
-                  onClick={() =>
-                    dispatch(fetchOlderMessages({ projectId, before: nextCursor }))
-                  }
+                  onClick={() => dispatch(fetchOlderMessages({ projectId, before: nextCursor }))}
                   disabled={isLoadingMore}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-3 py-1 text-xs text-muted-foreground hover:bg-card hover:text-foreground transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1 text-xs text-muted-foreground transition-[color,background-color,transform] hover:bg-card hover:text-foreground active:scale-95"
                 >
                   {isLoadingMore ? (
                     <>
                       <Loader2 className="h-3 w-3 animate-spin" />
-                      Loading earlier messages...
+                      Loading earlier messages…
                     </>
                   ) : (
                     "Load earlier messages"
@@ -228,263 +314,293 @@ export default function ChatRoom() {
               </div>
             )}
 
-            {/* Empty State */}
+            {/* loading skeleton */}
+            {isLoadingMessages && messages.length === 0 && (
+              <div className="space-y-5 pt-4">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className={cn("flex animate-pulse gap-3", i % 2 && "justify-end")}>
+                    {!(i % 2) && <div className="h-8 w-8 shrink-0 rounded-full bg-secondary" />}
+                    <div className="space-y-2">
+                      <div className="h-3 w-24 rounded bg-secondary" />
+                      <div className={cn("h-10 rounded-2xl bg-secondary", i % 2 ? "w-56" : "w-72")} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* empty state */}
             {!isLoadingMessages && messages.length === 0 && (
-              <div className="flex h-full flex-col items-center justify-center p-8 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary mb-3">
-                  <MessagesSquare className="h-6 w-6" />
+              <div className="flex flex-col items-center px-4 py-16 text-center">
+                <div className="chat-rise mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+                  <MessagesSquare className="h-7 w-7" />
                 </div>
-                <h3 className="text-base font-semibold text-foreground">
-                  Welcome to {currentProject?.name || "Repository"} Chat Room!
+                <h3 className="chat-rise text-base font-semibold text-foreground" style={{ animationDelay: "60ms" }}>
+                  Start the conversation
                 </h3>
-                <p className="mt-1 max-w-sm text-xs text-muted-foreground leading-relaxed">
-                  Discuss architecture, collaborate in real-time, or mention{" "}
-                  <code className="rounded bg-primary/15 px-1 py-0.5 font-medium text-primary">
-                    @dionysus
-                  </code>{" "}
-                  to query code files, database models, or system flows.
+                <p className="chat-rise mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground" style={{ animationDelay: "110ms" }}>
+                  Talk with your team in real time, or mention{" "}
+                  <code className="rounded bg-primary/15 px-1 py-0.5 font-medium text-primary">@dionysus</code> to ask
+                  about code, schema and system flows.
                 </p>
-
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left max-w-md w-full">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      sendMessage({
-                        content: "@dionysus What does this project do and what is its primary tech stack?",
-                      })
-                    }
-                    className="flex flex-col gap-1 rounded-xl border border-border bg-card p-3 text-xs hover:border-primary/40 hover:bg-secondary/40 transition-colors"
-                  >
-                    <span className="font-semibold text-primary flex items-center gap-1">
-                      <Sparkles className="h-3 w-3" /> Tech Stack Overview
-                    </span>
-                    <span className="text-muted-foreground text-[11px]">
-                      Ask @dionysus to inspect repo files and summarize architecture.
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      sendMessage({
-                        content: "@dionysus Explain the verified database schema models in this project.",
-                      })
-                    }
-                    className="flex flex-col gap-1 rounded-xl border border-border bg-card p-3 text-xs hover:border-primary/40 hover:bg-secondary/40 transition-colors"
-                  >
-                    <span className="font-semibold text-primary flex items-center gap-1">
-                      <Sparkles className="h-3 w-3" /> Schema Models
-                    </span>
-                    <span className="text-muted-foreground text-[11px]">
-                      Analyze database collections, fields, and relationships.
-                    </span>
-                  </button>
+                <div className="mt-6 grid w-full max-w-lg grid-cols-1 gap-2.5 text-left sm:grid-cols-2">
+                  {suggestions.map((s, i) => (
+                    <button
+                      key={s.title}
+                      type="button"
+                      onClick={() => sendMessage({ content: s.prompt })}
+                      className="chat-rise group flex flex-col gap-1 rounded-xl border border-border bg-card p-3.5 text-xs transition-[border-color,transform,background-color] hover:-translate-y-0.5 hover:border-primary/40 hover:bg-secondary/40 active:scale-[0.98]"
+                      style={{ animationDelay: `${180 + i * 70}ms` }}
+                    >
+                      <span className="flex items-center gap-1.5 font-semibold text-primary">
+                        <Sparkles className="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-12" />
+                        {s.title}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">{s.text}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Messages list with date dividers */}
+            {/* messages */}
             {messages.map((msg, i) => {
               const prev = messages[i - 1];
-              const showDate = !prev || isDifferentDay(prev.createdAt, msg.createdAt);
+              const newDay = !prev || isDifferentDay(prev.createdAt, msg.createdAt);
+              const grouped =
+                !newDay &&
+                prev &&
+                senderKey(prev) === senderKey(msg) &&
+                !msg.replyTo &&
+                new Date(msg.createdAt) - new Date(prev.createdAt) < GROUP_GAP_MS;
+              const isNew = animReady.current && i >= messages.length - 3 && !knownIds.current.has(msg._id);
 
               return (
                 <React.Fragment key={msg._id || i}>
-                  {showDate && (
-                    <div className="relative my-4 flex items-center justify-center">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-border" />
-                      </div>
-                      <span className="relative rounded-full border border-border bg-secondary px-3 py-0.5 text-[10.5px] font-medium text-muted-foreground">
+                  {newDay && (
+                    <div className="chat-fade my-5 flex items-center gap-3">
+                      <div className="h-px flex-1 bg-border" />
+                      <span className="rounded-full border border-border bg-secondary px-3 py-0.5 text-[10.5px] font-medium text-muted-foreground">
                         {formatDateDivider(msg.createdAt)}
                       </span>
+                      <div className="h-px flex-1 bg-border" />
                     </div>
                   )}
                   <ChatMessageItem
                     message={msg}
                     onToggleReaction={toggleReaction}
+                    showHeader={!grouped}
+                    isNew={isNew}
+                    replyTarget={replyTargets.get(msg._id) || null}
                   />
                 </React.Fragment>
               );
             })}
 
-            {/* Live Typing Indicators */}
+            {/* typing / AI thinking */}
             {(aiTyping || humanTyping.length > 0) && (
-              <div className="flex items-center gap-2 px-5 py-2 text-xs text-muted-foreground bg-secondary/20">
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
-                </span>
+              <div className="chat-rise mt-5 flex items-start gap-3">
                 {aiTyping ? (
-                  <span className="font-medium text-primary flex items-center gap-1">
-                    <Sparkles className="h-3 w-3" />
-                    Dionysus AI is generating a verified answer...
-                  </span>
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-primary to-accent-cyan text-primary-foreground shadow-sm">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
                 ) : (
-                  <span>
-                    {humanTyping.map((u) => u.userName).join(", ")}{" "}
-                    {humanTyping.length === 1 ? "is" : "are"} typing...
-                  </span>
+                  <div className="h-8 w-8 shrink-0" />
                 )}
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Jump to bottom floating button */}
-          {showScrollBottom && (
-            <button
-              type="button"
-              onClick={() => scrollToBottom("smooth")}
-              className="absolute bottom-24 right-6 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card shadow-lg text-muted-foreground hover:text-foreground transition-transform hover:scale-110 z-20"
-              title="Jump to latest"
-            >
-              <ArrowDown className="h-4 w-4" />
-            </button>
-          )}
-
-          {/* Chat Input Bar */}
-          <ChatInput
-            onSendMessage={sendMessage}
-            onTyping={handleUserTyping}
-            isConnected={isConnected}
-          />
-        </div>
-
-        {/* Right Drawer: Active Members + Repo Files + Co-pilot info */}
-        {showRightDrawer && (
-          <aside className="hidden lg:flex w-80 flex-col border-l border-border bg-card/40 backdrop-blur-md">
-            {/* Drawer Header */}
-            <div className="flex h-12 items-center justify-between border-b border-border px-4">
-              <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                Room Context
-              </span>
-              <span className="font-mono text-[11px] text-muted-foreground">
-                {chatFiles.length} files indexed
-              </span>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 space-y-5">
-              {/* @dionysus AI card */}
-              <div className="rounded-xl border border-primary/30 bg-primary/[0.04] p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded bg-primary text-primary-foreground">
-                    <Sparkles className="h-3.5 w-3.5" />
+                <div className="relative overflow-hidden rounded-2xl border border-border bg-card px-3.5 py-2.5">
+                  <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                    <TypingDots />
+                    {aiTyping ? (
+                      <span className="font-medium text-primary">Dionysus is reading the repository…</span>
+                    ) : (
+                      <span>
+                        {humanTyping.map((u) => u.userName).join(", ")} {humanTyping.length === 1 ? "is" : "are"} typing
+                      </span>
+                    )}
                   </div>
-                  <div>
-                    <h4 className="text-xs font-semibold text-foreground">
-                      @dionysus Co-pilot
-                    </h4>
-                    <span className="flex items-center gap-1 text-[10px] text-accent-emerald">
-                      <span className="h-1.5 w-1.5 rounded-full bg-accent-emerald" />
-                      Pinecone RAG + Schema Active
-                    </span>
-                  </div>
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Mention <code className="text-primary font-mono">@dionysus</code> in any message. Dionysus uses vector embeddings and verified schema models to cite real repository code.
-                </p>
-              </div>
-
-              {/* Online Team Members */}
-              <div>
-                <h4 className="mb-2 flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  <span>Active Members</span>
-                  <span className="font-mono text-[11px] text-foreground">
-                    {activeUsers.length || 1}
-                  </span>
-                </h4>
-                <div className="space-y-1.5">
-                  {/* Dionysus AI permanent bot */}
-                  <div className="flex items-center gap-2 rounded-lg px-2 py-1.5 bg-secondary/50 text-xs">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-primary">
-                      <Sparkles className="h-3 w-3" />
+                  {aiTyping && (
+                    <div className="absolute inset-x-0 bottom-0 h-0.5 overflow-hidden">
+                      <div className="chat-sweep h-full bg-primary/60" />
                     </div>
-                    <span className="font-medium text-primary truncate flex-1">
-                      Dionysus AI
-                    </span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-accent-emerald" />
-                  </div>
-
-                  {/* Connected users */}
-                  {activeUsers.map((user) => (
-                    <div
-                      key={user.id}
-                      className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-foreground hover:bg-secondary/60 transition-colors"
-                    >
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary border border-border text-[10px] font-semibold text-muted-foreground overflow-hidden">
-                        {user.avatar ? (
-                          <img
-                            src={user.avatar}
-                            alt={user.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          (user.name || "U").slice(0, 2).toUpperCase()
-                        )}
-                      </div>
-                      <span className="truncate flex-1">{user.name}</span>
-                      <span className="h-1.5 w-1.5 rounded-full bg-accent-emerald" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Pinned Repository Files for tagging */}
-              <div>
-                <div className="mb-2 flex items-center justify-between">
-                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Repository Files
-                  </h4>
-                  <span className="text-[10px] text-muted-foreground font-mono">
-                    Type # to insert
-                  </span>
-                </div>
-
-                {/* File search box */}
-                <div className="relative mb-2">
-                  <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={fileSearch}
-                    onChange={(e) => setFileSearch(e.target.value)}
-                    placeholder="Filter repo files..."
-                    className="w-full rounded-lg border border-border bg-secondary/50 pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
-                  />
-                </div>
-
-                {/* File list */}
-                <div className="max-h-60 overflow-y-auto space-y-0.5 rounded-lg border border-border/60 bg-secondary/20 p-1">
-                  {filteredDrawerFiles.length === 0 ? (
-                    <p className="p-3 text-center text-xs text-muted-foreground italic">
-                      No files matching "{fileSearch}"
-                    </p>
-                  ) : (
-                    filteredDrawerFiles.map((file) => (
-                      <button
-                        key={file}
-                        type="button"
-                        onClick={() => {
-                          sendMessage({
-                            content: `@dionysus Please explain the purpose, key exports, and dependencies of #${file}`,
-                          });
-                        }}
-                        className="flex w-full items-center gap-2 rounded px-2 py-1 text-left text-[11px] font-mono text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors group"
-                        title="Click to ask @dionysus about this file"
-                      >
-                        <FileCode className="h-3 w-3 shrink-0 text-accent-cyan opacity-70 group-hover:opacity-100" />
-                        <span className="truncate flex-1">{file}</span>
-                        <ChevronRight className="h-3 w-3 shrink-0 opacity-0 group-hover:opacity-100 text-primary" />
-                      </button>
-                    ))
                   )}
                 </div>
               </div>
-            </div>
-          </aside>
+            )}
+
+            <div ref={endRef} className="h-px" />
+          </div>
+        </div>
+
+        {/* jump to latest */}
+        {showScrollBottom && (
+          <button
+            type="button"
+            onClick={() => {
+              scrollToBottom("smooth");
+              setUnread(0);
+            }}
+            className="chat-pop absolute bottom-4 left-1/2 z-20 flex h-9 -translate-x-1/2 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-medium text-muted-foreground shadow-lg transition-[color,transform] hover:text-foreground active:scale-95"
+          >
+            <ArrowDown className="h-3.5 w-3.5" />
+            {unread > 0 ? (
+              <span className="text-primary">
+                {unread} new message{unread > 1 ? "s" : ""}
+              </span>
+            ) : (
+              "Latest"
+            )}
+          </button>
         )}
       </div>
+
+      {/* ───────── Composer ───────── */}
+      <ChatInput ref={composerRef} onSendMessage={sendMessage} onTyping={handleUserTyping} />
+
+      {/* ───────── Slide-over: context ───────── */}
+      <div
+        onClick={() => setDrawerOpen(false)}
+        className={cn(
+          "chat-scrim absolute inset-0 z-30 bg-background/50",
+          drawerOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        )}
+        aria-hidden
+      />
+      <aside
+        className={cn(
+          "chat-drawer absolute inset-y-0 right-0 z-40 flex w-full max-w-sm flex-col border-l border-border bg-card shadow-2xl",
+          drawerOpen ? "translate-x-0" : "pointer-events-none translate-x-full"
+        )}
+        aria-hidden={!drawerOpen}
+      >
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
+          <span className="text-xs font-semibold uppercase tracking-wider text-foreground">Room context</span>
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(false)}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-[color,background-color,transform] hover:bg-secondary hover:text-foreground active:scale-90"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* AI card */}
+        <div className="shrink-0 p-4 pb-2">
+          <div className="rounded-xl border border-primary/25 bg-primary/[0.05] p-3">
+            <div className="mb-1.5 flex items-center gap-2">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                <Sparkles className="h-3.5 w-3.5" />
+              </div>
+              <h4 className="text-xs font-semibold text-foreground">@dionysus Co-pilot</h4>
+            </div>
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              Uses vector search and verified schema models to answer with real code from this repository.
+            </p>
+          </div>
+        </div>
+
+        {/* tabs with sliding pill */}
+        <div className="shrink-0 px-4 pt-2">
+          <div className="relative grid grid-cols-2 rounded-lg border border-border bg-secondary p-0.5">
+            <div
+              aria-hidden
+              className="chat-pill absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-md bg-card shadow-sm"
+              style={{ transform: tab === "members" ? "translateX(0)" : "translateX(100%)" }}
+            />
+            {[
+              { key: "members", label: "Members", icon: Users, count: onlineCount },
+              { key: "files", label: "Files", icon: FolderGit2, count: chatFiles.length },
+            ].map(({ key, label, icon: Icon, count }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setTab(key)}
+                className={cn(
+                  "relative z-10 flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-colors duration-200",
+                  tab === key ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {label}
+                <span className="font-mono text-[10px] opacity-70">{count}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          {tab === "members" ? (
+            <div key="members" className="chat-rise space-y-1">
+              <div className="flex items-center gap-2.5 rounded-lg bg-secondary/60 px-2.5 py-2 text-xs">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-primary to-accent-cyan text-primary-foreground">
+                  <Sparkles className="h-3.5 w-3.5" />
+                </div>
+                <span className="flex-1 truncate font-medium text-primary">Dionysus AI</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-accent-emerald" />
+              </div>
+              {activeUsers.map((user, i) => (
+                <div
+                  key={user.id}
+                  className="chat-rise flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs text-foreground transition-colors hover:bg-secondary/60"
+                  style={{ animationDelay: `${60 + i * 40}ms` }}
+                >
+                  <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-border bg-secondary text-[10px] font-semibold text-muted-foreground">
+                    {user.avatar ? <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" /> : initials(user.name)}
+                  </div>
+                  <span className="flex-1 truncate">{user.name}</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent-emerald" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div key="files" className="chat-rise space-y-2">
+              {chatFiles.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center">
+                  <FolderGit2 className="mx-auto mb-2 h-5 w-5 text-muted-foreground" />
+                  <p className="text-xs font-medium text-foreground">No files indexed yet</p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                    Once the repository is indexed, its files appear here so you can tag them with{" "}
+                    <span className="font-mono text-foreground">#</span>.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={fileSearch}
+                      onChange={(e) => setFileSearch(e.target.value)}
+                      placeholder="Filter files…"
+                      className="w-full rounded-lg border border-border bg-secondary/50 py-1.5 pl-8 pr-3 text-xs text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-0.5">
+                    {filteredFiles.length === 0 ? (
+                      <p className="p-3 text-center text-xs italic text-muted-foreground">
+                        No files match “{fileSearch}”
+                      </p>
+                    ) : (
+                      filteredFiles.map((file) => (
+                        <button
+                          key={file}
+                          type="button"
+                          onClick={() => askAbout(file)}
+                          title="Ask @dionysus about this file"
+                          className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left font-mono text-[11px] text-muted-foreground transition-[color,background-color,transform] hover:bg-secondary hover:text-foreground active:scale-[0.99]"
+                        >
+                          <FileCode className="h-3 w-3 shrink-0 text-accent-cyan opacity-70 group-hover:opacity-100" />
+                          <span className="flex-1 truncate">{file}</span>
+                          <Sparkles className="h-3 w-3 shrink-0 text-primary opacity-0 transition-opacity group-hover:opacity-100" />
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </aside>
     </div>
   );
 }
