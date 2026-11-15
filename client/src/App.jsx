@@ -8,7 +8,7 @@ import { Toaster } from "sonner";
 
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 import AppShell from "./components/layout/AppShell";
-import LandingPage from "./pages/LandingPage";
+import LandingPage from "./pages/landing/LandingPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProjectHome from "./pages/ProjectHome";
