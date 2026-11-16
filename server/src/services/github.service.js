@@ -8,7 +8,10 @@ const { getEmbeddings, getSummary, summariseCommit, geminiChat } = require('./op
 const { upsertEmbeddings, serializeNamespace } = require('./vector.service');
 
 let octokitClient = null;
-const getOctokit = () => {
+const getOctokit = (token = null) => {
+  if (token) {
+    return new Octokit({ auth: token });
+  }
   if (!octokitClient) {
     octokitClient = new Octokit({
       auth: process.env.GITHUB_PERSONAL_ACCESS_TOKEN || undefined,
@@ -154,8 +157,9 @@ const readAllFiles = (dir, baseDir = dir) => {
 
 /**
  * Clone a GitHub repository and read all files
+ * Pass a personal access token to clone private repositories.
  */
-const cloneAndReadRepo = async (githubUrl) => {
+const cloneAndReadRepo = async (githubUrl, token = null) => {
   // Use system temp dir to avoid OneDrive file locking issues on Windows
   const os = require('os');
   const tmpDir = path.join(os.tmpdir(), 'dionysus', `repo_${Date.now()}`);
@@ -165,8 +169,13 @@ const cloneAndReadRepo = async (githubUrl) => {
     fs.rmSync(tmpDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 1000 });
   }
 
+  // Inject token for private repos
+  const cloneUrl = token
+    ? githubUrl.replace('https://github.com/', `https://${token}@github.com/`)
+    : githubUrl;
+
   const git = simpleGit();
-  await git.clone(githubUrl, tmpDir);
+  await git.clone(cloneUrl, tmpDir);
 
   const files = readAllFiles(tmpDir);
 
@@ -236,9 +245,9 @@ const generateFileTreeGraph = (filePaths, projectName = 'Repository') => {
 /**
  * Generate documentation by cloning repo, summarizing files, and storing embeddings
  */
-const generateDocumentation = async (githubUrl) => {
+const generateDocumentation = async (githubUrl, token = null) => {
   // 1. Clone and read repo
-  const files = await cloneAndReadRepo(githubUrl);
+  const files = await cloneAndReadRepo(githubUrl, token);
   const filePaths = files.map((f) => f.source);
   const projectName = githubUrl.split('/').pop();
   const mermaidGraph = generateFileTreeGraph(filePaths, projectName);
@@ -387,8 +396,8 @@ Respond ONLY with a valid JSON object where keys are the exact section names (wi
 /**
  * Fetch latest commit hashes from GitHub
  */
-const getCommitHashes = async (githubUrl) => {
-  const octokit = getOctokit();
+const getCommitHashes = async (githubUrl, token = null) => {
+  const octokit = getOctokit(token);
   const parts = githubUrl.split('/');
   const owner = parts[3];
   const repo = parts[4];
@@ -417,8 +426,8 @@ const getCommitHashes = async (githubUrl) => {
 /**
  * Poll a repo for new commits, summarize them, and store in DB
  */
-const pollRepo = async (githubUrl, projectId) => {
-  const commitHashes = await getCommitHashes(githubUrl);
+const pollRepo = async (githubUrl, projectId, token = null) => {
+  const commitHashes = await getCommitHashes(githubUrl, token);
 
   const existingCommits = await Commit.find({ project: projectId });
   const existingHashes = new Set(existingCommits.map((c) => c.commitHash));
@@ -434,8 +443,9 @@ const pollRepo = async (githubUrl, projectId) => {
       const headers = {
         Accept: 'application/vnd.github.v3.diff',
       };
-      if (process.env.GITHUB_PERSONAL_ACCESS_TOKEN) {
-        headers.Authorization = `token ${process.env.GITHUB_PERSONAL_ACCESS_TOKEN}`;
+      const authToken = token || process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
+      if (authToken) {
+        headers.Authorization = `token ${authToken}`;
       }
       const response = await axios.get(
         `${githubUrl}/commit/${commit.commitHash}.diff`,

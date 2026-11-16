@@ -35,7 +35,9 @@ import {
   FolderGit2,
   MessagesSquare,
 } from "lucide-react";
+import { GithubIcon } from "@/components/ui/github-icon";
 import ProjectSettingsModal from "@/components/project/ProjectSettingsModal";
+import GithubRepoPickerModal from "@/components/project/GithubRepoPickerModal";
 
 /* ────────────────────────────────────────────────────────────
    Motion is deliberately small and purposeful:
@@ -265,6 +267,7 @@ export default function AppShell({ children }) {
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [showProjectSettings, setShowProjectSettings] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showGithubPicker, setShowGithubPicker] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
@@ -618,6 +621,7 @@ export default function AppShell({ children }) {
                   </form>
                   </Expand>
                 ) : (
+                  <>
                   <button
                     type="button"
                     onClick={() => setShowCreateProject(true)}
@@ -626,6 +630,17 @@ export default function AppShell({ children }) {
                     <Plus className="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-90" />
                     Connect repository
                   </button>
+                  {user?.githubId && (
+                    <button
+                      type="button"
+                      onClick={() => setShowGithubPicker(true)}
+                      className="group mt-1 flex w-full cursor-pointer items-center gap-2.5 rounded-lg border border-dashed border-border px-3 py-1.5 text-[13px] text-muted-foreground transition-colors hover:border-primary/50 hover:bg-card hover:text-primary"
+                    >
+                      <GithubIcon className="h-3.5 w-3.5" />
+                      Import from GitHub
+                    </button>
+                  )}
+                  </>
                 )}
               </div>
             )}
@@ -655,6 +670,16 @@ export default function AppShell({ children }) {
                     </button>
                     <Tip>Sign out</Tip>
                   </div>
+                  <div className="group relative flex justify-center">
+                    <Link
+                      to="/settings"
+                      aria-label="Account settings"
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Link>
+                    <Tip>Settings</Tip>
+                  </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-between gap-2 border-t border-sidebar-border pt-3">
@@ -669,15 +694,26 @@ export default function AppShell({ children }) {
                       </p>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    title="Sign out"
-                    aria-label="Sign out"
-                    className="shrink-0 cursor-pointer rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Link
+                      to="/settings"
+                      onClick={afterNav}
+                      title="Account settings"
+                      aria-label="Account settings"
+                      className="cursor-pointer rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      title="Sign out"
+                      aria-label="Sign out"
+                      className="shrink-0 cursor-pointer rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <LogOut className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               )}
             </Reveal>
@@ -823,6 +859,11 @@ export default function AppShell({ children }) {
         project={currentProject}
         isOpen={showProjectSettings}
         onClose={() => setShowProjectSettings(false)}
+      />
+
+      <GithubRepoPickerModal
+        isOpen={showGithubPicker}
+        onClose={() => setShowGithubPicker(false)}
       />
     </div>
   );

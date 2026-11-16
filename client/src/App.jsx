@@ -20,6 +20,8 @@ import FileVisualisation from "./pages/FileVisualisation";
 import ProjectHealth from "./pages/ProjectHealth";
 import DeepWiki from "./pages/DeepWiki";
 import ChatRoom from "./pages/ChatRoom";
+import UserSettings from "./pages/UserSettings";
+import AuthCallback from "./pages/AuthCallback";
 
 function ProtectedRoute({ children }) {
   const { token } = useSelector((state) => state.auth);
@@ -179,6 +181,19 @@ function AppRoutes() {
 
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
+
+      {/* Settings (protected) */}
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <UserSettings />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* GitHub OAuth callback (public) */}
+      <Route path="/auth/callback" element={<AuthCallback />} />
     </Routes>
   );
 }

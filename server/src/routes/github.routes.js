@@ -1,5 +1,5 @@
 const express = require('express');
-const { linkRepo, pollCommits } = require('../controllers/github.controller');
+const { linkRepo, pollCommits, getUserRepos } = require('../controllers/github.controller');
 const {
   generateArchitecture,
   generateDependencies,
@@ -11,6 +11,9 @@ const { protect } = require('../middleware/auth.middleware');
 const router = express.Router();
 
 router.use(protect);
+
+// User-level GitHub endpoints (must be before /:id routes)
+router.get('/user-repos', getUserRepos);
 
 router.post('/:id/link-repo', linkRepo);
 router.post('/:id/poll-commits', pollCommits);

@@ -5,6 +5,7 @@ import { loginUser, clearError } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
 import PasswordField from "@/components/ui/password-field";
 import AuthLayout, { AuthError, AuthField, Magnetic } from "@/components/layout/AuthLayout";
+import GithubButton, { AuthDivider } from "@/components/auth/GithubAuth";
 import { Mail, ArrowRight } from "lucide-react";
 
 export default function Login() {
@@ -79,6 +80,10 @@ export default function Login() {
             <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Button>
         </Magnetic>
+
+        <AuthDivider />
+
+        <GithubButton disabled={isLoading} />
       </form>
     </AuthLayout>
   );

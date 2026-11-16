@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      required: function () { return !this.githubId; },
       minlength: 6,
       select: false,
     },
@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    // GitHub OAuth fields
+    githubId: { type: String, sparse: true, index: true, default: null },
+    githubUsername: { type: String, default: '' },
+    githubAvatar: { type: String, default: '' },
+    githubAccessToken: { type: String, select: false, default: null },
+    githubConnectedAt: { type: Date, default: null },
   },
   {
     timestamps: true,
@@ -41,13 +47,16 @@ userSchema.pre('save', async function () {
 
 // Compare password method
 userSchema.methods.comparePassword = async function (candidatePassword) {
+  if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Remove password from JSON output
+// Remove sensitive fields from JSON output
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
+  user.hasPassword = Boolean(this.password);
   delete user.password;
+  delete user.githubAccessToken;
   return user;
 };
 
