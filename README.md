@@ -4,7 +4,7 @@
 
 ### AI Codebase Intelligence & Collaboration Platform
 
-*Transform raw source code and team meetings into interactive architecture maps, automated wikis, semantic Q&A, and real-time collaborative intelligence.*
+*Turn source code and team meetings into interactive architecture maps, auto-generated wikis, semantic Q&A, and real-time collaborative intelligence.*
 
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
@@ -13,208 +13,308 @@
 [![Gemini](https://img.shields.io/badge/Google_Gemini-AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
+[Features](#-features) · [Architecture](#-architecture) · [Getting Started](#-getting-started) · [API Reference](#-api-reference) · [Contributing](#-contributing)
+
 </div>
 
 ---
 
 ## 📖 Table of Contents
 
-- [About The Project](#-about-the-project)
-- [Core Features](#-core-features)
-- [Architecture Overview](#-architecture-overview)
+- [Overview](#-overview)
+- [Features](#-features)
+- [Architecture](#-architecture)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
-- [Prerequisites](#-prerequisites)
-- [Installation & Setup](#-installation--setup)
-- [Environment Variables](#-environment-variables)
-- [GitHub OAuth Setup](#-github-oauth-setup)
-- [Running Locally](#-running-locally)
+- [Getting Started](#-getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Environment Variables](#environment-variables)
+  - [GitHub OAuth Setup](#github-oauth-setup)
+  - [Running Locally](#running-locally)
 - [API Reference](#-api-reference)
 - [Performance & Battery Optimization](#-performance--battery-optimization)
 - [Contributing](#-contributing)
 - [License](#-license)
-- [Developed By](#-developed-by)
+- [Authors](#-authors)
 
 ---
 
-## 🚀 About The Project
+## 🚀 Overview
 
-**Dionysus** is a full-stack, AI-powered developer intelligence platform built to eliminate the friction of onboarding, documentation, and architectural understanding in large codebases.
+**Dionysus** is a full-stack, AI-powered developer intelligence platform that removes the friction of onboarding, documentation, and architectural understanding in large codebases.
 
-Connecting to any public or private GitHub repository, Dionysus automatically:
+Connect any public or private GitHub repository and Dionysus will automatically:
 
-- Generates an **interactive visual architecture map** with blast-radius tracing
-- Builds a **5-chapter DeepWiki** technical knowledge base from your code
-- Enables **semantic codebase Q&A** backed by vector search and Google Gemini
-- Transcribes **engineering meetings** and extracts AI-generated action items
-- Visualizes **database schemas** as Entity-Relationship Diagrams
-- Scores **repository health** on a 0–100 scale with actionable recommendations
-- Hosts **real-time team chat rooms** with an embedded `@dionysus` AI co-pilot
+| Capability | What you get |
+|---|---|
+| 🗺️ **Architecture mapping** | Interactive layered map with blast-radius tracing |
+| 📚 **DeepWiki** | A 5-chapter technical wiki generated from your code |
+| 💬 **Semantic Q&A** | RAG-powered answers with code citations (Pinecone + Gemini) |
+| 🎙️ **Meeting intelligence** | Transcription and AI-extracted engineering action items |
+| 🗄️ **Schema visualization** | Auto-detected ER diagrams from Mongoose / Prisma |
+| 🏥 **Health scoring** | 0–100 repository score with actionable fixes |
+| 👥 **Team chat** | Real-time rooms with an embedded `@dionysus` AI co-pilot |
 
-> Built for engineering teams who value velocity, clarity, and deep codebase understanding without manually writing a single line of documentation.
-
----
-
-## ✨ Core Features
-
-### 1. 🗺️ Interactive Architecture & Dependency Graph
-- **Subsystem Boundary Mapping** — Visualizes presentation layers, API gateways, controllers, business services, persistence layers, and external AI integrations in layered cluster containers
-- **Curved Dotted Connectors with Status Badges** — DoubleLoop & Linear-inspired data flow lines with inline correlation/protocol pill badges (e.g. `+0.998`, `HTTP`, `SQL`, `-0.644 Cycle!`)
-- **Blast Radius & Impact Mode** — Click any component to instantly trace upstream callers (sky blue) and downstream dependents (emerald), dimming unrelated nodes
-- **Full-Bleed Blueprint Canvas** — High-contrast, theme-aware dot canvas with smooth wheel zooming and vertical scrollbar navigation
-- **File & Dependency Visualizer** — Cytoscape.js-powered file-level dependency graph with force-directed layout
-
-### 2. 🤖 AI-Powered DeepWiki Generation
-- Automatically generates a comprehensive **5-chapter technical wiki** from your repository source code
-- Chapters cover: Project Overview, Architecture, Key Modules, Data Flow, and API Reference
-- Rendered as rich Markdown with an interactive chapter tree navigator
-- Supports polling for incremental wiki regeneration as the codebase evolves
-
-### 3. 💬 Semantic Codebase Q&A (RAG)
-- **Vector Embeddings via Pinecone** — Repository code chunked, embedded, and stored for high-accuracy retrieval
-- **Google Gemini Integration** — Accurate code citations, architecture explanations, and function-level reasoning
-- **Rich Answer Rendering** — Syntax-highlighted code blocks, file references, and markdown output
-- **Conversation History** — Maintains Q&A session context per project
-
-### 4. 🎙️ Meeting Transcription & Audio Intelligence
-- **Speech-to-Text via AssemblyAI** — Upload MP3/WAV files for multi-speaker recognition with timestamps
-- **AI Action Item Extraction** — Automatically converts transcribed discussions into prioritized engineering tasks
-- **Meeting Archive** — Browse, replay, and search through past meeting transcripts per project
-
-### 5. 🏥 Repository Health Scorecard
-- **Automated 0–100 Score** (grades A+ to F) evaluating architectural coupling, code complexity, dead code, and setup readiness
-- **Radar Chart Visualization** — Multi-axis health breakdown: Maintainability, Complexity, Documentation, Test Coverage, Security
-- **Quick Fix Recommendations** — Actionable cards pointing to specific files and line ranges that need attention
-
-### 6. 🗄️ Database Schema Intelligence
-- **Automatic Mongoose & Prisma Parsing** — Detects schemas from your repository without manual configuration
-- **Interactive ER Diagram** — Entity-relationship diagram with field types, relationships, and cardinality annotations
-- **Missing Index Warnings** — Flags unindexed fields on high-query collections
-
-### 7. 💬 Real-Time Team Chat with AI Co-Pilot
-- **WebSocket-Powered Chat Rooms** — One room scoped per repository for focused team communication
-- **`@dionysus` AI Agent** — Mention `@dionysus` in any message to get in-thread code citations and architecture answers
-- **`#file` Mentions** — Reference specific files directly in chat with inline previews
-- **Persistent Message History** — Full chat history stored and paginated per room
-
-### 8. 🔐 GitHub OAuth & Repository Integration
-- **GitHub OAuth 2.0 Flow** — One-click "Connect GitHub" with scopes: `read:user`, `user:email`, `repo`
-- **Public & Private Repository Access** — Clones private repos using the authenticated user's access token
-- **1-Click Repository Picker** — Browse all your GitHub repos (with Public/Private filter and instant search), import directly without copy-pasting URLs
-- **Account Linking** — Connect GitHub to an existing local account; disconnect at any time from Settings
-
-### 9. ⚙️ User Settings & Profile Management
-- **Profile Tab** — Edit display name, email, and avatar with live preview
-- **GitHub Tab** — View connection status, linked username & avatar, connect/disconnect GitHub account
-- **Security Tab** — Set or change password with strength indicator (supports accounts created via GitHub OAuth with no initial password)
-
-### 10. 🎨 Battery-Aware Animated Landing Page
-- **3-Tier Performance System** — Automatically detects GPU performance tier (`high` / `mid` / `low`)
-- **Battery API Integration** — Reduces animation complexity when device is on battery to preserve charge, restores full animations when plugged in
-- **Smooth Lenis Scroll** — Physics-based smooth scrolling with tier-aware lerp values
-- **GSAP + Framer Motion** — Cinematic scroll-triggered animations, 3D hero playground, and parallax sections
+> Built for engineering teams who value velocity, clarity, and deep codebase understanding, without hand-writing documentation.
 
 ---
 
-## 🏗️ Architecture Overview
+## ✨ Features
 
+<details open>
+<summary><b>🗺️ 1. Interactive Architecture & Dependency Graph</b></summary>
+
+- **Subsystem boundary mapping**: presentation, API gateway, controllers, services, persistence, and external AI integrations shown as layered clusters
+- **Annotated connectors**: curved dotted data-flow lines with protocol/correlation badges (`HTTP`, `SQL`, `+0.998`, `-0.644 Cycle!`)
+- **Blast radius mode**: click a component to highlight upstream callers (sky blue) and downstream dependents (emerald); unrelated nodes dim
+- **Blueprint canvas**: theme-aware dot grid with smooth wheel zoom
+- **File-level dependency graph**: Cytoscape.js with force-directed layout
+
+</details>
+
+<details>
+<summary><b>🤖 2. AI-Powered DeepWiki</b></summary>
+
+- Generates a **5-chapter wiki**: Project Overview, Architecture, Key Modules, Data Flow, API Reference
+- Rendered as Markdown with an interactive chapter navigator
+- Polling-based incremental regeneration as the codebase evolves
+
+</details>
+
+<details>
+<summary><b>💬 3. Semantic Codebase Q&A (RAG)</b></summary>
+
+- **Pinecone embeddings**: code is chunked, embedded, and stored for accurate retrieval
+- **Google Gemini**: code citations, architecture explanations, function-level reasoning
+- **Rich rendering**: syntax-highlighted code, file references, Markdown
+- **Per-project conversation history**
+
+</details>
+
+<details>
+<summary><b>🎙️ 4. Meeting Transcription & Audio Intelligence</b></summary>
+
+- **AssemblyAI speech-to-text**: MP3/WAV upload with multi-speaker recognition and timestamps
+- **Action item extraction**: discussions become prioritized engineering tasks
+- **Meeting archive**: browse and search past transcripts per project
+
+</details>
+
+<details>
+<summary><b>🏥 5. Repository Health Scorecard</b></summary>
+
+- **Score from 0–100** (grades A+ to F) covering coupling, complexity, dead code, and setup readiness
+- **Radar chart**: Maintainability, Complexity, Documentation, Test Coverage, Security
+- **Quick-fix cards** pointing to specific files and line ranges
+
+</details>
+
+<details>
+<summary><b>🗄️ 6. Database Schema Intelligence</b></summary>
+
+- **Automatic Mongoose & Prisma parsing** with zero configuration
+- **Interactive ER diagram** with field types, relationships, and cardinality
+- **Missing-index warnings** for high-query collections
+
+</details>
+
+<details>
+<summary><b>👥 7. Real-Time Team Chat with AI Co-Pilot</b></summary>
+
+- **WebSocket rooms**: one per repository
+- **`@dionysus` agent**: mention it for in-thread code citations and architecture answers
+- **`#file` mentions** with inline previews
+- **Persistent, paginated history**
+
+</details>
+
+<details>
+<summary><b>🔐 8. GitHub OAuth & Repository Integration</b></summary>
+
+- **OAuth 2.0** with scopes `read:user`, `user:email`, `repo`
+- **Private repo support**: cloned using the user's access token
+- **1-click repo picker** with Public/Private filter and instant search
+- **Account linking**: connect or disconnect GitHub anytime from Settings
+
+</details>
+
+<details>
+<summary><b>⚙️ 9. User Settings</b></summary>
+
+- **Profile**: display name, email, avatar with live preview
+- **GitHub**: connection status, linked username and avatar
+- **Security**: set or change password with strength indicator (supports GitHub-only accounts)
+
+</details>
+
+<details>
+<summary><b>🎨 10. Battery-Aware Animated Landing Page</b></summary>
+
+- **3-tier performance system** (`high` / `mid` / `low`) based on GPU performance
+- **Battery API integration**: reduces animation load on battery, restores when plugged in
+- **Lenis smooth scroll** with tier-aware lerp values
+- **GSAP + Framer Motion**: scroll-triggered animation, 3D hero, parallax
+
+</details>
+
+---
+
+## 🏗️ Architecture
+
+### System Overview
+
+```mermaid
+flowchart TB
+    subgraph CLIENT["🖥️ Client · React + Vite"]
+        direction TB
+        UI["Landing Page<br/>App Shell · Command Palette"]
+        VIEWS["Project Views<br/>Architecture · DeepWiki · Q&A<br/>Health · Schema · Meetings · Chat"]
+        STORE["Redux Toolkit<br/>auth · project · chat"]
+        UI --> STORE
+        VIEWS --> STORE
+    end
+
+    subgraph SERVER["⚙️ Server · Node.js + Express"]
+        direction TB
+        MW["Middleware<br/>JWT Auth · Multer · Error Handler"]
+        ROUTES["REST Routes<br/>auth · github · projects · wiki<br/>ai · meetings · schema · health"]
+        WS["WebSocket Gateway<br/>chat rooms"]
+        SVC["Services<br/>github · deepwiki · vector · architecture<br/>health · schema · assembly · copilot"]
+        MW --> ROUTES
+        ROUTES --> SVC
+        WS --> SVC
+    end
+
+    subgraph DATA["🗃️ Data Layer"]
+        MONGO[("MongoDB<br/>Mongoose")]
+        PINE[("Pinecone<br/>Vector Index")]
+        CLOUD[("Cloudinary<br/>Audio · Avatars")]
+    end
+
+    subgraph EXT["🌐 External Services"]
+        GEM["Google Gemini"]
+        ASM["AssemblyAI"]
+        GH["GitHub API / OAuth"]
+    end
+
+    STORE -- "REST (JWT)" --> MW
+    STORE -- "WebSocket" --> WS
+    SVC --> MONGO
+    SVC --> PINE
+    SVC --> CLOUD
+    SVC --> GEM
+    SVC --> ASM
+    SVC --> GH
+
+    classDef client fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+    classDef server fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef data fill:#fef9c3,stroke:#ca8a04,color:#713f12
+    classDef ext fill:#f3e8ff,stroke:#9333ea,color:#581c87
+    class UI,VIEWS,STORE client
+    class MW,ROUTES,WS,SVC server
+    class MONGO,PINE,CLOUD data
+    class GEM,ASM,GH ext
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        CLIENT  (React + Vite)                        │
-│                                                                       │
-│  Landing Page          App Shell            Project Views             │
-│  ┌──────────┐         ┌─────────────┐      ┌───────────────────┐    │
-│  │ Hero3D   │         │ Sidebar Nav │      │ ArchitectureMap   │    │
-│  │ Sections │         │ Command     │      │ DeepWiki          │    │
-│  │ Lenis    │         │ Palette     │      │ QnA (RAG)         │    │
-│  │ GSAP     │         │ GitHub Repo │      │ DependencyGraph   │    │
-│  └──────────┘         │ Picker      │      │ ProjectHealth     │    │
-│                        │ Chat Room   │      │ DatabaseSchema    │    │
-│  Redux Toolkit         └─────────────┘      │ Meetings          │    │
-│  ┌──────────────────────────────────┐       │ FileVisualizer    │    │
-│  │ authSlice · projectSlice         │       └───────────────────┘    │
-│  │ chatSlice · settingsSlice        │                                 │
-│  └──────────────────────────────────┘                                │
-└───────────────────────────────┬─────────────────────────────────────┘
-                                │  REST + WebSocket
-┌───────────────────────────────▼─────────────────────────────────────┐
-│                     SERVER  (Node.js + Express)                       │
-│                                                                       │
-│  Routes & Controllers                                                 │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │
-│  │  /auth   │ │/projects │ │ /github  │ │  /wiki   │ │  /ai     │  │
-│  │  OAuth   │ │  CRUD    │ │user-repos│ │DeepWiki  │ │  Q&A     │  │
-│  │  Profile │ │ link-repo│ │  clone   │ │  gen     │ │  RAG     │  │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘  │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐               │
-│  │/meetings │ │ /schema  │ │ /health  │ │  /chat   │               │
-│  │AssemblyAI│ │  ER Diag │ │Scorecard │ │WebSocket │               │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘               │
-│                                                                       │
-│  Services                                                             │
-│  github.service  · deepwiki.service  · vector.service                │
-│  architecture.service · health-calculator · schema-analyzer          │
-│  assembly.service · copilot.service · dependency-graph               │
-│                                                                       │
-│  Data Layer                                                           │
-│  ┌────────────┐  ┌──────────────┐  ┌───────────────┐               │
-│  │  MongoDB   │  │   Pinecone   │  │  Cloudinary   │               │
-│  │  Mongoose  │  │ Vector Index │  │ Audio/Avatars │               │
-│  └────────────┘  └──────────────┘  └───────────────┘               │
-└─────────────────────────────────────────────────────────────────────┘
+
+### Repository Ingestion Pipeline
+
+```mermaid
+flowchart LR
+    A["🔗 Link repo<br/>POST /github/link-repo"] --> B["📥 Clone<br/>simple-git + OAuth token"]
+    B --> C["🔍 Analyze<br/>code · deps · schemas"]
+    C --> D["✂️ Chunk & embed"]
+    D --> E[("Pinecone")]
+    C --> F["🗺️ Architecture graph"]
+    C --> G["🏥 Health score"]
+    C --> H["🗄️ ER diagram"]
+    C --> I["📚 DeepWiki<br/>Gemini"]
+    F & G & H & I --> J[("MongoDB")]
+
+    classDef step fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+    classDef store fill:#fef9c3,stroke:#ca8a04,color:#713f12
+    class A,B,C,D,F,G,H,I step
+    class E,J store
+```
+
+### Semantic Q&A (RAG) Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Developer
+    participant C as React Client
+    participant S as Express API
+    participant V as Pinecone
+    participant G as Gemini
+    participant M as MongoDB
+
+    U->>C: Ask a question about the codebase
+    C->>S: POST /api/ai/ask (JWT)
+    S->>V: Embed query, similarity search
+    V-->>S: Top-K relevant code chunks
+    S->>G: Prompt + retrieved context
+    G-->>S: Answer with code citations
+    S->>M: Save Q&A history
+    S-->>C: Rendered answer
+    C-->>U: Markdown, code blocks, file refs
 ```
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-| Technology | Version | Purpose |
-|---|---|---|
-| [React](https://react.dev) | 18 | UI component framework |
-| [Vite](https://vitejs.dev) | 5 | Build tool & dev server |
-| [Redux Toolkit](https://redux-toolkit.js.org) | 2 | Global state management |
-| [React Router](https://reactrouter.com) | 6 | Client-side routing |
-| [Tailwind CSS](https://tailwindcss.com) | 3 | Utility-first styling |
-| [shadcn/ui](https://ui.shadcn.com) | — | Accessible UI components |
-| [GSAP](https://gsap.com) | 3 | Scroll-triggered animations |
-| [Framer Motion](https://www.framer.com/motion) | 11 | Declarative animations |
-| [Lenis](https://lenis.darkroom.engineering) | 1 | Smooth scroll physics |
-| [Cytoscape.js](https://cytoscape.org) | 3 | Dependency graph rendering |
-| [Mermaid](https://mermaid.js.org) | 11 | Diagram-as-code rendering |
-| [React Flow](https://reactflow.dev) | 11 | Architecture canvas & nodes |
-| [Lucide React](https://lucide.dev) | — | Icon system |
-| [Monaco Editor](https://microsoft.github.io/monaco-editor) | — | In-browser code viewer |
+<table>
+<tr>
+<td valign="top" width="50%">
 
-### Backend
-| Technology | Version | Purpose |
-|---|---|---|
-| [Node.js](https://nodejs.org) | 18+ | JavaScript runtime |
-| [Express.js](https://expressjs.com) | 4 | HTTP server & routing |
-| [MongoDB](https://mongodb.com) | 7 | Primary database |
-| [Mongoose](https://mongoosejs.com) | 8 | ODM & schema modeling |
-| [JSON Web Token](https://jwt.io) | — | Stateless authentication |
-| [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | — | Password hashing |
-| [simple-git](https://github.com/steveukx/git-js) | — | Git repository operations |
-| [ws](https://github.com/websockets/ws) | — | WebSocket server |
-| [Multer](https://github.com/expressjs/multer) | — | File upload handling |
-| [Axios](https://axios-http.com) | 1 | HTTP client for external APIs |
+**Frontend**
 
-### AI & ML Services
+| Technology | Purpose |
+|---|---|
+| [React 18](https://react.dev) | UI framework |
+| [Vite 5](https://vitejs.dev) | Build tool & dev server |
+| [Redux Toolkit 2](https://redux-toolkit.js.org) | State management |
+| [React Router 6](https://reactrouter.com) | Routing |
+| [Tailwind CSS 3](https://tailwindcss.com) | Styling |
+| [shadcn/ui](https://ui.shadcn.com) | UI components |
+| [GSAP 3](https://gsap.com) / [Framer Motion 11](https://www.framer.com/motion) | Animation |
+| [Lenis](https://lenis.darkroom.engineering) | Smooth scroll |
+| [Cytoscape.js 3](https://cytoscape.org) | Dependency graph |
+| [React Flow 11](https://reactflow.dev) | Architecture canvas |
+| [Mermaid 11](https://mermaid.js.org) | Diagram rendering |
+| [Monaco Editor](https://microsoft.github.io/monaco-editor) | Code viewer |
+
+</td>
+<td valign="top" width="50%">
+
+**Backend**
+
+| Technology | Purpose |
+|---|---|
+| [Node.js 18+](https://nodejs.org) | Runtime |
+| [Express 4](https://expressjs.com) | HTTP server |
+| [MongoDB 7](https://mongodb.com) + [Mongoose 8](https://mongoosejs.com) | Database & ODM |
+| [JWT](https://jwt.io) + [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | Auth & hashing |
+| [simple-git](https://github.com/steveukx/git-js) | Git operations |
+| [ws](https://github.com/websockets/ws) | WebSocket server |
+| [Multer](https://github.com/expressjs/multer) | File uploads |
+| [Axios](https://axios-http.com) | HTTP client |
+| [Octokit](https://github.com/octokit/octokit.js) | GitHub API client |
+
+</td>
+</tr>
+</table>
+
+**AI & Cloud Services**
+
 | Service | Purpose |
 |---|---|
-| [Google Gemini](https://deepmind.google/technologies/gemini) | Code Q&A, wiki generation, action item extraction |
-| [Pinecone](https://pinecone.io) | Vector database for RAG-based semantic search |
-| [AssemblyAI](https://assemblyai.com) | Speech-to-text transcription with speaker diarization |
-| [Cloudinary](https://cloudinary.com) | Audio file & avatar image storage/delivery |
-
-### Developer Tools & Infrastructure
-| Tool | Purpose |
-|---|---|
-| [GitHub OAuth 2.0](https://docs.github.com/en/apps/oauth-apps) | Repository authentication & account linking |
-| [GitHub REST API v3](https://docs.github.com/en/rest) | Repository metadata, file tree, commit history |
-| [Octokit](https://github.com/octokit/octokit.js) | Typed GitHub API client |
-| [dotenv](https://github.com/motdotla/dotenv) | Environment variable management |
+| [Google Gemini](https://deepmind.google/technologies/gemini) | Q&A, wiki generation, action-item extraction |
+| [Pinecone](https://pinecone.io) | Vector database for semantic search |
+| [AssemblyAI](https://assemblyai.com) | Speech-to-text with speaker diarization |
+| [Cloudinary](https://cloudinary.com) | Audio and avatar storage |
+| [GitHub OAuth 2.0 / REST API](https://docs.github.com/en/apps/oauth-apps) | Auth, repo metadata, file tree, commits |
 
 ---
 
@@ -222,463 +322,355 @@ Connecting to any public or private GitHub repository, Dionysus automatically:
 
 ```
 dionysus-rebuild/
-├── client/                          # React frontend (Vite)
-│   ├── public/                      # Static assets
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── layout/
-│   │   │   │   └── AppShell.jsx     # Main application shell & navigation
-│   │   │   ├── motion/
-│   │   │   │   ├── SmoothScroll.jsx # Lenis smooth scroll wrapper
-│   │   │   │   └── usePerfTier.js   # GPU/battery performance detection
-│   │   │   ├── project/
-│   │   │   │   └── GithubRepoPickerModal.jsx  # 1-click repo importer
-│   │   │   └── ui/                  # shadcn/ui components + github-icon
-│   │   ├── pages/
-│   │   │   ├── landing/             # Public landing page
-│   │   │   │   ├── LandingPage.jsx
-│   │   │   │   ├── Hero3D.jsx       # Three.js / GSAP 3D hero
-│   │   │   │   ├── theme.js         # CSS variables & battery-aware rules
-│   │   │   │   ├── usePerfTier.js   # 3-tier perf hook
-│   │   │   │   ├── useSmoothScroll.js
-│   │   │   │   ├── useSectionAnim.js
-│   │   │   │   └── sections/        # HowItWorks, Pipeline, Graph, etc.
-│   │   │   ├── Login.jsx
-│   │   │   ├── Register.jsx
-│   │   │   ├── AuthCallback.jsx     # GitHub OAuth callback handler
-│   │   │   ├── UserSettings.jsx     # 3-tab settings page
-│   │   │   ├── ProjectHome.jsx      # Project dashboard
-│   │   │   ├── ArchitectureMap.jsx  # Architecture canvas
-│   │   │   ├── DependencyGraph.jsx  # File-level dependency graph
-│   │   │   ├── DeepWiki.jsx         # AI-generated wiki viewer
-│   │   │   ├── QnA.jsx              # Semantic Q&A interface
-│   │   │   ├── ProjectHealth.jsx    # Health scorecard & radar
-│   │   │   ├── DatabaseSchemaView.jsx # ER diagram viewer
-│   │   │   ├── Meetings.jsx         # Meeting list & upload
-│   │   │   ├── MeetingDetail.jsx    # Transcript & action items
-│   │   │   ├── ChatRoom.jsx         # Real-time team chat
-│   │   │   └── FileVisualisation.jsx # File browser & viewer
-│   │   ├── store/
-│   │   │   └── slices/
-│   │   │       ├── authSlice.js     # Auth state + GitHub thunks
-│   │   │       ├── projectSlice.js  # Project CRUD state
-│   │   │       └── chatSlice.js     # WebSocket chat state
-│   │   ├── App.jsx                  # Route definitions
-│   │   └── main.jsx                 # Entry point
-│   ├── package.json
-│   └── vite.config.js
+├── client/                              # React frontend (Vite)
+│   └── src/
+│       ├── components/
+│       │   ├── layout/AppShell.jsx      # App shell & navigation
+│       │   ├── motion/                  # SmoothScroll, usePerfTier
+│       │   ├── project/                 # GithubRepoPickerModal
+│       │   └── ui/                      # shadcn/ui components
+│       ├── pages/
+│       │   ├── landing/                 # Landing page, Hero3D, theme, hooks
+│       │   ├── Login.jsx · Register.jsx · AuthCallback.jsx
+│       │   ├── UserSettings.jsx         # 3-tab settings
+│       │   ├── ProjectHome.jsx          # Project dashboard
+│       │   ├── ArchitectureMap.jsx      # Architecture canvas
+│       │   ├── DependencyGraph.jsx      # File-level graph
+│       │   ├── DeepWiki.jsx             # Wiki viewer
+│       │   ├── QnA.jsx                  # Semantic Q&A
+│       │   ├── ProjectHealth.jsx        # Health scorecard
+│       │   ├── DatabaseSchemaView.jsx   # ER diagram
+│       │   ├── Meetings.jsx · MeetingDetail.jsx
+│       │   ├── ChatRoom.jsx             # Real-time chat
+│       │   └── FileVisualisation.jsx    # File browser
+│       ├── store/slices/                # authSlice, projectSlice, chatSlice
+│       ├── App.jsx                      # Routes
+│       └── main.jsx                     # Entry point
 │
-├── server/                          # Node.js / Express backend
-│   ├── src/
-│   │   ├── config/
-│   │   │   ├── db.js                # MongoDB connection
-│   │   │   ├── cloudinary.js        # Cloudinary setup
-│   │   │   └── env.js               # Environment validation
-│   │   ├── controllers/
-│   │   │   ├── auth.controller.js   # Register, login, profile, OAuth
-│   │   │   ├── github.controller.js # Repo link, user-repos
-│   │   │   ├── project.controller.js
-│   │   │   ├── ai.controller.js     # Embeddings & Q&A
-│   │   │   ├── wiki.controller.js   # DeepWiki CRUD
-│   │   │   ├── meeting.controller.js
-│   │   │   ├── health.controller.js
-│   │   │   ├── schema.controller.js
-│   │   │   ├── chat.controller.js
-│   │   │   └── visualization.controller.js
-│   │   ├── middleware/
-│   │   │   ├── auth.middleware.js   # JWT verification
-│   │   │   ├── upload.middleware.js # Multer + Cloudinary upload
-│   │   │   └── errorHandler.js     # Global error handler
-│   │   ├── models/
-│   │   │   ├── User.js              # User schema (GitHub OAuth fields)
-│   │   │   ├── Project.js
-│   │   │   ├── WikiPage.js
-│   │   │   ├── Meeting.js
-│   │   │   ├── ChatMessage.js
-│   │   │   ├── Commit.js
-│   │   │   ├── Issue.js
-│   │   │   └── Question.js
-│   │   ├── routes/
-│   │   │   ├── auth.routes.js       # /api/auth/*
-│   │   │   ├── github.routes.js     # /api/github/*
-│   │   │   ├── project.routes.js    # /api/projects/*
-│   │   │   ├── ai.routes.js         # /api/ai/*
-│   │   │   ├── wiki.routes.js       # /api/wiki/*
-│   │   │   ├── meeting.routes.js    # /api/meetings/*
-│   │   │   ├── health.routes.js     # /api/health/*
-│   │   │   ├── schema.routes.js     # /api/schema/*
-│   │   │   └── chat.routes.js       # /api/chat/*
-│   │   ├── services/
-│   │   │   ├── github.service.js    # Clone, poll, private repo auth
-│   │   │   ├── deepwiki.service.js  # 5-chapter wiki generation
-│   │   │   ├── vector.service.js    # Pinecone embed & query
-│   │   │   ├── architecture.service.js
-│   │   │   ├── dependency-graph.service.js
-│   │   │   ├── health-calculator.service.js
-│   │   │   ├── schema-analyzer.service.js
-│   │   │   ├── assembly.service.js  # AssemblyAI transcription
-│   │   │   ├── copilot.service.js   # @dionysus chat co-pilot
-│   │   │   ├── code-analyzer.service.js
-│   │   │   ├── graph-validator.service.js
-│   │   │   └── openai.service.js
-│   │   ├── websocket/
-│   │   │   └── chat.gateway.js      # WebSocket server & room manager
-│   │   └── index.js                 # Express app + WS server entry
-│   ├── .env                         # (not committed — see below)
-│   └── package.json
+├── server/                              # Node.js / Express backend
+│   └── src/
+│       ├── config/                      # db, cloudinary, env validation
+│       ├── controllers/                 # auth, github, project, ai, wiki,
+│       │                                # meeting, health, schema, chat, visualization
+│       ├── middleware/                  # auth (JWT), upload (Multer), errorHandler
+│       ├── models/                      # User, Project, WikiPage, Meeting,
+│       │                                # ChatMessage, Commit, Issue, Question
+│       ├── routes/                      # /api/auth, github, projects, ai, wiki,
+│       │                                # meetings, health, schema, chat
+│       ├── services/                    # github, deepwiki, vector, architecture,
+│       │                                # dependency-graph, health-calculator,
+│       │                                # schema-analyzer, assembly, copilot,
+│       │                                # code-analyzer, graph-validator, openai
+│       ├── websocket/chat.gateway.js    # WebSocket server & room manager
+│       └── index.js                     # Express + WS entry point
 │
-├── optimize_projects.js             # Utility: batch project optimization
+├── optimize_projects.js                 # Utility: batch project optimization
 ├── ROADMAP.md
 └── README.md
 ```
 
 ---
 
-## 📋 Prerequisites
+## 🚦 Getting Started
 
-Before you begin, ensure the following are installed and available:
+### Prerequisites
 
-| Requirement | Minimum Version | Notes |
+| Requirement | Version | Notes |
 |---|---|---|
-| [Node.js](https://nodejs.org) | 18.x LTS | Use `nvm` or `fnm` to manage versions |
-| [npm](https://npmjs.com) | 9.x | Comes with Node.js |
-| [Git](https://git-scm.com) | 2.x | Required for repository cloning |
-| [MongoDB](https://mongodb.com) | 7.x | Local install **or** [MongoDB Atlas](https://cloud.mongodb.com) free tier |
+| [Node.js](https://nodejs.org) | 18.x LTS+ | Manage with `nvm` or `fnm` |
+| [npm](https://npmjs.com) | 9.x+ | Bundled with Node.js |
+| [Git](https://git-scm.com) | 2.x+ | Required for cloning repositories |
+| [MongoDB](https://mongodb.com) | 7.x | Local install or [Atlas](https://cloud.mongodb.com) free tier |
 
-You will also need **accounts** and **API keys** for:
+You will also need accounts and API keys for:
 
-- 🔑 [Google Gemini API](https://aistudio.google.com) — for AI Q&A and wiki generation
-- 🔑 [Pinecone](https://pinecone.io) — vector database (free Starter tier works)
-- 🔑 [AssemblyAI](https://assemblyai.com) — meeting transcription
-- 🔑 [Cloudinary](https://cloudinary.com) — audio & image file storage
-- 🔑 [GitHub OAuth App](https://github.com/settings/developers) — for GitHub login and repo access
+- 🔑 [Google Gemini](https://aistudio.google.com): Q&A and wiki generation
+- 🔑 [Pinecone](https://pinecone.io): vector database (free Starter tier works)
+- 🔑 [AssemblyAI](https://assemblyai.com): meeting transcription
+- 🔑 [Cloudinary](https://cloudinary.com): audio and image storage
+- 🔑 [GitHub OAuth App](https://github.com/settings/developers): GitHub login and repo access
 
----
-
-## 🔧 Installation & Setup
-
-### 1. Clone the Repository
+### Installation
 
 ```bash
+# 1. Clone
 git clone https://github.com/your-org/dionysus-rebuild.git
 cd dionysus-rebuild
+
+# 2. Install backend dependencies
+cd server && npm install
+
+# 3. Install frontend dependencies
+cd ../client && npm install
+
+# 4. Configure environment
+cd ../server
+cp .env.example .env     # then fill in your keys
 ```
 
-### 2. Install Backend Dependencies
+### Environment Variables
 
-```bash
-cd server
-npm install
-```
-
-### 3. Install Frontend Dependencies
-
-```bash
-cd ../client
-npm install
-```
-
-### 4. Configure Environment Variables
-
-```bash
-# From the server/ directory
-cp .env.example .env
-# Then edit server/.env with your actual keys (see the table below)
-```
-
----
-
-## 🌍 Environment Variables
-
-Create a file at `server/.env` with the following variables:
+Create `server/.env`:
 
 ```env
-# ─── Server ───────────────────────────────────────────────────────────────────
+# ── Server ────────────────────────────────────────────
 PORT=5000
 NODE_ENV=development
 
-# ─── Database ─────────────────────────────────────────────────────────────────
-# Local MongoDB
+# ── Database ──────────────────────────────────────────
 MONGODB_URI=mongodb://localhost:27017/dionysus
+# Atlas: mongodb+srv://<user>:<password>@cluster.mongodb.net/dionysus
 
-# Or MongoDB Atlas (replace with your connection string)
-# MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/dionysus
-
-# ─── Authentication ───────────────────────────────────────────────────────────
+# ── Authentication ────────────────────────────────────
 JWT_SECRET=your_super_secret_jwt_key_at_least_32_characters_long
 
-# ─── Google Gemini AI ─────────────────────────────────────────────────────────
+# ── Google Gemini ─────────────────────────────────────
 GEMINI_API_KEY=your_gemini_api_key
 
-# ─── GitHub Integration ───────────────────────────────────────────────────────
-# Personal Access Token (for public repo cloning when no user OAuth token)
+# ── GitHub ────────────────────────────────────────────
 GITHUB_PERSONAL_ACCESS_TOKEN=ghp_your_personal_access_token
-
-# OAuth App credentials (see GitHub OAuth Setup section below)
 GITHUB_CLIENT_ID=your_github_oauth_app_client_id
 GITHUB_CLIENT_SECRET=your_github_oauth_app_client_secret
 GITHUB_CALLBACK_URL=http://localhost:5000/api/auth/github/callback
-
-# Frontend URL (for OAuth redirects)
 CLIENT_URL=http://localhost:5173
 
-# ─── Pinecone Vector Database ─────────────────────────────────────────────────
+# ── Pinecone ──────────────────────────────────────────
 PINECONE_API_KEY=your_pinecone_api_key
 PINECONE_INDEX=dionysus
 
-# ─── AssemblyAI (Meeting Transcription) ───────────────────────────────────────
+# ── AssemblyAI ────────────────────────────────────────
 ASSEMBLYAI_API_KEY=your_assemblyai_api_key
 
-# ─── Cloudinary (File Storage) ────────────────────────────────────────────────
+# ── Cloudinary ────────────────────────────────────────
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ```
 
-### Variable Reference
+<details>
+<summary><b>Variable reference (all required)</b></summary>
 
-| Variable | Required | Description |
-|---|---|---|
-| `PORT` | ✅ | Port the Express server listens on |
-| `MONGODB_URI` | ✅ | MongoDB connection string (local or Atlas) |
-| `JWT_SECRET` | ✅ | Secret key for signing JWT tokens — keep this private and long |
-| `GEMINI_API_KEY` | ✅ | Google Gemini API key for AI features (Q&A, wiki, copilot) |
-| `GITHUB_PERSONAL_ACCESS_TOKEN` | ✅ | Fallback PAT for cloning public repos without OAuth |
-| `GITHUB_CLIENT_ID` | ✅ | GitHub OAuth App client ID |
-| `GITHUB_CLIENT_SECRET` | ✅ | GitHub OAuth App client secret |
-| `GITHUB_CALLBACK_URL` | ✅ | Must exactly match the callback URL registered in your GitHub OAuth App |
-| `CLIENT_URL` | ✅ | Frontend URL — used for CORS and post-OAuth redirects |
-| `PINECONE_API_KEY` | ✅ | Pinecone API key for vector embeddings |
-| `PINECONE_INDEX` | ✅ | Name of your Pinecone index (create one named `dionysus`) |
-| `ASSEMBLYAI_API_KEY` | ✅ | AssemblyAI key for meeting transcription |
-| `CLOUDINARY_CLOUD_NAME` | ✅ | Cloudinary cloud name |
-| `CLOUDINARY_API_KEY` | ✅ | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | ✅ | Cloudinary API secret |
+| Variable | Description |
+|---|---|
+| `PORT` | Port the Express server listens on |
+| `MONGODB_URI` | MongoDB connection string (local or Atlas) |
+| `JWT_SECRET` | Secret for signing JWTs; keep it private and long |
+| `GEMINI_API_KEY` | Gemini key for Q&A, wiki, and co-pilot |
+| `GITHUB_PERSONAL_ACCESS_TOKEN` | Fallback PAT for cloning public repos without OAuth |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | GitHub OAuth App credentials |
+| `GITHUB_CALLBACK_URL` | Must exactly match the callback URL registered in GitHub |
+| `CLIENT_URL` | Frontend URL, used for CORS and post-OAuth redirects |
+| `PINECONE_API_KEY` / `PINECONE_INDEX` | Pinecone key and index name (create one named `dionysus`) |
+| `ASSEMBLYAI_API_KEY` | AssemblyAI key for transcription |
+| `CLOUDINARY_CLOUD_NAME` / `_API_KEY` / `_API_SECRET` | Cloudinary credentials |
 
----
+</details>
 
-## 🔐 GitHub OAuth Setup
+### GitHub OAuth Setup
 
-GitHub OAuth enables users to sign up / log in with GitHub, and to authorize access to their **private repositories**.
-
-### Step-by-Step
-
-1. Go to **GitHub → Settings → Developer Settings → OAuth Apps**
-   👉 [https://github.com/settings/developers](https://github.com/settings/developers)
-
-2. Click **"New OAuth App"** and fill in:
+1. Open **GitHub → Settings → Developer Settings → [OAuth Apps](https://github.com/settings/developers)** and click **New OAuth App**.
+2. Fill in the form:
 
    | Field | Value |
    |---|---|
-   | **Application name** | Dionysus (Local Dev) |
-   | **Homepage URL** | `http://localhost:5173` |
-   | **Authorization callback URL** | `http://localhost:5000/api/auth/github/callback` |
+   | Application name | `Dionysus (Local Dev)` |
+   | Homepage URL | `http://localhost:5173` |
+   | Authorization callback URL | `http://localhost:5000/api/auth/github/callback` |
 
-3. Click **"Register application"**, then copy your **Client ID** and **Client Secret** into `server/.env`.
+3. Click **Register application**, then copy the **Client ID** and **Client Secret** into `server/.env`.
 
-4. The OAuth flow requests these scopes:
-   - `read:user` — read user profile information
-   - `user:email` — read the user's email address
-   - `repo` — full access to public and **private** repositories (required for private repo cloning)
+Requested scopes:
+
+- `read:user`: read profile information
+- `user:email`: read the user's email address
+- `repo`: access public and **private** repositories (needed for private cloning)
 
 > [!IMPORTANT]
-> The **Authorization callback URL** in GitHub must exactly match your `GITHUB_CALLBACK_URL` environment variable — including the protocol and port. A mismatch will cause OAuth to fail.
+> The callback URL in GitHub must exactly match `GITHUB_CALLBACK_URL`, including protocol and port. A mismatch will break OAuth.
 
 > [!NOTE]
-> For production deployment, register a **separate** OAuth App with your production domain and update `GITHUB_CALLBACK_URL` and `CLIENT_URL` accordingly.
+> For production, register a **separate** OAuth App with your production domain and update `GITHUB_CALLBACK_URL` and `CLIENT_URL`.
 
----
-
-## ▶️ Running Locally
-
-### Start the Backend Server
+### Running Locally
 
 ```bash
+# Terminal 1: backend (REST + WebSocket on :5000)
 cd server
 npm run dev
-# Server starts at http://localhost:5000
-# WebSocket server starts on the same port
-```
 
-### Start the Frontend Dev Server
-
-Open a second terminal:
-
-```bash
+# Terminal 2: frontend (:5173)
 cd client
 npm run dev
-# Frontend starts at http://localhost:5173
 ```
 
-### Build for Production
+**Production build**
 
 ```bash
-# Build the frontend
-cd client
-npm run build
-
-# Start the production server
-cd ../server
-npm start
+cd client && npm run build
+cd ../server && npm start
 ```
 
 ---
 
 ## 📡 API Reference
 
-### Authentication — `/api/auth`
+All endpoints are prefixed with the server base URL. 🔒 = requires `Authorization: Bearer <jwt>`.
+
+<details open>
+<summary><b>Authentication · <code>/api/auth</code></b></summary>
 
 | Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/api/auth/register` | ❌ | Register a new user with name, email, password |
-| `POST` | `/api/auth/login` | ❌ | Login and receive a JWT token |
-| `GET` | `/api/auth/me` | ✅ | Get current user profile |
-| `PUT` | `/api/auth/profile` | ✅ | Update name, email, or avatar URL |
-| `PUT` | `/api/auth/password` | ✅ | Change password (requires `currentPassword`) |
-| `GET` | `/api/auth/github` | ❌ | Initiate GitHub OAuth flow |
-| `GET` | `/api/auth/github/callback` | ❌ | GitHub OAuth callback handler |
-| `DELETE` | `/api/auth/github` | ✅ | Unlink GitHub account from profile |
+|---|---|:---:|---|
+| `POST` | `/api/auth/register` | | Register with name, email, password |
+| `POST` | `/api/auth/login` | | Log in and receive a JWT |
+| `GET` | `/api/auth/me` | 🔒 | Current user profile |
+| `PUT` | `/api/auth/profile` | 🔒 | Update name, email, or avatar |
+| `PUT` | `/api/auth/password` | 🔒 | Change password (requires `currentPassword`) |
+| `GET` | `/api/auth/github` | | Start GitHub OAuth flow |
+| `GET` | `/api/auth/github/callback` | | GitHub OAuth callback |
+| `DELETE` | `/api/auth/github` | 🔒 | Unlink GitHub account |
 
-### GitHub — `/api/github`
+</details>
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/api/github/link-repo` | ✅ | Link a repository to a project (triggers clone + indexing) |
-| `GET` | `/api/github/user-repos` | ✅ | Fetch all repos accessible to the authenticated GitHub user |
-| `GET` | `/api/github/commits/:projectId` | ✅ | Get latest commits for a linked project |
-
-### Projects — `/api/projects`
+<details>
+<summary><b>GitHub · <code>/api/github</code></b></summary>
 
 | Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `GET` | `/api/projects` | ✅ | List all projects for the current user |
-| `POST` | `/api/projects` | ✅ | Create a new project |
-| `GET` | `/api/projects/:id` | ✅ | Get project details |
-| `PUT` | `/api/projects/:id` | ✅ | Update project metadata |
-| `DELETE` | `/api/projects/:id` | ✅ | Delete a project and all associated data |
+|---|---|:---:|---|
+| `POST` | `/api/github/link-repo` | 🔒 | Link a repo to a project (triggers clone + indexing) |
+| `GET` | `/api/github/user-repos` | 🔒 | List repos accessible to the GitHub user |
+| `GET` | `/api/github/commits/:projectId` | 🔒 | Latest commits for a project |
 
-### AI & Q&A — `/api/ai`
+</details>
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/api/ai/embed/:projectId` | ✅ | Embed repository code into Pinecone |
-| `POST` | `/api/ai/ask` | ✅ | Ask a question about the codebase (RAG) |
-| `GET` | `/api/ai/questions/:projectId` | ✅ | Get Q&A history for a project |
-
-### DeepWiki — `/api/wiki`
+<details>
+<summary><b>Projects & Visualization · <code>/api/projects</code></b></summary>
 
 | Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/api/wiki/generate/:projectId` | ✅ | Generate or regenerate the 5-chapter DeepWiki |
-| `GET` | `/api/wiki/:projectId` | ✅ | Fetch the wiki for a project |
-| `GET` | `/api/wiki/:projectId/chapter/:index` | ✅ | Get a specific wiki chapter |
+|---|---|:---:|---|
+| `GET` | `/api/projects` | 🔒 | List the user's projects |
+| `POST` | `/api/projects` | 🔒 | Create a project |
+| `GET` | `/api/projects/:id` | 🔒 | Project details |
+| `PUT` | `/api/projects/:id` | 🔒 | Update project metadata |
+| `DELETE` | `/api/projects/:id` | 🔒 | Delete project and associated data |
+| `GET` | `/api/projects/:id/architecture` | 🔒 | Architecture graph data |
+| `GET` | `/api/projects/:id/dependency-graph` | 🔒 | File dependency graph |
+| `GET` | `/api/projects/:id/file-tree` | 🔒 | Repository file tree |
+| `GET` | `/api/projects/:id/file` | 🔒 | Read a file from the repository |
 
-### Architecture & Visualization — `/api/projects/:id`
+</details>
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `GET` | `/api/projects/:id/architecture` | ✅ | Get architecture graph data |
-| `GET` | `/api/projects/:id/dependency-graph` | ✅ | Get file dependency graph |
-| `GET` | `/api/projects/:id/file-tree` | ✅ | Browse repository file tree |
-| `GET` | `/api/projects/:id/file` | ✅ | Read a specific file from the repository |
-
-### Repository Health — `/api/health`
-
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `GET` | `/api/health/:projectId` | ✅ | Compute and return the health scorecard (0–100) |
-
-### Database Schema — `/api/schema`
+<details>
+<summary><b>AI, Q&A & DeepWiki · <code>/api/ai</code> · <code>/api/wiki</code></b></summary>
 
 | Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `GET` | `/api/schema/:projectId` | ✅ | Parse and return ER diagram data for the project |
+|---|---|:---:|---|
+| `POST` | `/api/ai/embed/:projectId` | 🔒 | Embed repository code into Pinecone |
+| `POST` | `/api/ai/ask` | 🔒 | Ask a codebase question (RAG) |
+| `GET` | `/api/ai/questions/:projectId` | 🔒 | Q&A history |
+| `POST` | `/api/wiki/generate/:projectId` | 🔒 | Generate or regenerate the DeepWiki |
+| `GET` | `/api/wiki/:projectId` | 🔒 | Fetch the wiki |
+| `GET` | `/api/wiki/:projectId/chapter/:index` | 🔒 | Fetch one chapter |
 
-### Meetings — `/api/meetings`
+</details>
+
+<details>
+<summary><b>Health, Schema & Meetings</b></summary>
 
 | Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `GET` | `/api/meetings/:projectId` | ✅ | List all meetings for a project |
-| `POST` | `/api/meetings` | ✅ | Upload audio file and start transcription |
-| `GET` | `/api/meetings/:id` | ✅ | Get meeting transcript and action items |
-| `DELETE` | `/api/meetings/:id` | ✅ | Delete a meeting record |
+|---|---|:---:|---|
+| `GET` | `/api/health/:projectId` | 🔒 | Compute health scorecard (0–100) |
+| `GET` | `/api/schema/:projectId` | 🔒 | Parse and return ER diagram data |
+| `GET` | `/api/meetings/:projectId` | 🔒 | List meetings for a project |
+| `POST` | `/api/meetings` | 🔒 | Upload audio and start transcription |
+| `GET` | `/api/meetings/:id` | 🔒 | Transcript and action items |
+| `DELETE` | `/api/meetings/:id` | 🔒 | Delete a meeting |
 
-### Chat — `/api/chat` + WebSocket
+</details>
+
+<details>
+<summary><b>Chat · <code>/api/chat</code> + WebSocket</b></summary>
 
 | Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `GET` | `/api/chat/:projectId/messages` | ✅ | Fetch paginated chat history |
-| `WS` | `ws://localhost:5000` | ✅ JWT in first message | Real-time WebSocket room |
+|---|---|:---:|---|
+| `GET` | `/api/chat/:projectId/messages` | 🔒 | Paginated chat history |
+| `WS` | `ws://localhost:5000` | 🔒 | Real-time room (JWT sent in first message) |
 
-> [!NOTE]
-> WebSocket authentication: after connecting, send a JSON message `{ "type": "auth", "token": "<jwt>" }` followed by `{ "type": "join", "projectId": "<id>" }`.
+**WebSocket handshake**
+
+```jsonc
+// 1. Authenticate
+{ "type": "auth", "token": "<jwt>" }
+// 2. Join a project room
+{ "type": "join", "projectId": "<id>" }
+```
+
+</details>
 
 ---
 
 ## ⚡ Performance & Battery Optimization
 
-Dionysus's landing page includes a custom 3-tier performance system to ensure smooth animations across all device conditions:
+The landing page uses a 3-tier performance system to keep animations smooth on any device.
 
-### How It Works
-
+```mermaid
+flowchart LR
+    A["Measure FPS<br/>600 ms rAF sample"] --> C{"Device state"}
+    B["navigator.getBattery()"] --> C
+    C -- "Plugged in + fast GPU" --> H["🟢 high<br/>Full GSAP · 3D · springs"]
+    C -- "Battery saver" --> M["🟡 mid<br/>Reduced shadows · no 3D"]
+    C -- "Low battery / slow GPU" --> L["🔴 low<br/>Static fallbacks"]
+    H -. "unplugged" .-> M
+    M -. "plugged in" .-> H
 ```
-Device State          → Performance Tier → Animation Quality
-─────────────────────────────────────────────────────────────
-Plugged in + High GPU → high             → Full GSAP, 3D, springs
-Battery < 20% / Slow  → low              → Static fallbacks only
-Battery saving mode   → mid              → Reduced shadows, no 3D
-Plugged back in       → high (restored)  → Full animations resume
-```
 
-- **`usePerfTier.js`** — Detects GPU FPS via `requestAnimationFrame` over 600ms, reads `navigator.getBattery()`, and sets a `data-battery` / `data-perf` attribute on `<html>` for CSS-driven optimizations
-- **Lenis Smooth Scroll** — `lerp: 0.13` on `high`, `lerp: 0.095` on `mid` for a softer feel on constrained devices
-- **GSAP scrub** — `scrubFor()` returns `0.2 / 0.7 / 0.5` per tier so scroll animations don't stutter
-- **3D Hero** — Idle animation loop pauses on battery to eliminate unnecessary GPU draw calls
-- **CSS Rules** — `data-battery` triggers `will-change: transform` on animated elements, reduces `box-shadow` complexity, and disables blur-heavy effects
+| Mechanism | Behavior |
+|---|---|
+| `usePerfTier.js` | Samples FPS, reads battery status, sets `data-battery` / `data-perf` on `<html>` |
+| Lenis smooth scroll | `lerp: 0.13` on `high`, `0.095` on `mid` |
+| GSAP scrub | `scrubFor()` returns `0.2 / 0.7 / 0.5` per tier |
+| 3D hero | Idle animation loop pauses on battery |
+| CSS rules | `data-battery` applies `will-change: transform`, simplifies `box-shadow`, disables blur-heavy effects |
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome!
 
 1. **Fork** the repository
-2. **Create a feature branch**: `git checkout -b feature/your-feature-name`
-3. **Commit your changes**: `git commit -m "feat: add your feature"`
-4. **Push to your branch**: `git push origin feature/your-feature-name`
+2. **Create a branch**: `git checkout -b feature/your-feature-name`
+3. **Commit**: `git commit -m "feat: add your feature"`
+4. **Push**: `git push origin feature/your-feature-name`
 5. **Open a Pull Request** against `main`
 
-### Commit Convention
-
-This project follows [Conventional Commits](https://www.conventionalcommits.org/):
+**Commit convention**: [Conventional Commits](https://www.conventionalcommits.org/)
 
 | Prefix | Use for |
 |---|---|
-| `feat:` | A new feature |
-| `fix:` | A bug fix |
-| `docs:` | Documentation changes |
-| `style:` | Formatting, no logic change |
-| `refactor:` | Code restructure, no feature/fix |
+| `feat:` | New feature |
+| `fix:` | Bug fix |
+| `docs:` | Documentation |
+| `style:` | Formatting only |
+| `refactor:` | Restructure without behavior change |
 | `perf:` | Performance improvement |
 | `chore:` | Build system, dependencies |
 
-### Code Style
+**Code style**
 
-- **Frontend**: ESLint (Oxlint) + Prettier — run `npm run lint` before committing
-- **Backend**: Standard Node.js conventions; async/await preferred over callbacks
-- **Components**: One component per file; keep pages thin, logic in hooks/services
+- **Frontend**: ESLint (Oxlint) + Prettier; run `npm run lint` before committing
+- **Backend**: standard Node.js conventions; prefer `async/await` over callbacks
+- **Components**: one per file; keep pages thin and logic in hooks/services
 
 ---
 
 ## 📄 License
 
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
 
 ---
 
-## 👥 Developed By
-
-This project was designed, architected, and built by:
+## 👥 Authors
 
 <table>
   <tr>
@@ -695,6 +687,6 @@ This project was designed, architected, and built by:
 
 *Built with ❤️ to give every developer superpowers over their codebase.*
 
-**[⬆ Back to Top](#-dionysus)**
+**[⬆ Back to top](#-dionysus)**
 
 </div>
