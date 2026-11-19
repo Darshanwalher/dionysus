@@ -8,23 +8,27 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
   Lenis is driven by GSAP's ticker, so the pinned pipeline section,
   framer-motion's useScroll and the Hero3D camera all read the same smoothed position.
 
-  Adapts to the power and performance state:
-  - "high" (plugged-in / performance mode): snappy, responsive 0.13 lerp with crisp 0.2s scrub.
-  - "mid" (on battery / energy saver): ultra-smooth 0.095 lerp with 0.7s smoothed scrub to absorb
-    variable trackpad intervals and prevent micro-stutter when CPU clocks throttle down.
+  Tiers:
+  - "high" (plugged-in / performance mode): buttery, long-glide 0.075 lerp with 0.9s scrub.
+    There is power and CPU headroom, so we can afford the longer interpolation tail.
+  - "mid" (on battery / energy saver): 0.095 lerp with 0.7s scrub to absorb
+    variable trackpad intervals when CPU clocks throttle down.
   - "low": native compositor scrolling.
 */
+const LERP = { high: 0.075, mid: 0.095, low: 0.14 };
+const SCRUB = { high: 0.9, mid: 0.7, low: 0.5 };
+
 export default function useSmoothScroll(disabled = false, tier = "high") {
   const native = tier === "low";
   const lenisRef = useRef(null);
-  const lerp = tier === "high" ? 0.13 : tier === "mid" ? 0.095 : 0.14;
+  const lerp = LERP[tier] ?? LERP.high;
 
   useEffect(() => {
     if (disabled || native) return;
 
     const lenis = new Lenis({
       lerp,
-      wheelMultiplier: 1,
+      wheelMultiplier: tier === "high" ? 0.9 : 1, // slightly softer wheel steps pair well with the longer glide
       smoothWheel: true,
       syncTouch: false,
     });
@@ -34,7 +38,7 @@ export default function useSmoothScroll(disabled = false, tier = "high") {
     const tick = (t) => lenis.raf(t * 1000);
     gsap.ticker.add(tick);
 
-    // Lag smoothing: clamps delta time when frames drop on battery, preventing jumpy stutter
+    // Lag smoothing: clamps delta time when frames drop, preventing jumpy stutter
     gsap.ticker.lagSmoothing(500, 33);
 
     return () => {
@@ -54,8 +58,8 @@ export default function useSmoothScroll(disabled = false, tier = "high") {
 
 /**
  * ScrollTrigger `scrub` value:
- * - "high" (plugged in): 0.2 (crisp, near-instant tracking)
- * - "mid" (battery): 0.7 (silky smooth catch-up that absorbs frame jitter)
+ * - "high" (plugged in): 0.9 (soft, cinematic catch-up)
+ * - "mid" (battery): 0.7
  * - "low": 0.5
  */
-export const scrubFor = (tier) => (tier === "high" ? 0.2 : tier === "mid" ? 0.7 : 0.5);
+export const scrubFor = (tier) => SCRUB[tier] ?? SCRUB.high;

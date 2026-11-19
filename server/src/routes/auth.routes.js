@@ -8,6 +8,7 @@ const {
   githubAuth,
   githubCallback,
   disconnectGithub,
+  getImageKitAuth,
 } = require('../controllers/auth.controller');
 const { protect } = require('../middleware/auth.middleware');
 
@@ -20,6 +21,9 @@ router.get('/me', protect, getMe);
 // Profile management
 router.put('/profile', protect, updateProfile);
 router.put('/password', protect, updatePassword);
+
+// ImageKit signed upload token
+router.get('/imagekit-auth', protect, getImageKitAuth);
 
 // GitHub OAuth
 router.get('/github', githubAuth);

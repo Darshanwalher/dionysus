@@ -1,5 +1,19 @@
 const jwt = require('jsonwebtoken');
+const ImageKit = require('imagekit');
 const User = require('../models/User');
+
+// ImageKit instance (lazy — only initialised if env vars are present)
+let _imagekit = null;
+function getImageKit() {
+  if (!_imagekit) {
+    _imagekit = new ImageKit({
+      publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+      privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+      urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+    });
+  }
+  return _imagekit;
+}
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -285,4 +299,22 @@ const disconnectGithub = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, getMe, updateProfile, updatePassword, githubAuth, githubCallback, disconnectGithub };
+// @desc    Return short-lived ImageKit upload credentials (server-signed)
+// @route   GET /api/auth/imagekit-auth
+const getImageKitAuth = (req, res) => {
+  try {
+    if (!process.env.IMAGEKIT_PUBLIC_KEY || !process.env.IMAGEKIT_PRIVATE_KEY) {
+      return res.status(503).json({ success: false, message: 'ImageKit is not configured on this server.' });
+    }
+    const authParams = getImageKit().getAuthenticationParameters();
+    return res.json({
+      ...authParams,
+      publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+      urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Failed to generate ImageKit auth token.' });
+  }
+};
+
+module.exports = { register, login, getMe, updateProfile, updatePassword, githubAuth, githubCallback, disconnectGithub, getImageKitAuth };
