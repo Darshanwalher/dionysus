@@ -14,13 +14,16 @@ const CHAPTERS = [
 export default function Capabilities() {
   const root = useRef(null);
 
-  useSectionAnim(root, ({ gsap, st, $, $$, countTo, typeInto }) => {
+  useSectionAnim(root, ({ gsap, st, $, $$, countTo, typeInto, lite }) => {
     const tl = gsap.timeline({ scrollTrigger: st($(".bento-grid"), "top 78%") });
-    tl.fromTo(
-      $$(".bento"),
-      { clipPath: "inset(0% 0% 100% 0% round 24px)", opacity: 0 },
-      { clipPath: "inset(0% 0% 0% 0% round 24px)", opacity: 1, stagger: 0.14, duration: 1.1, ease: "power4.inOut" },
-      0
+    (lite
+      ? tl.from($$(".bento"), { opacity: 0, y: 30, stagger: 0.1, duration: 0.6, ease: "power2.out" }, 0)
+      : tl.fromTo(
+          $$(".bento"),
+          { clipPath: "inset(0% 0% 100% 0% round 24px)", opacity: 0 },
+          { clipPath: "inset(0% 0% 0% 0% round 24px)", opacity: 1, stagger: 0.14, duration: 1.1, ease: "power4.inOut" },
+          0
+        )
     )
       .from($(".cap-bar"), { scaleX: 0, duration: 1.4, ease: "power2.out" }, 0.5)
       .from($$(".cap-chip"), { y: 12, opacity: 0, stagger: 0.08, duration: 0.5, ease: "power2.out" }, 1)

@@ -20,16 +20,16 @@ export default function HowItWorks() {
   const root = useRef(null);
   const calm = useReducedMotion();
 
-  useSectionAnim(root, ({ gsap, st, $, $$ }) => {
+  useSectionAnim(root, ({ gsap, st, $, $$, lite, scrub }) => {
     const cards = $$(".how-card");
     const mm = gsap.matchMedia();
 
     mm.add("(min-width: 768px)", () => {
-      gsap.set(cards, { opacity: 0, y: 70, rotationX: -14, scale: 0.94, transformPerspective: 900, transformOrigin: "50% 100%" });
+      gsap.set(cards, lite ? { opacity: 0, y: 50 } : { opacity: 0, y: 70, rotationX: -14, scale: 0.94, transformPerspective: 900, transformOrigin: "50% 100%" });
       gsap.set($$(".how-pip"), { scale: 0 });
 
       const tl = gsap.timeline({
-        scrollTrigger: { trigger: root.current, start: "top 65%", end: "bottom 70%", scrub: 0.7 },
+        scrollTrigger: { trigger: root.current, start: "top 65%", end: "bottom 70%", scrub },
         defaults: { ease: "power3.out" },
       });
       tl.to($(".how-fill"), { scaleX: 1, ease: "none", duration: cards.length }, 0);
@@ -48,8 +48,22 @@ export default function HowItWorks() {
       });
     });
 
-    // A pulse that keeps travelling along the line
-    gsap.fromTo($(".how-dot"), { left: "0%" }, { left: "100%", duration: 3.4, ease: "power1.inOut", repeat: -1, repeatDelay: 1 });
+    // A pulse that keeps travelling along the line (GPU transform to prevent layout reflows)
+    const lineWrap = $(".how-fill")?.parentElement;
+    if (lineWrap) {
+      gsap.fromTo(
+        $(".how-dot"),
+        { x: 0 },
+        {
+          x: () => lineWrap.offsetWidth - 6,
+          duration: 3.4,
+          ease: "power1.inOut",
+          repeat: -1,
+          repeatDelay: 1,
+          force3D: true,
+        }
+      );
+    }
 
     // Feature chips pop in and back out
     gsap.from($$(".how-chip"), {

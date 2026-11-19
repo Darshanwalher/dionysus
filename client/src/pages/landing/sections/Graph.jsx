@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Activity, Zap } from "lucide-react";
 import { IV, CORAL, INK, ease } from "../theme";
+import usePerfTier from "../usePerfTier";
 
 export const NODES = {
   gateway: { x: 300, y: 44, label: "api-gateway", note: "Express backend & HTTP/WebSocket gateway managing authentication, room multiplexing, and route dispatching." },
@@ -34,6 +35,7 @@ const reach = (id) => {
 export default function Graph() {
   const [sel, setSel] = useState("client");
   const calm = useReducedMotion();
+  const lite = usePerfTier() !== "high";
   const hit = useMemo(() => reach(sel), [sel]);
   const n = NODES[sel];
 
@@ -84,7 +86,7 @@ export default function Graph() {
                   style={{ transformOrigin: `${p.x}px ${p.y}px` }}
                   whileHover={{ scale: 1.08 }}
                 >
-                  {lit && !calm && (
+                  {lit && !calm && !lite && (
                     <motion.circle
                       cx={p.x} cy={p.y} fill="none" stroke={CORAL} strokeWidth={1.5}
                       initial={{ r: 24, opacity: 0.9 }}

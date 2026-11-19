@@ -8,10 +8,12 @@ import { CORAL } from "../theme";
 export default function DeepWikiSection() {
   const root = useRef(null);
 
-  useSectionAnim(root, ({ gsap, st, $ }) => {
-    gsap
-      .timeline({ scrollTrigger: st($(".kn-wrap"), "top 80%") })
-      .fromTo($(".kn-wrap"), { clipPath: "inset(0% 100% 0% 0% round 24px)" }, { clipPath: "inset(0% 0% 0% 0% round 24px)", duration: 1.1, ease: "power3.inOut" })
+  useSectionAnim(root, ({ gsap, st, $, lite }) => {
+    const tl = gsap.timeline({ scrollTrigger: st($(".kn-wrap"), "top 80%") });
+    (lite
+      ? tl.from($(".kn-wrap"), { opacity: 0, x: -30, duration: 0.7, ease: "power3.out" })
+      : tl.fromTo($(".kn-wrap"), { clipPath: "inset(0% 100% 0% 0% round 24px)" }, { clipPath: "inset(0% 0% 0% 0% round 24px)", duration: 1.1, ease: "power3.inOut" })
+    )
       .from($(".kn-icon"), { rotate: -180, scale: 0, duration: 0.7, ease: "back.out(2)" }, "-=0.4")
       .from($(".kn-badge"), { scale: 0, duration: 0.5, ease: "back.out(3)" }, "-=0.3");
   });

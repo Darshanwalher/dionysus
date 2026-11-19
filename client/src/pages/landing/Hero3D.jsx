@@ -101,15 +101,15 @@ const Mask = ({ children, delay, still }) => (
   </span>
 );
 
-function Playground({ still }) {
+function Playground({ still, isBattery }) {
   const [sel, setSel] = useState("auth");
-  const [auto, setAuto] = useState(!still);
+  const [auto, setAuto] = useState(!still && !isBattery);
 
   useEffect(() => {
-    if (!auto || still) return;
+    if (!auto || still || isBattery) return;
     const t = setInterval(() => setSel((s) => ORDER[(ORDER.indexOf(s) + 1) % ORDER.length]), 4200);
     return () => clearInterval(t);
-  }, [auto, still]);
+  }, [auto, still, isBattery]);
 
   const pick = (id) => { setSel(id); setAuto(false); };
 
@@ -164,7 +164,7 @@ function Playground({ still }) {
                 animate={{ pathLength: 1 }}
                 transition={{ duration: HOP, delay: wait(d[a]), ease: "easeOut" }}
               />
-              {!still && (
+              {!still && !isBattery && (
                 <motion.circle
                   r={3.5}
                   fill={CORAL}
@@ -208,7 +208,7 @@ function Playground({ still }) {
                   strokeWidth={1.5}
                   initial={{ r: 8, opacity: 0.9 }}
                   animate={{ r: src ? 36 : 28, opacity: 0 }}
-                  transition={{ duration: 1.1, delay: wait(dep), repeat: src ? Infinity : 0, repeatDelay: 0.5, ease: "easeOut" }}
+                  transition={{ duration: 1.1, delay: wait(dep), repeat: src && !isBattery ? Infinity : 0, repeatDelay: 0.5, ease: "easeOut" }}
                 />
               )}
               <motion.circle
@@ -284,8 +284,9 @@ function Playground({ still }) {
   );
 }
 
-export default function Hero3D({ Btn, calm }) {
+export default function Hero3D({ Btn, calm, tier = "high" }) {
   const still = !!calm;
+  const isBattery = tier !== "high";
 
   return (
     <section
@@ -349,7 +350,7 @@ export default function Hero3D({ Btn, calm }) {
 
         {/* Right: interactive playground */}
         <div className="hidden lg:block">
-          <Playground still={still} />
+          <Playground still={still} isBattery={isBattery} />
         </div>
       </div>
     </section>

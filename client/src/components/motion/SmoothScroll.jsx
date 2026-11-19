@@ -11,6 +11,9 @@
  * - touch devices keep native momentum scrolling (already smooth, and no lag)
  * - dialogs and anything marked data-lenis-prevent scroll natively
  * - thin coral progress line at the very top of the window
+ * - power-aware: on battery / a slow device it gets lighter ("mid"), and on a struggling one it
+ *   switches to plain native scrolling ("low"). Native scrolling runs on the browser's compositor
+ *   thread, so it stays steady even when the CPU/GPU is throttled. Scroll-linked animations keep working.
  * - disabled with reduced motion; jumps to top on route change; paused on /visualise
  */
 import { useEffect, useRef } from "react";
@@ -20,6 +23,7 @@ import "lenis/dist/lenis.css";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { prefersReduced } from "./index";
+import usePerfTier from "./usePerfTier";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,12 +46,15 @@ const lerpFor = (path) => ROUTE_LERP.find((r) => r.match(path))?.lerp ?? DEFAULT
 export default function SmoothScroll() {
   const { pathname } = useLocation();
   const bar = useRef(null);
+  const tier = usePerfTier();
+  const native = tier === "low";
+  const lerpNow = (path) => (tier === "mid" ? 0.095 : lerpFor(path));
 
   useEffect(() => {
-    if (prefersReduced()) return;
+    if (prefersReduced() || native) return; // low: native scrolling
 
     const lenis = new Lenis({
-      lerp: lerpFor(window.location.pathname),
+      lerp: lerpNow(window.location.pathname),
       wheelMultiplier: 1,
       smoothWheel: true,
       syncTouch: false, // keep native touch momentum
@@ -59,32 +66,62 @@ export default function SmoothScroll() {
         ),
     });
     instance = lenis;
+    if (window.location.pathname.endsWith("/visualise")) lenis.stop();
 
-    const setProgress = bar.current ? gsap.quickSetter(bar.current, "scaleX") : null;
-    lenis.on("scroll", (e) => {
-      ScrollTrigger.update();
-      if (setProgress) setProgress(Number.isFinite(e.progress) ? e.progress : 0);
-    });
+    lenis.on("scroll", ScrollTrigger.update);
 
     // One clock for GSAP and Lenis keeps them perfectly in sync
     const tick = (time) => lenis.raf(time * 1000);
     gsap.ticker.add(tick);
-    gsap.ticker.lagSmoothing(0);
+    gsap.ticker.lagSmoothing(500, 33);
 
     return () => {
       gsap.ticker.remove(tick);
       lenis.destroy();
       instance = null;
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [native]);
 
+  // Glide per page (and lighter on "mid")
   useEffect(() => {
-    if (!instance) return;
-    instance.options.lerp = lerpFor(pathname);
-    instance.scrollTo(0, { immediate: true, force: true });
-    if (pathname.endsWith("/visualise")) instance.stop();
-    else instance.start();
+    if (instance) instance.options.lerp = lerpNow(pathname);
+  }, [pathname, tier]);
+
+  // New page: back to the top (works with Lenis and with native scrolling)
+  useEffect(() => {
+    if (instance) {
+      instance.scrollTo(0, { immediate: true, force: true });
+      if (pathname.endsWith("/visualise")) instance.stop();
+      else instance.start();
+    } else {
+      window.scrollTo(0, 0);
+    }
     if (bar.current) gsap.set(bar.current, { scaleX: 0 });
+  }, [pathname]);
+
+  // Progress line follows the real scroll position, so it works with or without Lenis
+  useEffect(() => {
+    if (prefersReduced() || !bar.current) return;
+    const set = gsap.quickSetter(bar.current, "scaleX");
+    let raf;
+    const update = () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      set(h > 0 ? Math.min(1, window.scrollY / h) : 0);
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, [pathname]);
 
   if (prefersReduced()) return null;

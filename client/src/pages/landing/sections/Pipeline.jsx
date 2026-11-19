@@ -16,7 +16,7 @@ export default function Pipeline() {
   const root = useRef(null);
   const calm = useReducedMotion();
 
-  useSectionAnim(root, ({ gsap, $ }) => {
+  useSectionAnim(root, ({ gsap, $, scrub }) => {
     const track = $(".hs-track");
     if (!track) return;
     gsap
@@ -25,13 +25,13 @@ export default function Pipeline() {
           trigger: root.current,
           start: "top top",
           end: () => `+=${track.scrollWidth - window.innerWidth + 200}`,
-          scrub: 0.5,
+          scrub, // true with Lenis; 0.5 on native scrolling so the track never trails the scrollbar
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
         },
       })
-      .to(track, { x: () => -(track.scrollWidth - window.innerWidth + 48), ease: "none" }, 0)
+      .to(track, { x: () => -(track.scrollWidth - window.innerWidth + 48), ease: "none", force3D: true }, 0)
       .to($(".hs-bar"), { scaleX: 1, ease: "none" }, 0);
   });
 

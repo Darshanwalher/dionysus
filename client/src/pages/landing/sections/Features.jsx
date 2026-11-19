@@ -16,10 +16,10 @@ export default function Features() {
   const root = useRef(null);
   const calm = useReducedMotion();
 
-  useSectionAnim(root, ({ gsap, st, $, $$ }) => {
+  useSectionAnim(root, ({ gsap, st, $, $$, lite }) => {
     gsap
       .timeline({ scrollTrigger: st($(".rm-wrap"), "top 80%") })
-      .from($$(".rm-card"), { rotationX: 80, y: 40, opacity: 0, transformPerspective: 900, transformOrigin: "50% 0%", stagger: 0.18, duration: 1, ease: "back.out(1.4)" }, 0)
+      .from($$(".rm-card"), lite ? { y: 40, opacity: 0, stagger: 0.12, duration: 0.7, ease: "power3.out" } : { rotationX: 80, y: 40, opacity: 0, transformPerspective: 900, transformOrigin: "50% 0%", stagger: 0.18, duration: 1, ease: "back.out(1.4)" }, 0)
       .fromTo($$(".rm-outline"), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.6, stagger: 0.18, ease: "power2.inOut" }, 0.5);
   });
 

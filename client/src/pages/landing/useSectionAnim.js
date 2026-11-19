@@ -5,24 +5,22 @@
  * REVERSIBLE: every animation built with `st(...)` plays when the section scrolls into view
  * and plays BACKWARDS when you scroll back up past its start ("play none none reverse").
  *
- * Usage inside a section:
- *   const root = useRef(null);
- *   useSectionAnim(root, ({ gsap, st, $, $$, countTo, typeInto }) => {
- *     gsap.from($$(".card"), { y: 40, opacity: 0, stagger: .1, scrollTrigger: st($(".grid")) });
- *   });
- *
- * Free of charge for every section:
- *   - any `.reveal` element (masked heading lines) rises in and out
- *   - any `[data-bullets]` list fades in item by item and back out
- * Skipped when the user prefers reduced motion (components render their final state instead).
+ * Adapts intelligently between power modes:
+ * - "high" (Plugged in / Performance mode): Full 3D transforms (rotationX, perspective, back.out,
+ *   clipPath sweeps, filter blur reveals, crisp 0.2s scrub).
+ * - "mid" (On Battery): Silky-smooth 2D GPU-accelerated motion (y, opacity, scale, power3.out)
+ *   with 0.7s smoothed scrub that eliminates trackpad/wheel jitter on throttled CPUs.
+ * - "low": Native compositor scrolling with lightweight fades.
  */
 import { useLayoutEffect } from "react";
 import { useReducedMotion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import usePerfTier from "./usePerfTier";
+import { scrubFor } from "./useSmoothScroll";
 
 gsap.registerPlugin(ScrollTrigger);
-ScrollTrigger.config({ ignoreMobileResize: true });
+ScrollTrigger.config({ ignoreMobileResize: true, autoRefreshEvents: "visibilitychange,DOMContentLoaded,load,resize" });
 
 export const TOGGLE = "play none none reverse";
 
@@ -47,6 +45,10 @@ export function typeInto(tl, el, at = 0) {
 
 export default function useSectionAnim(ref, build) {
   const calm = useReducedMotion();
+  const tier = usePerfTier();
+  // On battery ("mid") or low-power ("low"), use clean GPU transforms instead of heavy 3D/blur
+  const lite = tier !== "high";
+  const scrub = scrubFor(tier);
 
   useLayoutEffect(() => {
     const root = ref.current;
@@ -63,12 +65,12 @@ export default function useSectionAnim(ref, build) {
       $$("[data-bullets]").forEach((ul) => {
         gsap.from(ul.children, { opacity: 0, x: -14, duration: 0.5, stagger: 0.1, ease: "power2.out", scrollTrigger: st(ul, "top 88%") });
       });
-      cleanup = build({ gsap, ScrollTrigger, st, $, $$, countTo, typeInto });
+      cleanup = build({ gsap, ScrollTrigger, st, $, $$, countTo, typeInto, lite, scrub, tier });
     }, root);
 
     return () => {
       if (typeof cleanup === "function") cleanup();
       ctx.revert();
     };
-  }, [calm]);
+  }, [calm, lite, tier, scrub]);
 }

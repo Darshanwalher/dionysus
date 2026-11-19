@@ -15,9 +15,15 @@ const CHALLENGES = [
 export default function Challenge() {
   const root = useRef(null);
 
-  useSectionAnim(root, ({ gsap, ScrollTrigger, st, $, $$ }) => {
+  useSectionAnim(root, ({ gsap, ScrollTrigger, st, $, $$, lite }) => {
     const cards = $$(".ch-card");
     const wrap = $(".ch-wrap");
+
+    if (lite) {
+      // no blur, no elastic, no endless float
+      gsap.from(cards, { opacity: 0, y: 30, duration: 0.6, stagger: 0.1, ease: "power2.out", scrollTrigger: st(wrap, "top 80%") });
+      return;
+    }
 
     gsap
       .timeline({ scrollTrigger: st(wrap, "top 80%") })

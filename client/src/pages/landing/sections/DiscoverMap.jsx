@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import useSectionAnim from "../useSectionAnim";
+import usePerfTier from "../usePerfTier";
 import { Head, Bullets } from "../ui";
 import Graph from "./Graph";
 import { TEAL, CORAL } from "../theme";
@@ -9,6 +10,7 @@ import { TEAL, CORAL } from "../theme";
 export default function DiscoverMap() {
   const root = useRef(null);
   const calm = useReducedMotion();
+  const lite = usePerfTier() !== "high";
 
   useSectionAnim(root, ({ gsap, st, $, $$ }) => {
     gsap.from($(".map-panel"), { opacity: 0, y: 40, duration: 0.9, ease: "power3.out", scrollTrigger: st($(".map-panel"), "top 88%") });
@@ -48,9 +50,9 @@ export default function DiscoverMap() {
         >
           <motion.div
             aria-hidden="true"
-            className="absolute -right-24 -top-24 h-96 w-96 rounded-full blur-3xl pointer-events-none will-change-transform"
-            style={{ background: CORAL, opacity: 0.2 }}
-            animate={calm ? undefined : { x: [0, -40, 0], y: [0, 40, 0] }}
+            className="absolute -right-32 -top-32 h-[32rem] w-[32rem] rounded-full pointer-events-none will-change-transform"
+            style={{ background: `radial-gradient(circle, ${CORAL} 0%, transparent 65%)`, opacity: 0.24 }}
+            animate={calm || lite ? undefined : { x: [0, -40, 0], y: [0, 40, 0] }}
             transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           />
           <div className="relative z-10">

@@ -19,6 +19,7 @@ import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Hero3D from "./Hero3D";
 import useSmoothScroll from "./useSmoothScroll";
+import usePerfTier from "./usePerfTier";
 import Cursor from "./Cursor";
 import { Btn } from "./ui";
 import { FONTS, IV, INK, CORAL } from "./theme";
@@ -41,10 +42,12 @@ import Footer from "./sections/Footer";
 
 export default function LandingPage() {
   const calm = useReducedMotion();
-  useSmoothScroll(calm);
+  const tier = usePerfTier(); // "high" | "mid" | "low": reacts to battery and real frame rate
+  useSmoothScroll(calm, tier);
 
   const { scrollYProgress } = useScroll();
-  const bar = useSpring(scrollYProgress, { stiffness: 180, damping: 30, restDelta: 0.001 });
+  const spring = useSpring(scrollYProgress, { stiffness: 180, damping: 30, restDelta: 0.001 });
+  const bar = tier === "high" ? spring : scrollYProgress;
 
   // Fonts and images change section heights, so recalculate every trigger once they are ready
   useEffect(() => {
@@ -63,7 +66,7 @@ export default function LandingPage() {
       <motion.div style={{ scaleX: bar, background: CORAL }} className="fixed top-0 inset-x-0 z-50 h-1 origin-left transform-gpu" />
 
       <Header />
-      <Hero3D calm={calm} Btn={Btn} />
+      <Hero3D calm={calm} Btn={Btn} tier={tier} />
       <Challenge />
       <DiscoverMap />
       <Marquee />
